@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.eggs/
+.poetry_cache/
+
+# Virtual environment files
+.venv/
+.env/
+venv/
+env/
+/project-harvey-evc2NKuO-py3.13/
+
+# Operating System files
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# Django-specific files
+db.sqlite3
+/media/
+/static/
+
+# Media files
+media/
+
+# Configuration files with sensitive data
+# These files contain local settings, API keys, and passwords.
+.env
+.flaskenv
+/project_harvey/settings.py
+/project_harvey/local_settings.py
+
+# LLM-specific files
+# This ignores the large LLM model files, as they should not be in the repo.
+/llm_models/
+*.gguf
+*.bin
+.django_tailwind_cli/
+# Poetry lock file
+poetry.lock
