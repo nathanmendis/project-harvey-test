@@ -2,88 +2,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Project Harvey Chat</title>
-   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
+    <meta charset="UTF-8">
+    <title>Project Harvey Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .chat-bubble-user {
+            border-bottom-right-radius: 0 !important;
+        }
+        .chat-bubble-ai {
+            border-bottom-left-radius: 0 !important;
+        }
+        .chat-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-box::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex flex-col h-screen">
-  <header class="bg-indigo-600 text-white text-center py-4 text-xl font-semibold shadow">
-    Harvey – AI HR Assistant
-  </header>
 
-  <main class="flex-1 overflow-y-auto p-4" id="chat-box">
-    <div class="text-center text-gray-500">Start chatting with Harvey...</div>
-  </main>
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center py-4 px-6 shadow-lg">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-robot text-2xl"></i>
+            <div class="text-xl font-semibold">Harvey – AI HR Assistant</div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-white text-opacity-80">Welcome, {{ user.username }}!</span>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 hover:bg-red-600 transition-colors px-3 py-1 rounded-full text-sm font-medium shadow-md">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </header>
 
-  <footer class="p-4 bg-white border-t flex gap-2">
-    <input
-      id="user-input"
-      type="text"
-      placeholder="Type your message..."
-      class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-    />
-    <button
-      id="send-btn"
-      class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
-    >
-      Send
-    </button>
-  </footer>
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col chat-box" id="chat-box">
+        <div class="flex flex-col items-center justify-center h-full">
+            <i class="fas fa-comment-alt-dots text-5xl text-gray-300 mb-4"></i>
+            <div class="text-center text-gray-500 text-lg">Start chatting with Harvey to get HR support.</div>
+        </div>
+    </main>
+
+    <footer class="p-4 bg-white border-t border-gray-200 flex items-center gap-4">
+        <input
+            id="user-input"
+            type="text"
+            placeholder="Type your message..."
+            class="flex-1 border border-gray-300 rounded-full px-5 py-3 text-gray-700 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
+        />
+        <button
+            id="send-btn"
+            class="bg-indigo-600 hover:bg-indigo-700 transition-colors text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+        >
+            <i class="fas fa-paper-plane text-xl"></i>
+        </button>
+    </footer>
+
+    <script>
+        const sendBtn = document.getElementById("send-btn");
+        const userInput = document.getElementById("user-input");
+        const chatBox = document.getElementById("chat-box");
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const chatSocket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/chat/`);
+
+        function appendMessage(sender, text) {
+            const bubbleContainer = document.createElement("div");
+            bubbleContainer.classList.add("flex", "items-start", "my-2");
+            
+            const bubble = document.createElement("div");
+            bubble.classList.add("p-3", "rounded-xl", "max-w-md");
+            
+            if (sender === "user") {
+                bubble.classList.add("bg-indigo-500", "text-white", "ml-auto", "chat-bubble-user");
+                bubbleContainer.classList.add("justify-end");
+            } else {
+                bubble.classList.add("bg-gray-200", "text-gray-900", "chat-bubble-ai");
+                bubbleContainer.classList.add("justify-start");
+            }
+            
+            bubble.textContent = text;
+            bubbleContainer.appendChild(bubble);
+            chatBox.appendChild(bubbleContainer);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const responseText = data.response;
+            const initialPlaceholder = chatBox.querySelector('div:first-child');
+            if (initialPlaceholder && initialPlaceholder.classList.contains('h-full')) {
+                initialPlaceholder.remove();
+            }
+
+            if (responseText === "Thinking...") {
+                let thinkingBubble = chatBox.querySelector('.thinking-bubble');
+                if (!thinkingBubble) {
+                    thinkingBubble = document.createElement("div");
+                    thinkingBubble.classList.add("p-3", "rounded-xl", "max-w-md", "my-2", "bg-gray-200", "text-gray-900", "animate-pulse", "thinking-bubble");
+                    thinkingBubble.textContent = "Typing...";
+                    chatBox.appendChild(thinkingBubble);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+            } else {
+                const thinkingBubble = chatBox.querySelector('.thinking-bubble');
+                if (thinkingBubble) thinkingBubble.remove();
+                appendMessage("ai", responseText);
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        function sendMessage() {
+            const prompt = userInput.value.trim();
+            if (!prompt) return;
+
+            appendMessage("user", prompt);
+            userInput.value = "";
+            
+            chatSocket.send(JSON.stringify({'prompt': prompt}));
+        }
+
+        sendBtn.addEventListener("click", sendMessage);
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+
 </body>
 </html>
-<script>
-    const sendBtn = document.getElementById("send-btn");
-const userInput = document.getElementById("user-input");
-const chatBox = document.getElementById("chat-box");
-
-function appendMessage(sender, text) {
-  const bubble = document.createElement("div");
-  bubble.classList.add(
-    "p-3",
-    "rounded-lg",
-    "max-w-lg",
-    "my-2",
-    sender === "user" ? "bg-indigo-500 text-white self-end ml-auto" : "bg-gray-200 text-gray-900"
-  );
-  bubble.textContent = text;
-  chatBox.appendChild(bubble);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-async function sendMessage() {
-  const prompt = userInput.value.trim();
-  if (!prompt) return;
-
-  appendMessage("user", prompt);
-  userInput.value = "";
-
-  appendMessage("ai", "Thinking...");
-
-  const bubbles = chatBox.querySelectorAll("div");
-  const thinkingBubble = bubbles[bubbles.length - 1];
-
-  try {
-    const res = await fetch("/chat/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt }),
-    });
-
-    const data = await res.json();
-    thinkingBubble.remove();
-    appendMessage("ai", data.response || data.error || "Error occurred.");
-  } catch (err) {
-    thinkingBubble.remove();
-    appendMessage("ai", "⚠️ Server error.");
-  }
-}
-
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendMessage();
-});
-
-</script>
