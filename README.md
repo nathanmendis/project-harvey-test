@@ -48,6 +48,6 @@ Start the development server and the Tailwind CSS watcher simultaneously with a 
 ```
 Bash
 ```
-poetry run python manage.py tailwind runserver
+poetry run daphne project_harvey.asgi:application
 Your application will now be running and accessible at http://127.0.0.1:8000.
 ```
