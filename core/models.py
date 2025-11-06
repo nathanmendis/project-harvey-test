@@ -1,16 +1,40 @@
-# models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
+def generate_org_id():
+    import uuid
+    return f"ORG-{uuid.uuid4().hex[:8].upper()}"
 
-
-
-class User(AbstractUser):
-    # This is a custom user model.
-    # Add your unique fields here if any.
+# ──────────────────────────────────────────────────────────────
+# ORGANIZATION MODEL (Top-level tenant)
+# ──────────────────────────────────────────────────────────────
+class Organization(models.Model):
+    org_id = models.CharField(
+        max_length=50,
+        unique=True,
+        default=generate_org_id,  # auto-generated
+        editable=False
+    )
     name = models.CharField(max_length=255)
-    role = models.CharField(max_length=50)
+    domain = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    # Add related_name to the groups and user_permissions fields to resolve the clash.
+    def __str__(self):
+        return f"{self.name} ({self.org_id})"
+
+
+# ──────────────────────────────────────────────────────────────
+# CUSTOM USER MODEL
+# ──────────────────────────────────────────────────────────────
+class User(AbstractUser):
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=50, default="employee")
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="users", null=True, blank=True
+    )
+    has_chat_access = models.BooleanField(default=True)
+    # Resolve auth.Group & Permission related_name conflicts
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='core_user_set',
@@ -24,76 +48,118 @@ class User(AbstractUser):
         help_text='Specific permissions for this user.',
     )
 
-# To track each AI conversation.
+    def __str__(self):
+        org = self.organization.name if self.organization else "No Org"
+        return f"{self.username} ({org})"
+
+
+# ──────────────────────────────────────────────────────────────
+# AI CHAT MODELS
+# ──────────────────────────────────────────────────────────────
 class Conversation(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
-# To store individual chat messages.
+    def __str__(self):
+        return f"Conversation by {self.user.username} ({self.organization.name})"
+
+
 class Message(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
-    sender = models.CharField(max_length=10) 
+    sender = models.CharField(max_length=10)  # 'user' or 'ai'
     message_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-# To store candidate profile info.
+    def __str__(self):
+        return f"{self.sender.capitalize()} → {self.message_text[:40]}"
+
+
+# ──────────────────────────────────────────────────────────────
+# HR MODELS
+# ──────────────────────────────────────────────────────────────
 class Candidate(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
     skills = models.JSONField(null=True, blank=True)
     resume_file = models.FileField(upload_to='resumes/')
     parsed_data = models.JSONField(null=True, blank=True)
-    source = models.CharField(max_length=50) 
+    source = models.CharField(max_length=50)
     status = models.CharField(max_length=50, default='pending')
 
-# To store job postings.
+    def __str__(self):
+        return f"{self.name} ({self.organization.name})"
+
+
 class JobRole(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
     requirements = models.TextField()
     department = models.CharField(max_length=255)
 
-# To manage the relationship between a candidate and a job posting.
-# This can be a separate model or a ManyToMany relationship on Candidate.
-# A separate model gives more flexibility to add additional fields like status, etc.
-# The `models.py` file should also have models for your other tools, as listed below.
+    def __str__(self):
+        return f"{self.title} - {self.organization.name}"
 
-# To store scheduled interviews.
+
 class Interview(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     date_time = models.DateTimeField()
     status = models.CharField(max_length=50)
-    
-# To handle leave requests.
+
+    def __str__(self):
+        return f"Interview: {self.candidate.name} ({self.organization.name})"
+
+
 class LeaveRequest(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     employee = models.ForeignKey(User, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
     leave_type = models.CharField(max_length=50)
     status = models.CharField(max_length=50)
 
-# To track sent emails.
+    def __str__(self):
+        return f"{self.employee.username} - {self.leave_type} ({self.status})"
+
+
 class EmailLog(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     recipient_email = models.EmailField()
     subject = models.CharField(max_length=255)
     body = models.TextField()
     sent_time = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50)
 
-# To store calendar events.
+    def __str__(self):
+        return f"Email to {self.recipient_email} ({self.organization.name})"
+
+
 class CalendarEvent(models.Model):
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     participants = models.ManyToManyField(User)
     date_time = models.DateTimeField()
     location_link = models.URLField(max_length=200, null=True, blank=True)
 
-# To store configurations for external HRMS integrations.
+    def __str__(self):
+        return f"{self.title} ({self.organization.name})"
+
+
 class HRMSIntegrationConfig(models.Model):
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="hrms_configs"
+    )
     hrms_type = models.CharField(max_length=50)
     base_url = models.URLField()
     auth_token = models.CharField(max_length=255)
     is_active = models.BooleanField(default=False)
-    # The auth token should be encrypted for security.
+
+    def __str__(self):
+        return f"{self.hrms_type} Config ({self.organization.name})"

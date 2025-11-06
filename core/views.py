@@ -1,41 +1,30 @@
-# core/views.py
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-import json
-from .llm_engine import generate_llm_reply
-from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+import json
 
-@login_required  
-def chat_page(request):
-    """Render the chat UI page."""
-    return render(request, "core/core.html")
+from django.contrib.auth.views import LogoutView
 
-
-@csrf_exempt
-@require_POST
-def chat_with_llm(request):
-    """Handle user input and return LLM response."""
-    try:
-        data = json.loads(request.body)
-        prompt = data.get("prompt", "").strip()
-        if not prompt:
-            return JsonResponse({"error": "Prompt missing"}, status=400)
-
-        response = generate_llm_reply(prompt)
-        return JsonResponse({"response": response.response})
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+from .llm_engine import generate_llm_reply
+from .models import User  # Import your custom User model
 
 
+# LOGIN VIEW (for all users)
 
 def login_view(request):
+    """Handles login for all users. Admins go to dashboard, users go to chatbot."""
     if request.user.is_authenticated:
-        return redirect('home')  # Redirect if already logged in
+        # Already logged in: redirect by role
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect('admin_dashboard')
+        elif getattr(request.user, "has_chat_access", False):
+            return redirect('chat_view')
+        else:
+            return render(request, 'core/no_access.html')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -44,8 +33,56 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('chat_view')  # Change to your dashboard/home route
+
+            # Redirect based on user type
+            if user.is_staff or user.is_superuser:
+                return redirect('admin_dashboard')
+            elif getattr(user, "has_chat_access", False):
+                return redirect('chat_view')
+            else:
+                return render(request, 'core/no_access.html')
         else:
             messages.error(request, 'Invalid username or password.')
 
     return render(request, 'core/login_page.html')
+
+
+# CHAT PAGE
+
+@login_required
+def chat_page(request):
+    """Render the chat UI if user has access."""
+    if not getattr(request.user, "has_chat_access", False):
+        return render(request, "core/no_access.html")  # access blocked
+    return render(request, "core/core.html")
+
+
+
+# CHAT API ENDPOINT
+
+@csrf_exempt
+@require_POST
+@login_required
+def chat_with_llm(request):
+    """Handle user input and return LLM response (JSON)."""
+    if not getattr(request.user, "has_chat_access", False):
+        return JsonResponse({"error": "Access denied"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        prompt = data.get("prompt", "").strip()
+
+        if not prompt:
+            return JsonResponse({"error": "Prompt missing"}, status=400)
+
+        response = generate_llm_reply(prompt)
+        return JsonResponse({"response": response.response})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+class CustomLogoutView(LogoutView):
+    """Allow GET requests for logout (useful for admin links)."""
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)

@@ -32,8 +32,6 @@ media/
 # These files contain local settings, API keys, and passwords.
 .env
 .flaskenv
-/project_harvey/settings.py
-/project_harvey/local_settings.py
 
 # LLM-specific files
 # This ignores the large LLM model files, as they should not be in the repo.

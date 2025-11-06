@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - Harvey HR Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -21,14 +21,12 @@
         }
     </style>
 </head>
-<body class="bg-gray-200 flex items-center justify-center h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="w-full max-w-md bg-white rounded-xl shadow-xl p-10">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-10">
         <div class="text-center mb-8">
             <h2 class="text-3xl font-bold text-gray-900">Sign in to Your Account</h2>
-            <!-- <p class="mt-2 text-sm text-gray-600">
-                Or <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">start your 14-day free trial</a>
-            </p> -->
+            <p class="mt-2 text-sm text-gray-500">Welcome to <span class="font-semibold text-indigo-600">Harvey HR</span></p>
         </div>
 
         {% if messages %}
@@ -39,31 +37,41 @@
             {% endfor %}
         {% endif %}
 
+        {% if request.GET.access_denied %}
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
+                You don’t have access to the chatbot. Contact your admin.
+            </div>
+        {% endif %}
+
+        <!-- Future Google/Apple login options (optional) -->
         <div class="space-y-4">
-            <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="button" disabled
+                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
                 <i class="fab fa-google mr-2"></i>
-                Continue with Google
+                Continue with Google (coming soon)
             </button>
-            <button class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <button type="button" disabled
+                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
                 <i class="fab fa-apple mr-2"></i>
-                Continue with Apple
+                Continue with Apple (coming soon)
             </button>
         </div>
-        
+
         <div class="my-6 flex items-center">
             <div class="flex-grow border-t border-gray-300"></div>
             <span class="mx-4 text-sm text-gray-500">Or continue with</span>
             <div class="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <form method="POST" class="space-y-6">
+        <!-- ✅ Login form -->
+        <form method="POST" action="{% url 'login' %}" class="space-y-6">
             {% csrf_token %}
             <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Useranme</label>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                 <div class="mt-1">
                     <input type="text" name="username" id="username"
                         class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter Useranme" required>
+                        placeholder="Enter username" required>
                 </div>
             </div>
 
@@ -79,19 +87,20 @@
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <input id="remember-me" name="remember-me" type="checkbox"
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                     <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
                 </div>
 
                 <div class="text-sm">
-                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Trouble Logging in? Contact admin</a>
+                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Trouble Logging in?</a>
                 </div>
             </div>
 
             <div>
                 <button type="submit"
                     class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700 transition duration-200">
-                    Sign in
+                    Sign In
                 </button>
             </div>
         </form>
@@ -101,7 +110,7 @@
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#password');
 
-        togglePassword.addEventListener('click', function (e) {
+        togglePassword.addEventListener('click', function () {
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             this.classList.toggle('fa-eye');

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Harvey Admin</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+
+  <style>
+    .sidebar {
+      transition: all 0.3s ease;
+    }
+    .sidebar a.active {
+      background-color: #4f46e5;
+      color: white;
+    }
+    .sidebar a:hover {
+      background-color: #6366f1;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+  <!-- Sidebar + Main Layout -->
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 bg-indigo-700 text-white flex flex-col justify-between">
+      <div>
+        <div class="p-6 border-b border-indigo-500">
+          <h2 class="text-2xl font-bold">Harvey Admin</h2>
+          <p class="text-sm text-indigo-200 mt-1">Welcome, {{ request.user.username }}</p>
+        </div>
+
+        <nav class="mt-6 flex-1">
+          <ul class="space-y-1">
+            <li>
+              <a href="{% url 'admin_dashboard' %}"
+                class="flex items-center px-5 py-3 hover:bg-indigo-600 transition-colors duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <i class="fas fa-chart-line mr-3"></i> Dashboard
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'manage_employees' %}"
+                class="flex items-center px-5 py-3 hover:bg-indigo-600 {% if request.resolver_match.url_name == 'manage_employees' %}active{% endif %}">
+                <i class="fas fa-users mr-3"></i> Employees
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'chat_view' %}"
+                class="flex items-center px-5 py-3 hover:bg-indigo-600">
+                <i class="fas fa-robot mr-3"></i> Chatbot
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 border-t border-indigo-500">
+         <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center text-indigo-100 hover:text-white">
+                    Logout
+                </button>
+            </form>
+        <p class="text-xs text-indigo-300 mt-2">&copy; 2025 Harvey HR</p>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-gray-50 p-8 overflow-y-auto">
+      {% block content %}
+      <!-- Page content gets injected here -->
+      {% endblock %}
+    </main>
+  </div>
+</body>
+</html>
