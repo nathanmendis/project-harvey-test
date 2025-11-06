@@ -4,15 +4,14 @@ from django.contrib import messages
 from core.models import User
 
 
-def is_admin(user):
-    return user.is_staff or user.is_superuser
-
+def is_org_admin(user):
+    return user.is_authenticated and (user.role == "org_admin" or user.is_superuser)
 
 
 # Admin Dashboard
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_org_admin)
 def admin_dashboard(request):
     """Admin dashboard with user and chatbot management."""
     org = request.user.organization
@@ -22,6 +21,7 @@ def admin_dashboard(request):
         "total_users": User.objects.filter(organization=org).count(),
         "staff_users": User.objects.filter(organization=org, is_staff=True).count(),
         "regular_users": User.objects.filter(organization=org, is_staff=False).count(),
+        "admin_users": User.objects.filter(organization=org, role="org_admin").count(),
     }
     return render(request, "dashboard.html", context)
 
@@ -30,7 +30,7 @@ def admin_dashboard(request):
 # Add Employee
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_org_admin)
 def add_employee(request):
     """Add new employee to admin’s organization."""
     org = request.user.organization
@@ -67,7 +67,7 @@ def add_employee(request):
 # Manage Employees
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_org_admin)
 def manage_employees(request):
     """View all employees in the organization."""
     org = request.user.organization
@@ -83,7 +83,7 @@ def manage_employees(request):
 # Remove Employee
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_org_admin)
 def remove_employee(request, user_id):
     """Remove an employee from the organization."""
     org = request.user.organization
@@ -100,7 +100,7 @@ def remove_employee(request, user_id):
 # Toggle Chatbot Access
 
 @login_required
-@user_passes_test(is_admin)
+@user_passes_test(is_org_admin)
 def toggle_chat_access(request, user_id):
     """Enable or disable chatbot access for an employee."""
     org = request.user.organization
@@ -113,4 +113,73 @@ def toggle_chat_access(request, user_id):
     messages.success(request, f"Chatbot access {status} for {user.username}.")
     return redirect("manage_employees")
 
+@login_required
+@user_passes_test(is_org_admin)
+def toggle_admin_role(request, user_id):
+    """Promote or demote an employee to/from Org Admin."""
+    org = request.user.organization
+    user = get_object_or_404(User, id=user_id, organization=org)
 
+    if user == request.user:
+        messages.error(request, "You cannot change your own role.")
+        return redirect("manage_employees")
+
+    # Toggle between 'org_admin' and 'employee'
+    if user.role == "org_admin":
+        user.role = "employee"
+        messages.info(request, f"👤 {user.username} is no longer an Org Admin.")
+    else:
+        user.role = "org_admin"
+        messages.success(request, f"⭐ {user.username} is now an Org Admin.")
+
+    user.save()
+    return redirect("manage_employees")
+
+@login_required
+@user_passes_test(is_org_admin)
+def add_org_admin(request):
+    """Allow an organization admin to add another admin within the same org."""
+    org = request.user.organization
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        # Validation
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect("add_org_admin")
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already in use.")
+            return redirect("add_org_admin")
+
+        # Create new admin
+        new_admin = User.objects.create(
+            username=username,
+            email=email,
+            password=password,
+            name=name,
+            role="org_admin",
+            organization=org,
+            is_staff=True,  # Optional: lets them access org tools
+        )
+
+        messages.success(request, f"Org Admin '{username}' added successfully!")
+        return redirect("manage_org_admins")
+
+    return render(request, "add_org_admin.html", {"org": org})
+
+
+@login_required
+@user_passes_test(is_org_admin)
+def manage_org_admins(request):
+    """View and manage all organization admins within your organization."""
+    org = request.user.organization
+    admins = User.objects.filter(organization=org, role="org_admin")
+
+    return render(request, "manage_org_admins.html", {
+        "admins": admins,
+        "org": org
+    })

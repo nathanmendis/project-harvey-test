@@ -1,44 +1,93 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="p-6">
-  <h2 class="text-2xl font-bold mb-4">Manage Employees ({{ org.name }})</h2>
+<div class="p-8 bg-gray-50 min-h-screen">
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800">Manage Employees ({{ org.name }})</h2>
 
-  <a href="{% url 'add_employee' %}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 mb-6 inline-block">
+  <a href="{% url 'add_employee' %}" 
+     class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-3 rounded-lg shadow hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mb-6 inline-block">
     ➕ Add New Employee
   </a>
 
-  <table class="min-w-full bg-white rounded-lg shadow-md">
-    <thead class="bg-gray-100">
-      <tr>
-        <th class="text-left py-2 px-4">Name</th>
-        <th class="text-left py-2 px-4">Username</th>
-        <th class="text-left py-2 px-4">Role</th>
-        <th class="text-left py-2 px-4">Chatbot Access</th>
-        <th class="text-left py-2 px-4">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for user in employees %}
-      <tr class="border-b">
-        <td class="py-2 px-4">{{ user.name }}</td>
-        <td class="py-2 px-4">{{ user.username }}</td>
-        <td class="py-2 px-4">{{ user.role }}</td>
-        <td class="py-2 px-4">
-          {% if user.has_chat_access %}
-          <span class="text-green-600 font-bold">Enabled</span>
-          {% else %}
-          <span class="text-red-600 font-bold">Disabled</span>
-          {% endif %}
-        </td>
-        <td class="py-2 px-4 space-x-2">
-          <a href="{% url 'toggle_chat_access' user.id %}" class="text-blue-500 hover:underline">Toggle Access</a>
-          <a href="{% url 'remove_employee' user.id %}" class="text-red-500 hover:underline">Remove</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5" class="text-center py-4 text-gray-500">No employees found.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+    <table class="min-w-full border-collapse text-left">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+        <tr>
+          <th class="py-3 px-6">Name</th>
+          <th class="py-3 px-6">Username</th>
+          <th class="py-3 px-6">Role</th>
+          <th class="py-3 px-6 text-center">Chatbot Access</th>
+          <th class="py-3 px-6 text-center">Admin Access</th>
+          <th class="py-3 px-6 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in employees %}
+        <tr class="border-b hover:bg-gray-50 transition">
+          <td class="py-3 px-6">{{ user.name }}</td>
+          <td class="py-3 px-6">{{ user.username }}</td>
+
+          <!-- Role -->
+          <td class="py-3 px-6 font-semibold">
+            {% if user.role == 'org_admin' %}
+              <span class="text-indigo-600 font-bold">Org Admin</span>
+            {% elif user.role == 'manager' %}
+              <span class="text-green-600">Manager</span>
+            {% elif user.role == 'hr' %}
+              <span class="text-blue-600">HR</span>
+            {% else %}
+              <span class="text-gray-600">Employee</span>
+            {% endif %}
+          </td>
+
+          <!-- Chatbot Access Toggle -->
+          <td class="py-3 px-6 text-center">
+            <a href="{% url 'toggle_chat_access' user.id %}" class="inline-flex items-center cursor-pointer">
+              <div class="relative">
+                <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
+                {% if user.has_chat_access %}
+                  <div class="dot absolute left-6 top-0.5 bg-green-500 w-5 h-5 rounded-full transition"></div>
+                {% else %}
+                  <div class="dot absolute left-1 top-0.5 bg-red-500 w-5 h-5 rounded-full transition"></div>
+                {% endif %}
+              </div>
+            </a>
+          </td>
+
+          <!-- Admin Toggle -->
+          <td class="py-3 px-6 text-center">
+            {% if user != request.user %}
+              <a href="{% url 'toggle_admin_role' user.id %}" class="inline-flex items-center cursor-pointer">
+                <div class="relative">
+                  <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
+                  {% if user.role == 'org_admin' %}
+                    <div class="dot absolute left-6 top-0.5 bg-indigo-600 w-5 h-5 rounded-full transition"></div>
+                  {% else %}
+                    <div class="dot absolute left-1 top-0.5 bg-gray-400 w-5 h-5 rounded-full transition"></div>
+                  {% endif %}
+                </div>
+              </a>
+            {% else %}
+              <span class="text-gray-400 italic">You</span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td class="py-3 px-6 text-center space-x-2">
+            {% if user == request.user %}
+            <P class="text-gray-400 italic">You cannot remove yourself</P>
+            {% else %}
+              <a href="{% url 'remove_employee' user.id %}" 
+                 class="text-red-500 hover:text-red-700 font-medium">Remove</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-6 text-gray-500 italic">No employees found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

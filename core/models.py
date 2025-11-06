@@ -5,14 +5,15 @@ def generate_org_id():
     import uuid
     return f"ORG-{uuid.uuid4().hex[:8].upper()}"
 
-# ──────────────────────────────────────────────────────────────
+
+
 # ORGANIZATION MODEL (Top-level tenant)
-# ──────────────────────────────────────────────────────────────
+
 class Organization(models.Model):
     org_id = models.CharField(
         max_length=50,
         unique=True,
-        default=generate_org_id,  # auto-generated
+        default=generate_org_id,  
         editable=False
     )
     name = models.CharField(max_length=255)
@@ -24,17 +25,23 @@ class Organization(models.Model):
         return f"{self.name} ({self.org_id})"
 
 
-# ──────────────────────────────────────────────────────────────
 # CUSTOM USER MODEL
-# ──────────────────────────────────────────────────────────────
+
 class User(AbstractUser):
+    ROLE_CHOICES = [
+        ("employee", "Employee"),
+        ("manager", "Manager"),
+        ("hr", "HR"),
+        ("org_admin", "Organization Admin"),
+    ]
+
     name = models.CharField(max_length=255)
-    role = models.CharField(max_length=50, default="employee")
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default="employee")
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="users", null=True, blank=True
     )
     has_chat_access = models.BooleanField(default=True)
-    # Resolve auth.Group & Permission related_name conflicts
+
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='core_user_set',
@@ -48,14 +55,15 @@ class User(AbstractUser):
         help_text='Specific permissions for this user.',
     )
 
+    def is_org_admin(self):
+        """Helper to check if user is an organization-level admin."""
+        return self.role == "org_admin"
+
     def __str__(self):
         org = self.organization.name if self.organization else "No Org"
         return f"{self.username} ({org})"
-
-
-# ──────────────────────────────────────────────────────────────
 # AI CHAT MODELS
-# ──────────────────────────────────────────────────────────────
+
 class Conversation(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -77,9 +85,9 @@ class Message(models.Model):
         return f"{self.sender.capitalize()} → {self.message_text[:40]}"
 
 
-# ──────────────────────────────────────────────────────────────
+
 # HR MODELS
-# ──────────────────────────────────────────────────────────────
+
 class Candidate(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)

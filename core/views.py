@@ -16,10 +16,10 @@ from .models import User  # Import your custom User model
 # LOGIN VIEW (for all users)
 
 def login_view(request):
-    """Handles login for all users. Admins go to dashboard, users go to chatbot."""
+    
     if request.user.is_authenticated:
         # Already logged in: redirect by role
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.role == "org_admin" or request.user.is_superuser:
             return redirect('admin_dashboard')
         elif getattr(request.user, "has_chat_access", False):
             return redirect('chat_view')
@@ -34,8 +34,8 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
-            # Redirect based on user type
-            if user.is_staff or user.is_superuser:
+            # Redirect based on role or permissions
+            if user.role == "org_admin" or user.is_superuser:
                 return redirect('admin_dashboard')
             elif getattr(user, "has_chat_access", False):
                 return redirect('chat_view')
@@ -45,7 +45,6 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
 
     return render(request, 'core/login_page.html')
-
 
 # CHAT PAGE
 

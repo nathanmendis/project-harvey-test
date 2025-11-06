@@ -1,80 +1,120 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="p-10 bg-gray-50 min-h-screen">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
   
-  <!-- Header Section -->
-  <div class="flex flex-col md:flex-row justify-between items-center mb-8">
-    <div>
-      <h2 class="text-4xl font-extrabold text-gray-800">
-        Welcome, <span class="text-indigo-600">{{ request.user.username }}</span>
+  <!-- 🧭 Header / Hero Section -->
+  <div class="bg-white shadow-xl rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center border border-gray-100 mb-10">
+    <div class="text-center md:text-left">
+      <h2 class="text-4xl font-extrabold text-gray-800 tracking-tight">
+        Welcome back, 
+        <span class="text-indigo-600">{{ request.user.name|default:request.user.username }}</span>
       </h2>
-      <p class="text-gray-500 mt-2">Here’s what’s happening in your organization today.</p>
+      {% if request.user.role == 'org_admin' %}
+        <span class="inline-block mt-2 text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-semibold shadow-sm">
+          ORG ADMIN
+        </span>
+      {% endif %}
+      <p class="text-gray-500 mt-3 text-sm">Here’s an overview of your organization’s current activity.</p>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="flex items-center space-x-3 mt-4 md:mt-0">
+    <!-- 🔘 Quick Actions -->
+    <div class="flex flex-wrap justify-center md:justify-end items-center space-x-3 mt-6 md:mt-0">
       <a href="{% url 'chat_view' %}" 
-         class="bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
+         class="bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
         💬 Open Chatbot
       </a>
 
       <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit" 
-                class="bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
+                class="bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
           🚪 Logout
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Organization Overview -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-    <div class="bg-white shadow-lg p-6 rounded-xl text-center border-t-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
+  <!-- 📊 Organization Overview Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+    
+    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200">
       <h3 class="font-semibold text-gray-600">Total Users</h3>
-      <p class="text-4xl font-extrabold text-blue-600 mt-2">{{ total_users }}</p>
-      <p class="text-sm text-gray-400 mt-1">All registered employees</p>
+      <p class="text-5xl font-extrabold text-blue-600 mt-2">{{ total_users }}</p>
+      <p class="text-sm text-gray-400 mt-2">All registered users in {{ org_name }}</p>
     </div>
 
-    <div class="bg-white shadow-lg p-6 rounded-xl text-center border-t-4 border-green-500 hover:shadow-xl transition-shadow duration-300">
+    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-pink-500 hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200">
+      <h3 class="font-semibold text-gray-600">Org Admins</h3>
+      <p class="text-5xl font-extrabold text-pink-600 mt-2">{{ admin_users }}</p>
+      <p class="text-sm text-gray-400 mt-2">Admins managing {{ org_name }}</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500 hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200">
       <h3 class="font-semibold text-gray-600">Staff Members</h3>
-      <p class="text-4xl font-extrabold text-green-600 mt-2">{{ staff_users }}</p>
-      <p class="text-sm text-gray-400 mt-1">Admin-level access</p>
+      <p class="text-5xl font-extrabold text-green-600 mt-2">{{ staff_users }}</p>
+      <p class="text-sm text-gray-400 mt-2">Managers, HR, and team leads</p>
     </div>
 
-    <div class="bg-white shadow-lg p-6 rounded-xl text-center border-t-4 border-yellow-500 hover:shadow-xl transition-shadow duration-300">
+    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-yellow-500 hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200">
       <h3 class="font-semibold text-gray-600">Regular Users</h3>
-      <p class="text-4xl font-extrabold text-yellow-600 mt-2">{{ regular_users }}</p>
-      <p class="text-sm text-gray-400 mt-1">Employees and standard users</p>
+      <p class="text-5xl font-extrabold text-yellow-600 mt-2">{{ regular_users }}</p>
+      <p class="text-sm text-gray-400 mt-2">Employees with standard access</p>
     </div>
   </div>
 
-  <!-- Management Section -->
-  <div class="bg-white shadow-lg rounded-xl p-8 border border-gray-100">
-    <h3 class="text-2xl font-bold text-gray-800 mb-6">👥 Employee Management</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- ⚙️ Management Grid -->
+  <div class="bg-white shadow-xl rounded-2xl p-10 border border-gray-100">
+    <h3 class="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-2">
+      👥 Organization Management
+    </h3>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
       <a href="{% url 'manage_employees' %}" 
-         class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200">
+         class="group bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-200">
         👥 Manage Employees
+        <div class="opacity-0 group-hover:opacity-100 text-sm text-indigo-100 transition mt-1">
+          View & edit employees
+        </div>
       </a>
 
       <a href="{% url 'add_employee' %}" 
-         class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200">
-        ➕ Add New Employee
+         class="group bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-200">
+        ➕ Add Employee
+        <div class="opacity-0 group-hover:opacity-100 text-sm text-purple-100 transition mt-1">
+          Add new member to org
+        </div>
       </a>
 
+      {% if request.user.role == 'org_admin' %}
+      <a href="{% url 'manage_org_admins' %}" 
+         class="group relative bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-200">
+        🧑‍💼 Manage Org Admins
+        <span class="absolute -top-2 -right-2 bg-pink-100 text-pink-700 text-xs font-bold rounded-full px-2 py-0.5 shadow-sm">
+          {{ admin_users }}
+        </span>
+        <div class="opacity-0 group-hover:opacity-100 text-sm text-pink-100 transition mt-1">
+          Add or remove admin users
+        </div>
+      </a>
+      {% endif %}
+
       <a href="#" 
-         class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-200">
+         class="group bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-5 rounded-xl text-center font-semibold shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-200">
         ⚙️ HRMS Settings
+        <div class="opacity-0 group-hover:opacity-100 text-sm text-gray-200 transition mt-1">
+          Configure organization tools
+        </div>
       </a>
     </div>
   </div>
 
-  <!-- Coming Soon Banner -->
-  <div class="mt-10 text-center">
-    <h5 class="inline-block bg-gradient-to-r from-gray-700 to-gray-900 text-white text-lg px-6 py-3 rounded-full shadow-md">
+  <!-- 🚀 Coming Soon Banner -->
+  <div class="mt-12 text-center">
+    <div class="inline-flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-900 text-white px-6 py-3 rounded-full shadow-lg text-lg font-semibold">
       🚀 More Features Coming Soon
-    </h5>
+    </div>
+    <p class="text-sm text-gray-400 mt-2">Analytics, performance tracking & HR integrations next!</p>
   </div>
 </div>
 {% endblock %}
