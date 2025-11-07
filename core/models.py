@@ -62,16 +62,22 @@ class User(AbstractUser):
     def __str__(self):
         org = self.organization.name if self.organization else "No Org"
         return f"{self.username} ({org})"
+    
+
+
+    
 # AI CHAT MODELS
 
 class Conversation(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, default="New Chat")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    context_state = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f"Conversation by {self.user.username} ({self.organization.name})"
+        return f"{self.title} ({self.user.username})"
 
 
 class Message(models.Model):
@@ -83,7 +89,6 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.capitalize()} → {self.message_text[:40]}"
-
 
 
 # HR MODELS

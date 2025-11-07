@@ -140,8 +140,7 @@ load_dotenv()
 
 # Get Google API key from .env
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-
-print("Google API Key:", GOOGLE_API_KEY)  # Debugging line to verify the key is loaded
-
-
 GENAI_CLIENT = genai.Client(api_key=GOOGLE_API_KEY)
+# print("Google API Key:", GOOGLE_API_KEY)  
+
+
