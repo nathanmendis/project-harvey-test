@@ -10,10 +10,9 @@ import json
 from django.contrib.auth.views import LogoutView
 
 from .llm_engine import generate_llm_reply
-from .models import User  # Import your custom User model
+from .models import User  
 
 
-# LOGIN VIEW (for all users)
 
 def login_view(request):
     
@@ -74,14 +73,19 @@ def chat_with_llm(request):
         if not prompt:
             return JsonResponse({"error": "Prompt missing"}, status=400)
 
-        response = generate_llm_reply(prompt)
+        #  Pass user context into the LLM function
+        response = generate_llm_reply(prompt, user=request.user, request=request)
+
         return JsonResponse({"response": response.response})
 
     except Exception as e:
+        print(f"⚠️ Chat API Error: {e}")
         return JsonResponse({"error": str(e)}, status=500)
-
+    
 
 class CustomLogoutView(LogoutView):
     """Allow GET requests for logout (useful for admin links)."""
+
     def get(self, request, *args, **kwargs):
+        request.session.pop("harvey_memory", None)
         return self.post(request, *args, **kwargs)

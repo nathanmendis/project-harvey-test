@@ -75,6 +75,7 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     context_state = models.JSONField(default=dict, blank=True)
+    memory_state = models.JSONField(default=dict, blank=True) 
 
     def __str__(self):
         return f"{self.title} ({self.user.username})"
@@ -125,6 +126,7 @@ class Interview(models.Model):
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     date_time = models.DateTimeField()
     status = models.CharField(max_length=50)
+   
 
     def __str__(self):
         return f"Interview: {self.candidate.name} ({self.organization.name})"
@@ -159,6 +161,7 @@ class CalendarEvent(models.Model):
     title = models.CharField(max_length=255)
     participants = models.ManyToManyField(User)
     date_time = models.DateTimeField()
+    duration_minutes = models.PositiveIntegerField(default=60)
     location_link = models.URLField(max_length=200, null=True, blank=True)
 
     def __str__(self):

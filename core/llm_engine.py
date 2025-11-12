@@ -1,118 +1,174 @@
-from pydantic import BaseModel
-from .intent import parse_intent, get_client
-from .actions import execute_action, ActionResult
-from .models import Conversation, Message
+# llm_engine.py
 import json
+from pydantic import BaseModel
+from .agent import get_harvey_agent
+from .models import Conversation, Message
+from .actions import execute_action, ActionResult
+from .redis_utils import get_user_memory, set_user_memory, clear_user_memory
+from .utils.extractors import (
+    extract_email_fields, extract_candidate_fields,
+    extract_event_fields, extract_interview_fields
+)
 
 
+# Response Wrapper
 class LLMResponse(BaseModel):
     response: str
-    intent: str | None = None
     success: bool = True
 
 
-def generate_llm_reply(prompt: str, user=None) -> LLMResponse:
-    """
-    Handles:
-    - strict intent parsing
-    - clarification for missing or optional fields
-    - persistent task memory (via context_state)
-    - conversational fallback
-    """
+# Main entry point
+def generate_llm_reply(prompt: str, user=None):
+    """Central LLM handler: reasoning + memory + execution."""
+    if user is None:
+        raise ValueError("User must be provided for Redis-backed memory.")
+
+    memory_state = get_user_memory(user.id)
+    agent = get_harvey_agent(user=user)
+
+    # Ensure conversation exists
+    conversation, _ = Conversation.objects.get_or_create(
+        organization=user.organization,
+        user=user,
+        defaults={"title": "Chat Session"},
+    )
+
     try:
-        client = get_client()
+        response = agent.invoke({"input": prompt})
+        response_text = response.get("text") if isinstance(response, dict) else str(response)
+    except Exception as e:
+        response_text = f"⚠️ Gemini error: {e}"
 
-        # 🧠 Load or create user conversation
-        conversation, _ = Conversation.objects.get_or_create(
-            organization=user.organization,
-            user=user,
-            defaults={"title": "Chat Session"},
-        )
-        context_state = conversation.context_state or {}
+    updated_memory = update_memory_state(memory_state, prompt, response_text)
+    set_user_memory(user.id, updated_memory)
 
-        # 💬 Load last few messages for short-term memory
-        messages = list(
-            Message.objects.filter(conversation=conversation)
-            .order_by("-timestamp")[:6]
-        )[::-1]
-        recent_context = "\n".join(
-            f"{'User' if m.sender == 'user' else 'Harvey'}: {m.message_text}"
-            for m in messages
-        )
+    next_step = decide_next_step(updated_memory, prompt, user)
+    if next_step:
+        response_text += f"\n\n{next_step}"
 
-        # 🧩 Step 1 — Parse intent, merging any existing field context
-        existing_fields = context_state.get("pending_intent", {}).get("fields", {})
-        intent_obj = parse_intent(prompt, context_fields=existing_fields)
+    # Log chat
+    Message.objects.create(organization=user.organization, conversation=conversation, sender="user", message_text=prompt)
+    Message.objects.create(organization=user.organization, conversation=conversation, sender="ai", message_text=response_text)
 
-        # 🔁 Step 2 — Continue existing task if in progress
-        if context_state.get("pending_intent"):
-            pending = context_state["pending_intent"]
-            if intent_obj.get("intent") == "unknown":
-                intent_obj = parse_intent(prompt, context_fields=pending["fields"])
+    # Clear memory after confirmed success
+    if any(kw in response_text.lower() for kw in ["✅", "successfully", "completed", "email sent"]) \
+       and "not" not in response_text.lower():
+        clear_user_memory(user.id)
+        print(f"🧹 Cleared Redis memory for {user.username} after success")
 
-        # 🚀 Step 3 — Handle valid intents
-        if intent_obj and intent_obj.get("intent") != "unknown":
-            intent_name = intent_obj["intent"]
+    print(f"\n🧠 Redis Memory ({user.username}): {json.dumps(updated_memory, indent=2)}")
+    print(f"🤖 Harvey: {response_text}\n")
 
-            # Ask for missing or optional info
-            if intent_obj.get("clarification"):
-                context_state["pending_intent"] = intent_obj
-                conversation.context_state = context_state
-                conversation.save(update_fields=["context_state", "updated_at"])
+    return LLMResponse(response=response_text, success=True)
 
-                return LLMResponse(
-                    response=intent_obj["clarification"],
-                    intent=intent_name,
-                    success=False,
-                )
 
-            # ✅ Execute fully specified intent
-            result: ActionResult = execute_action(
-                intent=intent_name, payload=intent_obj, user=user
-            )
+# Memory Management
+def update_memory_state(memory_state: dict, user_input: str, ai_response: str) -> dict:
+    """Updates structured Redis memory safely."""
+    memory_state = memory_state or {}
+    context = memory_state.get("context", {})
+    lowered = user_input.lower()
 
-            # Clear pending intent
-            context_state.pop("pending_intent", None)
-            conversation.context_state = context_state
-            conversation.save(update_fields=["context_state", "updated_at"])
+    intent_map = {
+        "add_candidate": ["add candidate", "new candidate", "hire", "onboard"],
+        "create_calendar_event": ["schedule", "meeting", "event", "calendar"],
+        "send_email": ["send email", "email", "mail", "notify"],
+        "create_job_description": ["create job", "job description", "add job"],
+        "schedule_interview": ["interview", "schedule interview", "book interview"],
+    }
 
-            return LLMResponse(
-                response=result.message,
-                intent=intent_name,
-                success=result.ok,
-            )
+    detected_intent = memory_state.get("last_intent")
+    for intent, keywords in intent_map.items():
+        if any(k in lowered for k in keywords):
+            if intent != memory_state.get("last_intent"):
+                print(f"🧠 Switched intent to '{intent}', resetting context.")
+                context = {}
+            detected_intent = intent
+            memory_state["last_intent"] = intent
+            break
 
-        # 🧹 Step 4 — Reset if new topic
-        if context_refresher(prompt):
-            context_state.pop("pending_intent", None)
-            conversation.context_state = context_state
-            conversation.save(update_fields=["context_state", "updated_at"])
+    # Handle intents
+    if detected_intent == "send_email":
+        context.setdefault("send_email_data", {})
+        fields = extract_email_fields(user_input)
+        context["send_email_data"].update({k: v for k, v in fields.items() if v})
 
-        # 💬 Step 5 — Normal chat fallback
-        system_prompt = (
-            "You are Harvey, a smart HR assistant. "
-            "Respond naturally and help with HR tasks like job postings, emails, or interviews."
-        )
-        full_prompt = f"{system_prompt}\n\nRecent Conversation:\n{recent_context}\n\nUser: {prompt}\nHarvey:"
-        resp = client.models.generate_content(model="gemini-2.5-flash", contents=full_prompt)
+    elif detected_intent == "add_candidate":
+        context.setdefault("add_candidate_data", {})
+        fields = extract_candidate_fields(user_input)
+        context["add_candidate_data"].update({k: v for k, v in fields.items() if v})
 
-        return LLMResponse(
-            response=(resp.text or "I'm not sure I understood that.").strip(),
-            intent=None,
-        )
+    elif detected_intent == "create_calendar_event":
+        context.setdefault("create_calendar_event_data", {})
+        prev = context["create_calendar_event_data"]
+        event_fields = extract_event_fields(user_input, existing_context=prev)
+        context["create_calendar_event_data"].update(event_fields)
+
+    elif detected_intent == "schedule_interview":
+        context.setdefault("schedule_interview_data", {})
+        prev = context["schedule_interview_data"]
+
+    # 🧩 Extract new fields using previous context
+        fields = extract_interview_fields(user_input, existing_context=prev)
+
+    # Merge new fields into previous context
+        for k, v in fields.items():
+            if v:  # avoid overwriting with None
+                prev[k] = v
+
+    # ✅ Normalize candidate_id
+        if "candidate_id" in prev and prev["candidate_id"]:
+            try:
+                prev["candidate_id"] = str(int(prev["candidate_id"]))  # safe numeric cast
+            except Exception:
+                prev["candidate_id"] = str(prev["candidate_id"]).strip()
+
+        context["schedule_interview_data"] = prev
+
+    
+        print("🧠 DEBUG merged schedule_interview_data ->", context["schedule_interview_data"])
+
+
+
+    # Confirmation
+    if any(w in lowered for w in ["yes", "confirm", "go ahead", "done"]):
+        context["confirmed"] = True
+
+    memory_state["context"] = context
+    return memory_state
+
+
+# Decision Logic
+def decide_next_step(memory_state: dict, user_input: str, user) -> str | None:
+    """Checks if all required data is collected and executes action."""
+    try:
+        intent = memory_state.get("last_intent")
+        if not intent:
+            return None
+
+        data_key = f"{intent}_data"
+        context = memory_state.get("context", {})
+        data = context.get(data_key, {})
+        confirmed = context.get("confirmed", False)
+
+        required = {
+            "send_email": ["recipient", "subject", "body"],
+            "add_candidate": ["name", "email"],
+            "create_calendar_event": ["title", "date_time"],
+            "schedule_interview": ["candidate_id", "when"],
+            "create_job_description": ["title", "requirements"],
+        }
+
+        missing = [f for f in required.get(intent, []) if not data.get(f)]
+        if missing:
+            return f"I still need the following for {intent.replace('_', ' ')}: {', '.join(missing)}."
+
+        if not confirmed:
+            return f"I have all details for {intent.replace('_', ' ')}. Should I go ahead?"
+
+        payload = {"fields": data}
+        result: ActionResult = execute_action(intent, payload, user)
+        return f"✅ {result.message}"
 
     except Exception as e:
-        print("⚠️ LLM Error:", e)
-        return LLMResponse(response=f"⚠️ Error generating reply: {e}", success=False)
-
-
-def context_refresher(prompt: str) -> bool:
-    """Detect new topics to reset context."""
-    reset_keywords = [
-        "create job",
-        "add candidate",
-        "schedule interview",
-        "send email",
-        "shortlist",
-    ]
-    return any(kw in prompt.lower() for kw in reset_keywords)
+        return f"⚠️ Error in decision logic: {e}"

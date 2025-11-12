@@ -10,4 +10,5 @@ urlpatterns = [
     path("add-org-admin/", views.add_org_admin, name="add_org_admin"),
     path("manage-org-admins/", views.manage_org_admins, name="manage_org_admins"),
     path("toggle-admin/<int:user_id>/", views.toggle_admin_role, name="toggle_admin_role"),
+    path("search-employee/", views.search_employee, name="search_employee"), 
 ]

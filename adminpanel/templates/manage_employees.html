@@ -1,13 +1,26 @@
 {% extends 'admin_base.html' %}
 {% block content %}
 <div class="p-8 bg-gray-50 min-h-screen">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800">Manage Employees ({{ org.name }})</h2>
+  <h2 class="text-3xl font-extrabold mb-6 text-gray-800">
+    Manage Employees ({{ org.name }})
+  </h2>
 
   <a href="{% url 'add_employee' %}" 
      class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-3 rounded-lg shadow hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mb-6 inline-block">
     ➕ Add New Employee
   </a>
 
+  <!-- 🔍 Search Bar -->
+  <div class="mb-6">
+    <input 
+      id="employee-search"
+      type="text"
+      placeholder="🔍 Search by name, username, email, or ID..."
+      class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+    />
+  </div>
+
+  <!-- 👥 Employee Table -->
   <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
     <table class="min-w-full border-collapse text-left">
       <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
@@ -20,7 +33,7 @@
           <th class="py-3 px-6 text-center">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="employee-table-body">
         {% for user in employees %}
         <tr class="border-b hover:bg-gray-50 transition">
           <td class="py-3 px-6">{{ user.name }}</td>
@@ -74,7 +87,7 @@
           <!-- Actions -->
           <td class="py-3 px-6 text-center space-x-2">
             {% if user == request.user %}
-            <P class="text-gray-400 italic">You cannot remove yourself</P>
+              <p class="text-gray-400 italic">You cannot remove yourself</p>
             {% else %}
               <a href="{% url 'remove_employee' user.id %}" 
                  class="text-red-500 hover:text-red-700 font-medium">Remove</a>
@@ -90,4 +103,101 @@
     </table>
   </div>
 </div>
+
+<!-- 🔧 Live Search Script (keeps toggle buttons) -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const searchInput = document.getElementById("employee-search");
+  const tableBody = document.getElementById("employee-table-body");
+  const currentUserId = Number('{{ request.user.id }}'); // to protect self on admin toggle/remove
+  let timeout = null;
+
+  function roleBadge(role) {
+    if (role === 'org_admin') return '<span class="text-indigo-600 font-bold">Org Admin</span>';
+    if (role === 'manager')  return '<span class="text-green-600">Manager</span>';
+    if (role === 'hr')       return '<span class="text-blue-600">HR</span>';
+    return '<span class="text-gray-600">Employee</span>';
+  }
+
+  function chatToggle(user) {
+    // Link to your panel route
+    const href = `/panel/toggle-chat-access/${user.id}/`;
+    const dot = user.has_chat_access
+      ? '<div class="dot absolute left-6 top-0.5 bg-green-500 w-5 h-5 rounded-full transition"></div>'
+      : '<div class="dot absolute left-1 top-0.5 bg-red-500 w-5 h-5 rounded-full transition"></div>';
+
+    return `
+      <a href="${href}" class="inline-flex items-center cursor-pointer">
+        <div class="relative">
+          <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
+          ${dot}
+        </div>
+      </a>`;
+  }
+
+  function adminToggle(user) {
+    if (user.id === currentUserId) {
+      return '<span class="text-gray-400 italic">You</span>';
+    }
+    const href = `/panel/toggle-admin/${user.id}/`;
+    const dot = (user.role === 'org_admin')
+      ? '<div class="dot absolute left-6 top-0.5 bg-indigo-600 w-5 h-5 rounded-full transition"></div>'
+      : '<div class="dot absolute left-1 top-0.5 bg-gray-400 w-5 h-5 rounded-full transition"></div>';
+
+    return `
+      <a href="${href}" class="inline-flex items-center cursor-pointer">
+        <div class="relative">
+          <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
+          ${dot}
+        </div>
+      </a>`;
+  }
+
+  function actionsCell(user) {
+    if (user.id === currentUserId) {
+      return '<p class="text-gray-400 italic">You cannot remove yourself</p>';
+    }
+    return `<a href="/panel/remove-employee/${user.id}/" class="text-red-500 hover:text-red-700 font-medium">Remove</a>`;
+  }
+
+  function renderRows(employees) {
+    tableBody.innerHTML = "";
+    if (!employees || employees.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center py-6 text-gray-500 italic">No matching employees found.</td>
+        </tr>`;
+      return;
+    }
+
+    const rows = employees.map(user => `
+      <tr class="border-b hover:bg-gray-50 transition">
+        <td class="py-3 px-6">${user.name || "-"}</td>
+        <td class="py-3 px-6">${user.username}</td>
+        <td class="py-3 px-6 font-semibold">${roleBadge(user.role)}</td>
+        <td class="py-3 px-6 text-center">${chatToggle(user)}</td>
+        <td class="py-3 px-6 text-center">${adminToggle(user)}</td>
+        <td class="py-3 px-6 text-center">${actionsCell(user)}</td>
+      </tr>
+    `).join("");
+    tableBody.innerHTML = rows;
+  }
+
+  searchInput.addEventListener("input", function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const query = searchInput.value.trim();
+      fetch(`/panel/search-employee/?q=${encodeURIComponent(query)}`)
+        .then(r => r.json())
+        .then(data => renderRows(data.results || []))
+        .catch(() => {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="6" class="text-center py-6 text-red-500 italic">Error fetching results.</td>
+            </tr>`;
+        });
+    }, 300); // debounce
+  });
+});
+</script>
 {% endblock %}

@@ -1,4 +1,5 @@
 # core/actions.py
+from core.action_result import ActionResult
 from dataclasses import dataclass
 from .tools import (
     calendar_tools,
@@ -17,6 +18,7 @@ INTENT_ROUTER = {
     "schedule_interview": interview_tools.schedule_interview,
     "send_email": email_tools.send_email,
     "create_calendar_event": calendar_tools.create_calendar_event,
+    "generate_email": email_tools.generate_email
 }
 
 

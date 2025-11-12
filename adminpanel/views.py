@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models import User
+from django.http import JsonResponse
+from django.db.models import Q
 
 
 def is_org_admin(user):
@@ -183,3 +185,25 @@ def manage_org_admins(request):
         "admins": admins,
         "org": org
     })
+
+
+@login_required
+@user_passes_test(is_org_admin)
+def search_employee(request):
+    """Search employees by username, email, or ID."""
+    query = request.GET.get("q", "").strip()
+    org = request.user.organization
+
+    if not query:
+        return JsonResponse({"results": []})
+
+    employees = User.objects.filter(
+        organization=org
+    ).filter(
+        Q(username__icontains=query) |
+        Q(email__icontains=query) |
+        Q(id__icontains=query) |
+        Q(name__icontains=query)
+    ).values("id", "name", "username", "email", "role", "has_chat_access")
+
+    return JsonResponse({"results": list(employees)})

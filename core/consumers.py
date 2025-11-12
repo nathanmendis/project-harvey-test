@@ -1,10 +1,10 @@
-# core/consumers.py
 import json
 import os
 import django
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from .llm_engine import generate_llm_reply
+
 
 if not django.conf.settings.configured:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_harvey.settings")
@@ -13,17 +13,16 @@ if not django.conf.settings.configured:
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        from .models import Conversation  # Lazy import
+        from .models import Conversation
 
         self.user = self.scope["user"]
         if not self.user.is_authenticated:
             await self.close()
             return
 
-        # ✅ Access the user's organization safely
         organization = await sync_to_async(lambda: self.user.organization)()
 
-        # ✅ Get or create a conversation (in a thread-safe way)
+       
         conversation, _ = await sync_to_async(Conversation.objects.get_or_create)(
             organization=organization,
             user=self.user,
@@ -46,7 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         organization = await sync_to_async(lambda: self.user.organization)()
 
-        # ✅ Save user message
+        
         await sync_to_async(Message.objects.create)(
             organization=organization,
             conversation=self.conversation,
@@ -54,13 +53,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_text=prompt,
         )
 
-        # Send immediate feedback
+        
         await self.send(text_data=json.dumps({"response": "Thinking..."}))
+ 
+        # ✅Generate the LLM reply (Redis-based memory, no request needed)
+        llm_response = await sync_to_async(generate_llm_reply)(
+            prompt,
+            user=self.user,
+        )
 
-        # ✅ Generate LLM reply
-        llm_response = await sync_to_async(generate_llm_reply)(prompt, user=self.user)
-
-        # ✅ Save AI reply
+       
         await sync_to_async(Message.objects.create)(
             organization=organization,
             conversation=self.conversation,
@@ -68,7 +70,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message_text=llm_response.response,
         )
 
-        # ✅ Send response to client
+       
         await self.send(text_data=json.dumps({
             "response": llm_response.response
         }))
