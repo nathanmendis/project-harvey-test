@@ -1,8 +1,8 @@
 # core/actions/candidate_tools.py
 from ..models import Candidate
 from .base import ActionResult
-
-
+from langchain_core.tools import tool
+@tool
 def add_candidate(payload, user):
     """
     Adds a candidate to the database.

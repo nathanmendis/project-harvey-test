@@ -9,7 +9,7 @@ from django.contrib.staticfiles.handlers import ASGIStaticFilesHandler
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_harvey.settings")
 django.setup()
 
-from core import routing  # ✅ Import AFTER setup
+from core import routing  
 
 application = ProtocolTypeRouter({
     "http": ASGIStaticFilesHandler(get_asgi_application()),

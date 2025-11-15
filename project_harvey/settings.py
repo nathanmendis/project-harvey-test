@@ -130,19 +130,6 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/chat'         
 LOGOUT_REDIRECT_URL = '/login' 
 
-# settings.py
-import os
-from dotenv import load_dotenv
-from google import genai
-
-# Load environment variables
-load_dotenv()
-
-# Get Google API key from .env
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GENAI_CLIENT = genai.Client(api_key=GOOGLE_API_KEY)
-# print("Google API Key:", GOOGLE_API_KEY)  
-
 
 # Redis session + cache setup
 CACHES = {
