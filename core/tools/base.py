@@ -3,6 +3,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from langchain_core.tools import tool
 from core.models.recruitment import Candidate, JobRole, Interview, EmailLog
+from core.models.organization import Organization
 
 def ok(message, **data):
     return json.dumps({"ok": True, "message": message, **data})
@@ -10,11 +11,19 @@ def ok(message, **data):
 def err(message):
     return json.dumps({"ok": False, "message": message})
 
+def get_org(user):
+    """Helper to get organization from user."""
+    if user and getattr(user, "organization", None):
+        return user.organization
+    return None
 
 @tool("add_candidate", return_direct=True)
 def add_candidate(name: str, email: str, skills: str, phone: str, source: str = "Chatbot", user=None) -> str:
     """Adds a new candidate to your organization's HR system."""
-    org = getattr(user, "organization", None)
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
     if Candidate.objects.filter(email=email, organization=org).exists():
         return err(f"Candidate '{email}' already exists.")
 
@@ -33,7 +42,10 @@ def add_candidate(name: str, email: str, skills: str, phone: str, source: str = 
 @tool("create_job_description", return_direct=True)
 def create_job_description(title: str, description: str, requirements: str, department: str, user=None) -> str:
     """Creates a job posting / role for hiring."""
-    org = getattr(user, "organization", None)
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
     j = JobRole.objects.create(
         organization=org,
         title=title,
@@ -47,7 +59,10 @@ def create_job_description(title: str, description: str, requirements: str, depa
 @tool("schedule_interview", return_direct=True)
 def schedule_interview(candidate_id: int, when: str, interviewer_id: int, duration_minutes: int = 30, location_link: str = "", user=None) -> str:
     """Schedules a job interview."""
-    org = getattr(user, "organization", None)
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
     dt = parse_datetime(when)
     if not dt:
         return err("Invalid date format. Use ISO 8601 datetime.")
@@ -65,7 +80,10 @@ def schedule_interview(candidate_id: int, when: str, interviewer_id: int, durati
 @tool("send_email", return_direct=True)
 def send_email(recipient: str, subject: str, body: str, user=None) -> str:
     """Logs a sent email to a candidate or employee."""
-    org = getattr(user, "organization", None)
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
     e = EmailLog.objects.create(
         organization=org,
         recipient_email=recipient,
@@ -80,7 +98,10 @@ def send_email(recipient: str, subject: str, body: str, user=None) -> str:
 @tool("shortlist_candidates", return_direct=True)
 def shortlist_candidates(skills: str, limit: int = 5, user=None) -> str:
     """Shortlists candidates based on matching skills."""
-    org = getattr(user, "organization", None)
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
     skills_list = [s.strip().lower() for s in skills.split(",")]
     candidates = Candidate.objects.filter(organization=org)
 

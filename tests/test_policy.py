@@ -47,7 +47,7 @@ class PolicyFeatureTest(TestCase):
         # Check Vector Store Search
         print("Searching vector store...")
         vector_store = get_vector_store()
-        # Allow some time for persistence if needed, but FAISS in memory should be instant
+        # Allow some time for persistence if needed, but PGVector should be instant
         results = vector_store.similarity_search("wear hats", k=1)
         
         found = False

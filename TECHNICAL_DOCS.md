@@ -27,7 +27,7 @@ Project Harvey is a modular, agentic AI application built on a robust Django bac
     -   **SQLite**: Persistent storage for application data (Users, Candidates, Policies) and long-term logs (`GraphRun`).
 
 -   **RAG (Retrieval-Augmented Generation)**:
-    -   **Vector Store**: FAISS (Local CPU version).
+    -   **Vector Store**: PostgreSQL + pgvector (Dockerized).
     -   **Embeddings**: `all-MiniLM-L6-v2` (via `sentence-transformers`).
     -   **Indexing**: Custom services to index `Candidate`, `JobRole`, and `Policy` data.
 
@@ -83,12 +83,12 @@ The agent logic is defined in `core/llm_graph/`.
 ## 4. RAG Pipeline
 
 ### Indexing
--   **Candidates/Jobs**: `core/management/commands/index_data.py` script iterates DB and adds embeddings to FAISS.
+-   **Candidates/Jobs**: `core/management/commands/index_data.py` script iterates DB and adds embeddings to PostgreSQL.
 -   **Policies**: `core/services/policy_indexer.py` handles file parsing (PDF/Docx/Txt) and URL scraping. It chunks text and updates the vector store in real-time.
 
 ### Retrieval
 -   The agent uses `search_knowledge_base` or `policy_search_tool`.
--   Query is embedded and compared against the FAISS index.
+-   Query is embedded and compared against the PostgreSQL index.
 -   Top-k relevant chunks are returned as context to the LLM.
 
 ## 5. Security

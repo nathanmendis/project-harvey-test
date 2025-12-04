@@ -10,7 +10,7 @@ Harvey is an intelligent HR assistant designed to streamline recruitment workflo
 -   **Structured Memory**: Uses **Redis** for low-latency conversation history and context retrieval.
 
 ### 📚 RAG (Retrieval-Augmented Generation)
--   **Candidate & Job Search**: Semantically searches for candidates and job roles using **FAISS** and **Sentence Transformers**.
+-   **Candidate & Job Search**: Semantically searches for candidates and job roles using **PostgreSQL (pgvector)** and **Sentence Transformers**.
 -   **Policy Assistant**: Upload HR policies (PDF, Docx, TXT) or URLs. Harvey automatically indexes them and answers policy-related questions.
 
 ### 🛠️ Tool Integration
@@ -28,7 +28,7 @@ Harvey is an intelligent HR assistant designed to streamline recruitment workflo
 
 -   **Backend**: Django 5.1 (ASGI)
 -   **Agent**: LangGraph + Google Gemini 2.5 Flash
--   **Vector Store**: FAISS (Local)
+-   **Vector Store**: PostgreSQL + pgvector (Dockerized)
 -   **Database**: SQLite (Data) + Redis (State)
 
 For a deep dive into the system design, data models, and agent workflow, see the [Technical Documentation](TECHNICAL_DOCS.md).
@@ -39,6 +39,12 @@ For a deep dive into the system design, data models, and agent workflow, see the
 -   Python 3.10+
 -   [Poetry](https://python-poetry.org/)
 -   [Redis](https://redis.io/) (Port 6379)
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### 🐳 Docker Setup (Short Version)
+1.  **Download & Install**: Get Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop/).
+2.  **Run Docker**: Start the application and ensure the engine is running.
+3.  **Verify**: Run `docker --version` in your terminal.
 
 ### Setup from Git
 
@@ -63,6 +69,12 @@ For a deep dive into the system design, data models, and agent workflow, see the
     ```bash
     poetry run python manage.py migrate
     poetry run python manage.py createsuperuser
+    ```
+
+    **Accessing the Database Container:**
+    To manually inspect the PostgreSQL database running in Docker:
+    ```bash
+    docker exec -it project-harvey-test-db-1 psql -U postgres -d postgres
     ```
 
 5.  **Index Knowledge Base**

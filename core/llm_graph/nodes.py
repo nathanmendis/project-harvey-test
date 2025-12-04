@@ -4,10 +4,14 @@ from .harvey_prompt import SYSTEM_PROMPT
 from .summarizer import summarize
 from django.contrib.auth import get_user_model
 import json, time
+import logging
+
+logger = logging.getLogger("harvey")
 
 User = get_user_model()
 
 CONFIRM = {"yes", "ok", "okay", "sure", "confirm", "send it", "go ahead", "yup"}
+
 def _content_to_plaintext(msg):
     content = msg.content
     if isinstance(content, str):
@@ -73,6 +77,7 @@ def harvey_node(state):
 
     start = time.time()
     try:
+        logger.debug(f"Harvey is thinking... (Goal: {current_goal})")
         result = llm.bind_tools(AVAILABLE_TOOLS).invoke(msgs)
 
         append_trace(state, {
@@ -82,12 +87,15 @@ def harvey_node(state):
         })
 
         if result.tool_calls:
-            set_state_value(state, "pending_tool", result.tool_calls[0])
-            return {"messages": [result], "pending_tool": result.tool_calls[0]}
+            tool_call = result.tool_calls[0]
+            logger.info(f"Harvey decided to use tool: {tool_call['name']}")
+            set_state_value(state, "pending_tool", tool_call)
+            return {"messages": [result], "pending_tool": tool_call}
 
         return {"messages": [result]}
 
     except Exception as e:
+        logger.error(f"Harvey thought error: {e}")
         append_trace(state, {"node": "HARVEY", "error": str(e)})
         return {"messages": [AIMessage(content="⚠️ Thought error. Try again.")]}
     
@@ -110,6 +118,7 @@ def execute_node(state):
 
     start = time.time()
     try:
+        logger.info(f"Executing tool: {call['name']} with args: {args}")
         result = func(user=user, **args)
         parsed = json.loads(result)
         message = parsed.get("message", result)
@@ -121,9 +130,11 @@ def execute_node(state):
         })
 
         set_state_value(state, "pending_tool", None)
+        logger.info(f"Tool execution successful: {message}")
         return {"messages": [FunctionMessage(name=call["name"], content=message)], "pending_tool": None}
 
     except Exception as e:
+        logger.error(f"Tool execution failed: {e}")
         append_trace(state, {"node": "TOOL", "tool": call["name"], "error": str(e)})
         set_state_value(state, "pending_tool", None)
         return {"messages": [AIMessage(content=f"⚠️ Tool failed: {e}")], "pending_tool": None}
@@ -134,7 +145,7 @@ def summary_node(state):
     new_context = summarize(messages)
 
     # 🔍 Debug log summary
-    print("🧠 UPDATED CONTEXT:", new_context)
+    logger.debug(f"Updated Context: {new_context}")
 
     updates = {"pending_tool": None}  # Always clear pending tool at end of turn
     if new_context:

@@ -3,7 +3,7 @@ from core.models.recruitment import Candidate, JobRole
 from core.vector_store import get_vector_store
 
 class Command(BaseCommand):
-    help = 'Indexes Candidate and JobRole data into FAISS vector store'
+    help = 'Indexes Candidate and JobRole data into PostgreSQL vector store'
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting indexing process...")

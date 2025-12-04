@@ -1,5 +1,6 @@
 
 import json
+import logging
 from django.utils import timezone
 from pydantic import BaseModel
 from langchain_core.messages import HumanMessage, AIMessage
@@ -9,6 +10,7 @@ from .graph import graph
 from core.models.chatbot import Conversation, Message, GraphRun
 from .tools_registry import tool_registry
 
+logger = logging.getLogger("harvey")
 
 class LLMResponse(BaseModel):
     response: str
@@ -76,11 +78,11 @@ def generate_llm_reply(prompt: str, user, request=None):
         "trace": prev_state.get("trace", []),
     }
 
-    print("🚀 Graph invoke →", state_input)
+    logger.debug(f"Graph invoke with state: {state_input}")
 
     try:
         result = graph.invoke(state_input, config=config)
-        print("🟢 Graph completed →", result)
+        logger.debug(f"Graph completed. Result: {result}")
 
         pending_tool = result.get("pending_tool")
         final_text = ""
@@ -90,7 +92,8 @@ def generate_llm_reply(prompt: str, user, request=None):
             tool_args = pending_tool.get("args", {})
             tool_func = tool_registry.get(tool_name)
 
-            print(f"🛠 Running Tool → {tool_name} - Args: {tool_args}")
+            logger.info(f"Running Tool: {tool_name}")
+            logger.debug(f"Tool Args: {tool_args}")
 
             if not tool_func:
                 final_text = f"⚠️ Unknown tool '{tool_name}'"
@@ -132,8 +135,7 @@ def generate_llm_reply(prompt: str, user, request=None):
         return LLMResponse(response=final_text)
 
     except Exception as e:
-        print("🔥 Graph ERROR:", repr(e))
-        import traceback; traceback.print_exc()
+        logger.error(f"Graph ERROR: {repr(e)}", exc_info=True)
 
         run.status = "error"
         run.error_message = str(e)

@@ -4,6 +4,9 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
 from .tools_registry import get_llm
 import json
+import logging
+
+logger = logging.getLogger("harvey")
 
 class ContextUpdate(BaseModel):
     current_goal: Optional[str] = Field(description="The current active goal of the user")
@@ -44,5 +47,5 @@ def summarize(messages) -> Dict:
         out = chain.invoke({"history": text})
         return out
     except Exception as e:
-        print(f"Summarization failed: {e}")
+        logger.error(f"Summarization failed: {e}")
         return {}

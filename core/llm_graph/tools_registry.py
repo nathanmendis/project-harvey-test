@@ -4,22 +4,24 @@ load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
 from core.tools.base import (
     add_candidate,
-    send_email,
     schedule_interview,
     create_job_description,
     shortlist_candidates
 )
 from core.tools.search_tool import search_knowledge_base
 from core.tools.policy_search_tool import search_policies
+from core.tools.email_tool import send_email_tool
+from core.tools.calendar_tool import create_calendar_event_tool
 
 AVAILABLE_TOOLS = [
     add_candidate,
-    send_email,
     schedule_interview,
     create_job_description,
     shortlist_candidates,
     search_knowledge_base,
     search_policies,
+    send_email_tool,
+    create_calendar_event_tool,
 ]
 
 tool_registry = {t.name: t.func for t in AVAILABLE_TOOLS}
