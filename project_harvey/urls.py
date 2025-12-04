@@ -15,10 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from core.api import PolicyViewSet
+
+router = DefaultRouter()
+router.register(r'policies', PolicyViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
     path("", include("core.urls")),
-    path('panel/', include('adminpanel.urls')),
+    path("panel/", include("adminpanel.urls")),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]

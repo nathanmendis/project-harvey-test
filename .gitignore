@@ -11,7 +11,6 @@ __pycache__/
 .env/
 venv/
 env/
-/project-harvey-evc2NKuO-py3.13/
 
 # Operating System files
 .DS_Store
@@ -25,8 +24,10 @@ db.sqlite3
 /media/
 /static/
 
-# Media files
+# Media files (if not in /media/)
 media/
+policies/
+resumes/
 
 # Configuration files with sensitive data
 # These files contain local settings, API keys, and passwords.
@@ -39,5 +40,14 @@ media/
 *.gguf
 *.bin
 .django_tailwind_cli/
-# Poetry lock file
-poetry.lock
+
+# Poetry lock file (optional, usually committed but can be ignored if desired)
+# poetry.lock
+
+# Project Harvey Specific
+faiss_index/
+checkpoints.db
+checkpoints.db-shm
+checkpoints.db-wal
+*.log
+node_modules/

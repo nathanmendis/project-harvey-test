@@ -1,0 +1,20 @@
+from langchain_core.tools import tool
+from core.vector_store import get_vector_store
+
+@tool
+def search_knowledge_base(query: str, user=None):
+    """
+    Searches the internal knowledge base for candidates, job roles, and other indexed information.
+    Use this to find people with specific skills or details about job openings.
+    """
+    store = get_vector_store()
+    results = store.similarity_search(query, k=3)
+    
+    if not results:
+        return "No relevant information found in the knowledge base."
+    
+    formatted_results = "\n\n".join(
+        f"--- Result {i+1} ---\n{doc.page_content}" 
+        for i, doc in enumerate(results)
+    )
+    return f"Found the following information:\n{formatted_results}"

@@ -11,4 +11,10 @@ urlpatterns = [
     path("manage-org-admins/", views.manage_org_admins, name="manage_org_admins"),
     path("toggle-admin/<int:user_id>/", views.toggle_admin_role, name="toggle_admin_role"),
     path("search-employee/", views.search_employee, name="search_employee"), 
+    
+    # Policy Management
+    path("policies/", views.manage_policies, name="manage_policies"),
+    path("policies/add/", views.add_policy, name="add_policy"),
+    path("policies/reindex/<uuid:policy_id>/", views.reindex_policy, name="reindex_policy"),
+    path("policies/delete/<uuid:policy_id>/", views.delete_policy, name="delete_policy"),
 ]

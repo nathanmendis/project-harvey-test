@@ -8,8 +8,9 @@ from django.contrib.auth.decorators import login_required
 import json
 
 from django.contrib.auth.views import LogoutView
-
-from .llm_engine import generate_llm_reply
+ 
+# from .llm_engine import generate_llm_reply
+from .llm_graph.chat_service import  generate_llm_reply
 from .models import User  
 
 
