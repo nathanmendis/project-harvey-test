@@ -2,8 +2,10 @@ import json
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from langchain_core.tools import tool
-from core.models.recruitment import Candidate, JobRole, Interview, EmailLog
+from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, CandidateJobScore
 from core.models.organization import Organization
+from core.services.resume_parser import ResumeParser
+from core.services.candidate_scorer import CandidateScorer
 
 def ok(message, **data):
     return json.dumps({"ok": True, "message": message, **data})
@@ -37,6 +39,45 @@ def add_candidate(name: str, email: str, skills: str, phone: str, source: str = 
         status="pending",
     )
     return ok(f"Candidate '{name}' added successfully.", id=c.id, name=name)
+
+@tool("add_candidate_with_resume", return_direct=True)
+def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", phone: str = "", user=None) -> str:
+    """
+    Adds a candidate by parsing their resume (PDF/DOCX).
+    If name/email are not provided, tries to extract them (simplified).
+    """
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization. Please contact support.")
+
+    parser = ResumeParser()
+    try:
+        text = parser.parse(file_path)
+    except Exception as e:
+        return err(f"Failed to parse resume: {e}")
+
+    # Simple extraction fallback if not provided (in real app, use LLM here too)
+    # For now, we assume the user provides basic details or we just create with what we have.
+    # If email is missing, we can't check uniqueness easily, so we require email or generate a placeholder.
+    if not email:
+        return err("Please provide the candidate's email address along with the resume.")
+    
+    if Candidate.objects.filter(email=email, organization=org).exists():
+        return err(f"Candidate '{email}' already exists.")
+
+    c = Candidate.objects.create(
+        organization=org,
+        name=name or "Unknown Candidate",
+        email=email,
+        phone=phone,
+        skills=[], # Skills will be extracted/scored later or we could extract now
+        resume_file=file_path, # Storing local path for now, ideally upload to storage
+        parsed_data=text,
+        source="Resume Upload",
+        status="pending",
+    )
+    
+    return ok(f"Candidate '{c.name}' added with resume.", id=c.id, name=c.name)
 
 
 @tool("create_job_description", return_direct=True)
@@ -96,15 +137,59 @@ def send_email(recipient: str, subject: str, body: str, user=None) -> str:
 
 
 @tool("shortlist_candidates", return_direct=True)
-def shortlist_candidates(skills: str, limit: int = 5, user=None) -> str:
-    """Shortlists candidates based on matching skills."""
+def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int = 5, user=None) -> str:
+    """
+    Shortlists candidates. 
+    If job_role_id is provided, scores candidates against that role.
+    Otherwise, filters by skills.
+    """
     org = get_org(user)
     if not org:
         return err("User is not associated with any organization. Please contact support.")
 
-    skills_list = [s.strip().lower() for s in skills.split(",")]
     candidates = Candidate.objects.filter(organization=org)
+    scored_results = []
 
+    if job_role_id:
+        try:
+            job_role = JobRole.objects.get(id=job_role_id, organization=org)
+            scorer = CandidateScorer()
+            
+            for c in candidates:
+                # Check if score exists
+                score_obj = CandidateJobScore.objects.filter(candidate=c, job_role=job_role).first()
+                if score_obj:
+                    score = score_obj.score
+                    justification = score_obj.justification
+                else:
+                    # Compute score
+                    score, justification = scorer.score_candidate(c, job_role)
+                
+                scored_results.append({
+                    "id": c.id,
+                    "name": c.name,
+                    "score": score,
+                    "justification": justification
+                })
+            
+            # Sort by score desc
+            scored_results.sort(key=lambda x: x["score"], reverse=True)
+            scored_results = scored_results[:limit]
+            
+            msg = f"Top {len(scored_results)} candidates for '{job_role.title}':"
+            return ok(msg, results=scored_results)
+
+        except JobRole.DoesNotExist:
+            return err(f"Job Role with ID {job_role_id} not found.")
+        except Exception as e:
+            return err(f"Error scoring candidates: {e}")
+
+    # Fallback to skills matching if no job role
+    if not skills:
+        return err("Please provide either a job_role_id or skills to shortlist.")
+
+    skills_list = [s.strip().lower() for s in skills.split(",")]
+    
     matched = [
         {"id": c.id, "name": c.name}
         for c in candidates

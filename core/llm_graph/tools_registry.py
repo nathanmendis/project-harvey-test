@@ -4,6 +4,7 @@ load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
 from core.tools.base import (
     add_candidate,
+    add_candidate_with_resume,
     schedule_interview,
     create_job_description,
     shortlist_candidates
@@ -15,6 +16,7 @@ from core.tools.calendar_tool import create_calendar_event_tool
 
 AVAILABLE_TOOLS = [
     add_candidate,
+    add_candidate_with_resume,
     schedule_interview,
     create_job_description,
     shortlist_candidates,
@@ -33,5 +35,6 @@ def get_llm():
     return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         temperature=0.0,
-        google_api_key=key
+        google_api_key=key,
+        max_retries=0
     )

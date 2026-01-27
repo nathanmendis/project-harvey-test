@@ -16,6 +16,20 @@ class Candidate(models.Model):
         return f"{self.name} ({self.organization.name})"
 
 
+class CandidateJobScore(models.Model):
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='job_scores')
+    job_role = models.ForeignKey('JobRole', on_delete=models.CASCADE, related_name='candidate_scores')
+    score = models.FloatField()
+    justification = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('candidate', 'job_role')
+
+    def __str__(self):
+        return f"{self.candidate.name} - {self.job_role.title}: {self.score}"
+
+
 class JobRole(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)

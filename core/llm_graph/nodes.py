@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, FunctionMessage, AIMessage
+from langchain_core.messages import SystemMessage, ToolMessage, AIMessage
 from .tools_registry import AVAILABLE_TOOLS, tool_registry, get_llm
 from .harvey_prompt import SYSTEM_PROMPT
 from .summarizer import summarize
@@ -102,12 +102,7 @@ def harvey_node(state):
 
 def should_execute(state):
     pending = get_state_value(state, "pending_tool")
-    if not pending:
-        return False
-
-    messages = get_state_value(state, "messages", [])
-    last = _content_to_plaintext(messages[-1]).strip().lower()
-    return last in CONFIRM
+    return bool(pending)
 
 
 def execute_node(state):
@@ -131,7 +126,7 @@ def execute_node(state):
 
         set_state_value(state, "pending_tool", None)
         logger.info(f"Tool execution successful: {message}")
-        return {"messages": [FunctionMessage(name=call["name"], content=message)], "pending_tool": None}
+        return {"messages": [ToolMessage(tool_call_id=call["id"], content=message)], "pending_tool": None}
 
     except Exception as e:
         logger.error(f"Tool execution failed: {e}")

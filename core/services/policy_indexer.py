@@ -49,7 +49,8 @@ class PolicyIndexer:
                     "source": policy.title,
                     "policy_id": str(policy.id),
                     "chunk_index": i,
-                    "type": "policy"
+                    "type": "policy",
+                    "organization_id": str(policy.created_by.organization.id) if policy.created_by.organization else None
                 })
 
             # Add to Vector Store

@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Project Harvey Chat</title>
@@ -10,24 +11,30 @@
         .chat-bubble-user {
             border-bottom-right-radius: 0 !important;
         }
+
         .chat-bubble-ai {
             border-bottom-left-radius: 0 !important;
         }
+
         .chat-box::-webkit-scrollbar {
             width: 8px;
         }
+
         .chat-box::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         .chat-box::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
             border-radius: 4px;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 flex flex-col h-screen">
 
-    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center py-4 px-6 shadow-lg">
+    <header
+        class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center py-4 px-6 shadow-lg">
         <div class="flex items-center gap-2">
             <i class="fas fa-robot text-2xl"></i>
             <div class="text-xl font-semibold">Harvey – AI HR Assistant</div>
@@ -36,7 +43,8 @@
             <span class="text-white text-opacity-80">Welcome, {{ user.username }}!</span>
             <form method="POST" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="bg-red-500 hover:bg-red-600 transition-colors px-3 py-1 rounded-full text-sm font-medium shadow-md">
+                <button type="submit"
+                    class="bg-red-500 hover:bg-red-600 transition-colors px-3 py-1 rounded-full text-sm font-medium shadow-md">
                     Logout
                 </button>
             </form>
@@ -51,16 +59,16 @@
     </main>
 
     <footer class="p-4 bg-white border-t border-gray-200 flex items-center gap-4">
-        <input
-            id="user-input"
-            type="text"
-            placeholder="Type your message..."
-            class="flex-1 border border-gray-300 rounded-full px-5 py-3 text-gray-700 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all"
-        />
-        <button
-            id="send-btn"
-            class="bg-indigo-600 hover:bg-indigo-700 transition-colors text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
-        >
+        <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" />
+        <button id="upload-btn"
+            class="bg-gray-200 hover:bg-gray-300 transition-colors text-gray-600 w-12 h-12 rounded-full flex items-center justify-center shadow-md"
+            title="Upload Resume">
+            <i class="fas fa-paperclip text-xl"></i>
+        </button>
+        <input id="user-input" type="text" placeholder="Type your message..."
+            class="flex-1 border border-gray-300 rounded-full px-5 py-3 text-gray-700 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" />
+        <button id="send-btn"
+            class="bg-indigo-600 hover:bg-indigo-700 transition-colors text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
             <i class="fas fa-paper-plane text-xl"></i>
         </button>
     </footer>
@@ -75,10 +83,10 @@
         function appendMessage(sender, text) {
             const bubbleContainer = document.createElement("div");
             bubbleContainer.classList.add("flex", "items-start", "my-2");
-            
+
             const bubble = document.createElement("div");
             bubble.classList.add("p-3", "rounded-xl", "max-w-md");
-            
+
             if (sender === "user") {
                 bubble.classList.add("bg-indigo-500", "text-white", "ml-auto", "chat-bubble-user");
                 bubbleContainer.classList.add("justify-end");
@@ -86,14 +94,14 @@
                 bubble.classList.add("bg-gray-200", "text-gray-900", "chat-bubble-ai");
                 bubbleContainer.classList.add("justify-start");
             }
-            
+
             bubble.textContent = text;
             bubbleContainer.appendChild(bubble);
             chatBox.appendChild(bubbleContainer);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        chatSocket.onmessage = function(e) {
+        chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             const responseText = data.response;
             const initialPlaceholder = chatBox.querySelector('div:first-child');
@@ -117,7 +125,7 @@
             }
         };
 
-        chatSocket.onclose = function(e) {
+        chatSocket.onclose = function (e) {
             console.error('Chat socket closed unexpectedly');
         };
 
@@ -127,15 +135,63 @@
 
             appendMessage("user", prompt);
             userInput.value = "";
-            
-            chatSocket.send(JSON.stringify({'prompt': prompt}));
+
+            chatSocket.send(JSON.stringify({ 'prompt': prompt }));
         }
 
         sendBtn.addEventListener("click", sendMessage);
         userInput.addEventListener("keypress", (e) => {
             if (e.key === "Enter") sendMessage();
         });
+
+        // File Upload Logic
+        const uploadBtn = document.getElementById("upload-btn");
+        const resumeUpload = document.getElementById("resume-upload");
+
+        uploadBtn.addEventListener("click", () => resumeUpload.click());
+
+        resumeUpload.addEventListener("change", function () {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const formData = new FormData();
+                formData.append("resume", file);
+
+                // Show loading state
+                const originalIcon = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                uploadBtn.disabled = true;
+
+                fetch("/upload_resume/", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.file_path) {
+                            // Append file path to input
+                            const attachmentText = ` [Attached Resume: ${data.file_path}]`;
+                            userInput.value += attachmentText;
+                            userInput.focus();
+                        } else {
+                            alert("Upload failed: " + (data.error || "Unknown error"));
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Upload error");
+                    })
+                    .finally(() => {
+                        uploadBtn.innerHTML = originalIcon;
+                        uploadBtn.disabled = false;
+                        resumeUpload.value = ""; // Reset
+                    });
+            }
+        });
     </script>
 
 </body>
+
 </html>

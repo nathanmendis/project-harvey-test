@@ -59,6 +59,6 @@ workflow.add_conditional_edges(
     {True: "TOOL", False: "SUM"}
 )
 
-workflow.add_edge("TOOL", "SUM")
+workflow.add_edge("TOOL", "HARVEY")
 
 graph = workflow.compile(checkpointer=checkpointer)

@@ -34,6 +34,12 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
+            # Remember Me Logic
+            if request.POST.get('remember-me'):
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # Expires on browser close
+
             # Redirect based on role or permissions
             if user.role == "org_admin" or user.is_superuser:
                 return redirect('admin_dashboard')
@@ -83,6 +89,26 @@ def chat_with_llm(request):
         print(f"⚠️ Chat API Error: {e}")
         return JsonResponse({"error": str(e)}, status=500)
     
+
+from django.core.files.storage import FileSystemStorage
+import os
+from django.conf import settings
+
+@csrf_exempt
+@require_POST
+@login_required
+def upload_resume(request):
+    """Handle resume file upload."""
+    if 'resume' not in request.FILES:
+        return JsonResponse({"error": "No file provided"}, status=400)
+    
+    file = request.FILES['resume']
+    fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'resumes'))
+    filename = fs.save(file.name, file)
+    file_url = fs.url(filename) # This gives URL, but for the tool we need absolute path
+    file_path = fs.path(filename)
+    
+    return JsonResponse({"file_path": file_path, "filename": filename})
 
 class CustomLogoutView(LogoutView):
     """Allow GET requests for logout (useful for admin links)."""

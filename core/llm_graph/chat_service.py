@@ -5,6 +5,8 @@ from django.utils import timezone
 from pydantic import BaseModel
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
+from django.core.cache import cache
+from google.api_core.exceptions import ResourceExhausted
 
 from .graph import graph
 from core.models.chatbot import Conversation, Message, GraphRun
@@ -45,6 +47,10 @@ def _save_chat(convo, user, user_input, ai_output):
 
 
 def generate_llm_reply(prompt: str, user, request=None):
+    # 1. Check for Rate Limit Block
+    if cache.get(f"chat_block_{user.id}"):
+        return LLMResponse(response="⚠️ System is cooling down due to high traffic. Please try again in 60 seconds.")
+
     convo, _ = Conversation.objects.get_or_create(
         organization=user.organization,
         user=user,
@@ -133,6 +139,17 @@ def generate_llm_reply(prompt: str, user, request=None):
         _save_chat(convo, user, prompt, final_text)
 
         return LLMResponse(response=final_text)
+
+    except ResourceExhausted:
+        logger.warning(f"Rate Limit Hit for user {user.id}")
+        # Block user for 60 seconds
+        cache.set(f"chat_block_{user.id}", True, timeout=60)
+        
+        run.status = "error"
+        run.error_message = "Rate Limit Exceeded (429)"
+        run.save()
+        
+        return LLMResponse(response="⚠️ API Rate limit reached. System is cooling down. Please wait 60 seconds.")
 
     except Exception as e:
         logger.error(f"Graph ERROR: {repr(e)}", exc_info=True)

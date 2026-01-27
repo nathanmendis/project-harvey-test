@@ -96,30 +96,30 @@ admin.site.index_title = "Harvey Administration"
 admin.site.site_title = "Harvey Admin"
 
 
-# ─────────────────────────────
-# Policy Management
-# ─────────────────────────────
-@admin.register(Policy)
-class PolicyAdmin(admin.ModelAdmin):
-    list_display = ("title", "source_type", "status", "indexed_at", "created_by", "created_at")
-    list_filter = ("status", "source_type", "created_by")
-    search_fields = ("title", "description")
-    actions = ["reindex_policies"]
+# # ─────────────────────────────
+# # Policy Management
+# # ─────────────────────────────
+# @admin.register(Policy)
+# class PolicyAdmin(admin.ModelAdmin):
+#     list_display = ("title", "source_type", "status", "indexed_at", "created_by", "created_at")
+#     list_filter = ("status", "source_type", "created_by")
+#     search_fields = ("title", "description")
+#     actions = ["reindex_policies"]
 
-    def reindex_policies(self, request, queryset):
-        indexer = PolicyIndexer()
-        count = 0
-        for policy in queryset:
-            # Run in a separate thread to avoid blocking
-            thread = threading.Thread(target=indexer.index_policy, args=(policy.id,))
-            thread.start()
-            count += 1
-        self.message_user(request, f"Started indexing for {count} policies.")
-    reindex_policies.short_description = "Re-index selected policies"
+#     def reindex_policies(self, request, queryset):
+#         indexer = PolicyIndexer()
+#         count = 0
+#         for policy in queryset:
+#             # Run in a separate thread to avoid blocking
+#             thread = threading.Thread(target=indexer.index_policy, args=(policy.id,))
+#             thread.start()
+#             count += 1
+#         self.message_user(request, f"Started indexing for {count} policies.")
+#     reindex_policies.short_description = "Re-index selected policies"
 
 
-@admin.register(PolicyChunk)
-class PolicyChunkAdmin(admin.ModelAdmin):
-    list_display = ("policy", "chunk_index", "vector_id")
-    list_filter = ("policy",)
-    search_fields = ("text",)
+# @admin.register(PolicyChunk)
+# class PolicyChunkAdmin(admin.ModelAdmin):
+#     list_display = ("policy", "chunk_index", "vector_id")
+#     list_filter = ("policy",)
+#     search_fields = ("text",)

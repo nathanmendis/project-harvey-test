@@ -49,5 +49,6 @@ urlpatterns = [
     path('', include('core.urls')),
     path('adminpanel/', include('adminpanel.urls')),
     path('integrations/', include('integrations.urls')),
+    path('api/', include(router.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
 ]

@@ -1,19 +1,28 @@
 from langchain.tools import tool
+import json
 from core.vector_store import get_vector_store
 
 @tool
-def search_policies(query: str) -> str:
+def search_policies(query: str, user=None) -> str:
     """
     Search for HR policies and procedures.
     Use this tool when the user asks about company rules, leave policies, benefits, code of conduct, etc.
     Returns relevant policy excerpts.
     """
     vector_store = get_vector_store()
+    
+    filter_args = {}
+    if user and user.organization:
+        filter_args = {"filter": {"organization_id": str(user.organization.id)}}
+
     # We might want to filter by type='policy' if possible, but for now we rely on semantic search
-    results = vector_store.similarity_search(query, k=3)
+    results = vector_store.similarity_search(query, k=3, **filter_args)
     
     if not results:
-        return "No relevant policies found."
+        return json.dumps({
+            "ok": True,
+            "message": "No relevant policies found."
+        })
     
     formatted_results = []
     for doc in results:
@@ -35,4 +44,7 @@ def search_policies(query: str) -> str:
              source = doc.metadata.get('source', 'Unknown')
              formatted_results.append(f"Source: {source}\nContent: {doc.page_content}")
 
-    return "\n\n".join(formatted_results)
+    return json.dumps({
+        "ok": True,
+        "message": "\n\n".join(formatted_results)
+    })

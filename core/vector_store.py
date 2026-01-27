@@ -4,17 +4,20 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from django.conf import settings
 
 class VectorStore:
-    _instance = None
+    _embeddings_instance = None
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(VectorStore, cls).__new__(cls)
-            cls._instance._initialize()
-        return cls._instance
+    def __init__(self):
+        self._initialize()
+
+    @classmethod
+    def get_embeddings(cls):
+        if cls._embeddings_instance is None:
+            cls._embeddings_instance = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        return cls._embeddings_instance
 
     def _initialize(self):
-        # Use a lightweight local model
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        # Use cached embeddings
+        self.embeddings = self.get_embeddings()
         
         # Construct connection string from Django settings
         db_config = settings.DATABASES['default']
@@ -49,8 +52,8 @@ class VectorStore:
 
 
 
-    def similarity_search(self, query, k=3):
-        return self.db.similarity_search(query, k=k)
+    def similarity_search(self, query, k=3, **kwargs):
+        return self.db.similarity_search(query, k=k, **kwargs)
 
 def get_vector_store():
     return VectorStore()
