@@ -34,3 +34,7 @@ dmypy.json
 
 # LangGraph
 checkpoints.db
+
+# User Data/Logs
+logs/
+policies/
