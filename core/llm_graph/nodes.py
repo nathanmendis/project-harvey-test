@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, ToolMessage, AIMessage
+from langchain_core.messages import SystemMessage, ToolMessage, AIMessage, HumanMessage
 from .tools_registry import AVAILABLE_TOOLS, tool_registry, get_llm
 from .harvey_prompt import SYSTEM_PROMPT
 from .summarizer import summarize
@@ -73,7 +73,15 @@ def harvey_node(state):
         extracted_info=extracted_info,
         tools=tools
     )
-    msgs = [SystemMessage(content=sys)] + messages
+    # Limit history to prevent payload explosion (keep last 10 messages)
+    history = messages[-10:]
+    
+    # Gemeni API requires that the conversation starts with a User message (after System)
+    # If the slice starts with AI, remove it.
+    while history and not isinstance(history[0], HumanMessage):
+        history.pop(0)
+
+    msgs = [SystemMessage(content=sys)] + history
 
     start = time.time()
     try:

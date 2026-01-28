@@ -28,7 +28,20 @@ AVAILABLE_TOOLS = [
 
 tool_registry = {t.name: t.func for t in AVAILABLE_TOOLS}
 
+
+
+from langchain_groq import ChatGroq
+
 def get_llm():
+    groq_key = os.getenv("GROQ_API_KEY")
+    if groq_key:
+        return ChatGroq(
+            model="openai/gpt-oss-20b",
+            temperature=0.0,
+            api_key=groq_key
+        )
+
+    # Fallback to Gemini
     key = os.getenv("GOOGLE_API_KEY")
     if not key:
         raise RuntimeError("GOOGLE_API_KEY not set")
