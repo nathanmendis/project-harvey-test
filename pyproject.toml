@@ -22,7 +22,7 @@ tqdm = ">=4.67.1,<5.0.0"
 channels = ">=4.3.1,<5.0.0"
 daphne = ">=4.2.1,<5.0.0"
 "django-redis" = ">=6.0.0,<7.0.0"
-dateparser = ">=1.2.2,<2.0.0"
+
 langchain = "^1.0.7"
 langchain-google-genai = "^3.0.3"
 langchain-core = "^1.0.5"
@@ -30,7 +30,7 @@ langchain-community = "^0.4.1"
 langgraph = ">=0.2.0"
 langgraph-checkpoint = "^3.0.1"
 langgraph-checkpoint-sqlite = ">=0.1.0"
-sentence-transformers = "^5.1.2"
+
 langchain-huggingface = "^1.1.0"
 django-browser-reload = "^1.21.0"
 pdfminer-six = "^20251107"
@@ -41,8 +41,9 @@ djangorestframework = "^3.16.1"
 langchain-postgres = "^0.0.16"
 psycopg = {extras = ["binary"], version = "^3.3.1"}
 pypdf = "^6.4.0"
-langchain-openai = "^1.1.7"
+
 langchain-groq = "^1.1.1"
+sentence-transformers = "^5.2.2"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

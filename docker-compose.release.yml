@@ -1,12 +1,11 @@
 services:
   app:
-    build: .
+    # REPLACE THIS WITH YOUR DOCKERHUB USERNAME
     image: nathanmendis/project-harvey:latest
     container_name: project-harvey
 
     command: daphne -b 0.0.0.0 -p 8000 project_harvey.asgi:application
-    volumes:
-      - .:/app
+    # No volume mount needed, code is inside the image
     ports:
       - "8000:8000"
     environment:
@@ -19,6 +18,15 @@ services:
       - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,project-harvey
 
       - DJANGO_SETTINGS_MODULE=project_harvey.settings
+
+    # Secrets are injected here at runtime!
+    # Option 1: Users create a .env file locally
+    env_file:
+      - .env
+    # Option 2: Users explicitly set keys here (less secure for sharing)
+    # environment:
+    #   - GROQ_API_KEY=your_key_here
+
     depends_on:
       - db
       - redis

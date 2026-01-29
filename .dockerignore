@@ -1,0 +1,41 @@
+# GIT
+.git
+.gitignore
+
+# PYTHON
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.venv
+venv/
+env/
+
+# DJANGO
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# SECRETS (CRITICAL)
+.env
+.env.*
+
+# TESTING & DOCS
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+*.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+
+# LOCAL DATA
+checkpoints.db
+logs/
+policies/
+resumes/

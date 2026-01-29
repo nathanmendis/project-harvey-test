@@ -109,3 +109,37 @@ poetry run python manage.py migrate
 -   **Run Unit Tests**: `poetry run pytest`
 -   **Verify Vector Search**: `poetry run python core/llm_graph/test_search.py`
 -   **Verify Context Switching**: `poetry run python core/llm_graph/test_context.py`
+
+## 🐳 Deployment (Docker)
+
+You can run the entire stack (App, Database, Redis) without installing Python or cloning the code using Docker.
+
+### 1. Requirements
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### 2. Quick Start
+1.  **Download Configuration**: Download the `docker-compose.release.yml` file from the repository.
+2.  **Configure Secrets**: Create a `.env` file in the same directory:
+    ```env
+    GROQ_API_KEY=your_groq_key_here
+    # Add other keys as needed
+    ```
+3.  **Run**:
+    ```bash
+    docker-compose -f docker-compose.release.yml up -d
+    ```
+
+### 3. First-Time Setup
+After the containers are running for the first time, you need to create an admin user:
+```bash
+docker exec -it project-harvey python manage.py createsuperuser
+```
+
+### 4. Admin
+-   **Dashboard**: `http://localhost:8000/admin`
+-   **App**: `http://localhost:8000/`
+
+### 5. Troubleshooting
+-   **Reset Application Data**: `docker exec -it project-harvey python reset_db.py`
+-   **View Logs**: `docker-compose -f docker-compose.release.yml logs -f app`
+

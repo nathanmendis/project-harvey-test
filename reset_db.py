@@ -3,6 +3,8 @@ import os
 import sys
 import django
 from django.db import connection
+from django.conf import settings
+
 
 sys.path.append(os.getcwd())
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_harvey.settings")

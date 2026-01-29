@@ -11,7 +11,11 @@ class VectorStore:
     def get_embeddings(cls):
         from langchain_huggingface import HuggingFaceEmbeddings
         if cls._embeddings_instance is None:
-            cls._embeddings_instance = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+            cls._embeddings_instance = HuggingFaceEmbeddings(
+                model_name="all-MiniLM-L6-v2",
+                model_kwargs={'device': 'cpu'}
+            )
+
         return cls._embeddings_instance
 
     def _initialize(self):
