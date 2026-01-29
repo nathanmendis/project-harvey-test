@@ -1,0 +1,186 @@
+{% load static %}
+<!-- Team Section: "Laser" Activation Sequence -->
+<section id="team" class="bg-gray-950 py-24 px-6 border-t border-gray-800 relative overflow-hidden">
+
+    <!-- Background decorative grid -->
+    <div
+        class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 brightness-100 contrast-150 pointer-events-none">
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-24 opacity-0 transition-opacity duration-1000 delay-300" id="team-header">
+            <h2
+                class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400 mb-4 tracking-tight">
+                Behind Harvey
+            </h2>
+            <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+                Ideas. Execution. Coffee. Repeat.
+            </p>
+        </div>
+
+        <div class="relative" id="team-container">
+            <!-- The Activation Beam (Desktop: Horizontal, Mobile: Vertical) -->
+            <!-- Desktop Line (Left to Right) -->
+            <div id="beam-desktop"
+                class="hidden md:block absolute top-[50%] left-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent w-0 z-0 shadow-[0_0_15px_rgba(99,102,241,1)] transition-all duration-[2000ms] ease-out">
+            </div>
+
+            <!-- Mobile Line (Top to Bottom) -->
+            <div id="beam-mobile"
+                class="md:hidden absolute top-0 left-[50%] w-[1px] bg-gradient-to-b from-transparent via-indigo-500 to-transparent h-0 z-0 shadow-[0_0_15px_rgba(99,102,241,1)] transition-all duration-[2000ms] ease-out">
+            </div>
+
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+
+                <!-- Developer 1 -->
+                <div
+                    class="team-card group relative p-8 rounded-3xl border border-white/5 bg-gray-900/50 backdrop-blur-xl flex flex-col items-center text-center opacity-0 blur-md scale-95 transition-all duration-700">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-2xl bg-gray-900 border border-white/10 overflow-hidden relative group-hover:border-indigo-500/50 transition-colors duration-300 flex items-center justify-center shadow-2xl">
+                        <!-- Image -->
+                        <img src="{% static 'core/images/team/nathan.jpg' %}" alt="Nathan Mendis"
+                            class="w-full h-full object-cover relative z-10">
+
+
+
+                        <!-- Placeholder Icon (Fallback if image missing or loading) -->
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-900 -z-10">
+                            <i class="fas fa-user text-4xl text-gray-700"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Nathan Mendis</h3>
+                    <p class="text-indigo-400 text-xs font-bold tracking-widest uppercase mb-6">Backend/AI Developer</p>
+                    <div class="flex gap-4 mt-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                        <a href="https://github.com/nathanmendis"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white text-gray-400 transition-all"><i
+                                class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/nathan-mendis-a2318122a/"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-indigo-500/20 hover:text-indigo-400 text-gray-400 transition-all"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Developer 2 -->
+                <div
+                    class="team-card group relative p-8 rounded-3xl border border-white/5 bg-gray-900/50 backdrop-blur-xl flex flex-col items-center text-center opacity-0 blur-md scale-95 transition-all duration-700">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-2xl bg-gray-900 border border-white/10 overflow-hidden relative group-hover:border-purple-500/50 transition-colors duration-300 flex items-center justify-center shadow-2xl">
+                        <img src="{% static 'core/images/team/dev2.jpg' %}" alt="Developer 2"
+                            class="w-full h-full object-cover relative z-10">
+
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-900 -z-10">
+                            <i class="fas fa-user text-4xl text-gray-700"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Developer 2</h3>
+                    <p class="text-purple-400 text-xs font-bold tracking-widest uppercase mb-6">Frontend/UI</p>
+                    <div class="flex gap-4 mt-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white text-gray-400 transition-all"><i
+                                class="fab fa-github"></i></a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-purple-500/20 hover:text-purple-400 text-gray-400 transition-all"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Developer 3 -->
+                <div
+                    class="team-card group relative p-8 rounded-3xl border border-white/5 bg-gray-900/50 backdrop-blur-xl flex flex-col items-center text-center opacity-0 blur-md scale-95 transition-all duration-700">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-2xl bg-gray-900 border border-white/10 overflow-hidden relative group-hover:border-pink-500/50 transition-colors duration-300 flex items-center justify-center shadow-2xl">
+                        <img src="{% static 'core/images/team/dev3.jpg' %}" alt="Developer 3"
+                            class="w-full h-full object-cover relative z-10">
+
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-900 -z-10">
+                            <i class="fas fa-user text-4xl text-gray-700"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Developer 3</h3>
+                    <p class="text-pink-400 text-xs font-bold tracking-widest uppercase mb-6">DevOps/Cloud</p>
+                    <div class="flex gap-4 mt-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white text-gray-400 transition-all"><i
+                                class="fab fa-github"></i></a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-pink-500/20 hover:text-pink-400 text-gray-400 transition-all"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Developer 4 -->
+                <div
+                    class="team-card group relative p-8 rounded-3xl border border-white/5 bg-gray-900/50 backdrop-blur-xl flex flex-col items-center text-center opacity-0 blur-md scale-95 transition-all duration-700">
+                    <div
+                        class="w-32 h-32 mb-6 rounded-2xl bg-gray-900 border border-white/10 overflow-hidden relative group-hover:border-cyan-500/50 transition-colors duration-300 flex items-center justify-center shadow-2xl">
+                        <img src="{% static 'core/images/team/dev4.jpg' %}" alt="Developer 4"
+                            class="w-full h-full object-cover relative z-10">
+
+                        <div class="absolute inset-0 flex items-center justify-center bg-gray-900 -z-10">
+                            <i class="fas fa-user text-4xl text-gray-700"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Developer 4</h3>
+                    <p class="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-6">Full Stack</p>
+                    <div class="flex gap-4 mt-auto opacity-60 group-hover:opacity-100 transition-opacity">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white text-gray-400 transition-all"><i
+                                class="fab fa-github"></i></a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyan-500/20 hover:text-cyan-400 text-gray-400 transition-all"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const teamSection = document.getElementById('team');
+            const header = document.getElementById('team-header');
+            const beamDesktop = document.getElementById('beam-desktop');
+            const beamMobile = document.getElementById('beam-mobile');
+            const cards = document.querySelectorAll('.team-card');
+
+            let animationTriggered = false;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animationTriggered) {
+                        animationTriggered = true;
+
+                        // 1. Fade in header
+                        header.classList.remove('opacity-0');
+
+                        // 2. Fire the beam!
+                        beamDesktop.style.width = '100%';
+                        beamMobile.style.height = '100%';
+
+                        // 3. Sequential Card Activation (synced with beam speed approx)
+                        // Beam duration is 2000ms. 4 cards.
+                        // Trigger roughly every 300-400ms
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                // Remove 'hidden' state
+                                card.classList.remove('opacity-0', 'blur-md', 'scale-95');
+                                card.classList.add('border-indigo-500/50'); // Flash border
+
+                                // Soften border after flash
+                                setTimeout(() => {
+                                    card.classList.remove('border-indigo-500/50');
+                                    card.classList.add('border-white/5');
+                                }, 500);
+
+                            }, 300 + (index * 400)); // Staggered delay
+                        });
+                    }
+                });
+            }, { threshold: 0.2 });
+
+            observer.observe(teamSection);
+        });
+    </script>
+</section>

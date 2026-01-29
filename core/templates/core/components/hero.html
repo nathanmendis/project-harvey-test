@@ -1,0 +1,123 @@
+<!-- Hero Section -->
+<main class="flex-1 hero-pattern relative overflow-hidden flex items-center justify-center py-20 px-6 md:py-32">
+
+    <!-- Background Glows -->
+    <div
+        class="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-indigo-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-purple-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+    </div>
+
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
+
+        <!-- Left Content -->
+        <div class="space-y-6 md:space-y-8 animate-fade-in-up text-center lg:text-left">
+
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight">
+                Your Intelligent <br class="hidden sm:block">
+                <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Workforce
+                    Partner</span>
+            </h1>
+
+            <div
+                class="pt-4 md:pt-8 flex flex-wrap justify-center lg:justify-start gap-x-4 gap-y-2 text-gray-500 text-sm">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-indigo-400"></i> Instant Responses
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-indigo-400"></i> Policy RAG Engine
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-indigo-400"></i> Seamless Integration
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-indigo-400"></i> LLM Powered
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-indigo-400"></i> Always Online
+                </div>
+            </div>
+
+            <p class="text-lg md:text-xl text-gray-400 leading-relaxed max-w-lg mx-auto lg:mx-0">
+                An AI-powered HR assistant that answers employee queries, manages jobs, and automates HR workflows.
+            </p>
+        </div>
+
+        <!-- Right Visual -->
+        <div class="relative hidden lg:block">
+            <div
+                class="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl blur-2xl opacity-20 transform rotate-6 scale-95">
+            </div>
+            <div
+                class="glass-card rounded-3xl p-6 border border-white/10 shadow-2xl relative transform transition-transform hover:-translate-y-2 duration-500">
+                <!-- Mock Chat Interface -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 border-b border-white/10 pb-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-white">Harvey</h3>
+                            <p class="text-xs text-indigo-300">Always online</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 py-4">
+                        <!-- User Message -->
+                        <div class="flex justify-end">
+                            <div
+                                class="bg-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-lg">
+                                How many leave days do I have left?
+                            </div>
+                        </div>
+
+                        <!-- AI Message -->
+                        <div class="flex justify-start">
+                            <div
+                                class="bg-gray-800 text-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm text-sm max-w-xs border border-gray-700 shadow-lg">
+                                You have <span class="text-indigo-400 font-semibold">12 days</span> of annual leave
+                                remaining for this year. Would you like me to help you submit a request?
+                            </div>
+                        </div>
+
+                        <!-- User Message -->
+                        <div class="flex justify-end">
+                            <div
+                                class="bg-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-lg">
+                                Yes, for next Monday and Tuesday.
+                            </div>
+                        </div>
+
+                        <!-- AI Reply Animation -->
+                        <div class="flex justify-start items-center gap-2">
+                            <div
+                                class="bg-gray-800 px-4 py-3 rounded-2xl rounded-tl-sm border border-gray-700 shadow-lg">
+                                <div class="flex gap-1">
+                                    <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></span>
+                                    <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce delay-100"></span>
+                                    <span class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce delay-200"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area Mock -->
+                    <div class="relative">
+                        <div
+                            class="h-12 bg-gray-900/50 rounded-xl border border-gray-700/50 w-full flex items-center px-4 text-sm text-gray-500">
+                            Type your message...
+                        </div>
+                        <div
+                            class="absolute right-2 top-2 h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xs">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
