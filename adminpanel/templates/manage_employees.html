@@ -1,203 +1,197 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="p-8 bg-gray-50 min-h-screen">
-  <h2 class="text-3xl font-extrabold mb-6 text-gray-800">
-    Manage Employees ({{ org.name }})
-  </h2>
+<div class="space-y-8 py-4">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-3xl font-extrabold tracking-tight">
+        Manage Employees
+        <span class="block text-sm font-semibold text-indigo-400 uppercase tracking-widest mt-1">{{ org.name }}</span>
+      </h2>
+    </div>
 
-  <a href="{% url 'add_employee' %}" 
-     class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-3 rounded-lg shadow hover:shadow-lg hover:scale-[1.02] transition-all duration-200 mb-6 inline-block">
-    ➕ Add New Employee
-  </a>
+    <a href="{% url 'add_employee' %}"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 font-semibold">
+      <i class="fas fa-plus-circle"></i> Add New Employee
+    </a>
+  </div>
 
   <!-- 🔍 Search Bar -->
-  <div class="mb-6">
-    <input 
-      id="employee-search"
-      type="text"
-      placeholder="🔍 Search by name, username, email, or ID..."
-      class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-    />
+  <div class="glass-card p-6 rounded-2xl border-white/5">
+    <div class="relative max-w-2xl">
+      <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+      <input id="employee-search" type="text" placeholder="Search by name, username, email, or ID..."
+        class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+    </div>
   </div>
 
   <!-- 👥 Employee Table -->
-  <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
-    <table class="min-w-full border-collapse text-left">
-      <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
-        <tr>
-          <th class="py-3 px-6">Name</th>
-          <th class="py-3 px-6">Username</th>
-          <th class="py-3 px-6">Role</th>
-          <th class="py-3 px-6 text-center">Chatbot Access</th>
-          <th class="py-3 px-6 text-center">Admin Access</th>
-          <th class="py-3 px-6 text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="employee-table-body">
-        {% for user in employees %}
-        <tr class="border-b hover:bg-gray-50 transition">
-          <td class="py-3 px-6">{{ user.name }}</td>
-          <td class="py-3 px-6">{{ user.username }}</td>
+  <div class="glass-card rounded-2xl border-white/5 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-collapse text-left">
+        <thead class="bg-white/5 text-gray-400 uppercase text-[10px] font-bold tracking-widest border-b border-white/5">
+          <tr>
+            <th class="py-4 px-6">Name</th>
+            <th class="py-4 px-6">Username</th>
+            <th class="py-4 px-6">Role</th>
+            <th class="py-4 px-6 text-center">Chatbot</th>
+            <th class="py-4 px-6 text-center">Admin</th>
+            <th class="py-4 px-6 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="employee-table-body" class="divide-y divide-white/5">
+          {% for user in employees %}
+          <tr class="hover:bg-white/5 transition-colors group">
+            <td class="py-4 px-6">
+              <div class="font-semibold text-white group-hover:text-indigo-300 transition-colors">{{ user.name }}</div>
+              <div class="text-xs text-gray-500">{{ user.email }}</div>
+            </td>
+            <td class="py-4 px-6">
+              <span class="bg-white/5 px-2 py-1 rounded text-xs text-gray-400 font-mono">{{ user.username }}</span>
+            </td>
 
-          <!-- Role -->
-          <td class="py-3 px-6 font-semibold">
-            {% if user.role == 'org_admin' %}
-              <span class="text-indigo-600 font-bold">Org Admin</span>
-            {% elif user.role == 'manager' %}
-              <span class="text-green-600">Manager</span>
-            {% elif user.role == 'hr' %}
-              <span class="text-blue-600">HR</span>
-            {% else %}
-              <span class="text-gray-600">Employee</span>
-            {% endif %}
-          </td>
+            <!-- Role -->
+            <td class="py-4 px-6">
+              {% if user.role == 'org_admin' %}
+              <span class="text-indigo-400 text-xs font-bold uppercase tracking-wider">Org Admin</span>
+              {% elif user.role == 'manager' %}
+              <span class="text-purple-400 text-xs font-bold uppercase tracking-wider">Manager</span>
+              {% elif user.role == 'hr' %}
+              <span class="text-pink-400 text-xs font-bold uppercase tracking-wider">HR</span>
+              {% else %}
+              <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">Employee</span>
+              {% endif %}
+            </td>
 
-          <!-- Chatbot Access Toggle -->
-          <td class="py-3 px-6 text-center">
-            <a href="{% url 'toggle_chat_access' user.id %}" class="inline-flex items-center cursor-pointer">
-              <div class="relative">
-                <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
-                {% if user.has_chat_access %}
-                  <div class="dot absolute left-6 top-0.5 bg-green-500 w-5 h-5 rounded-full transition"></div>
-                {% else %}
-                  <div class="dot absolute left-1 top-0.5 bg-red-500 w-5 h-5 rounded-full transition"></div>
-                {% endif %}
-              </div>
-            </a>
-          </td>
-
-          <!-- Admin Toggle -->
-          <td class="py-3 px-6 text-center">
-            {% if user != request.user %}
-              <a href="{% url 'toggle_admin_role' user.id %}" class="inline-flex items-center cursor-pointer">
+            <!-- Chatbot Access Toggle -->
+            <td class="py-4 px-6 text-center">
+              <a href="{% url 'toggle_chat_access' user.id %}" class="inline-flex items-center cursor-pointer">
                 <div class="relative">
-                  <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
-                  {% if user.role == 'org_admin' %}
-                    <div class="dot absolute left-6 top-0.5 bg-indigo-600 w-5 h-5 rounded-full transition"></div>
+                  <div class="w-10 h-5 bg-white/10 rounded-full transition-colors border border-white/5"></div>
+                  {% if user.has_chat_access %}
+                  <div
+                    class="dot absolute left-5 top-0.5 bg-indigo-500 w-4 h-4 rounded-full transition-all shadow-lg shadow-indigo-500/50">
+                  </div>
                   {% else %}
-                    <div class="dot absolute left-1 top-0.5 bg-gray-400 w-5 h-5 rounded-full transition"></div>
+                  <div class="dot absolute left-1 top-0.5 bg-gray-600 w-4 h-4 rounded-full transition-all"></div>
                   {% endif %}
                 </div>
               </a>
-            {% else %}
-              <span class="text-gray-400 italic">You</span>
-            {% endif %}
-          </td>
+            </td>
 
-          <!-- Actions -->
-          <td class="py-3 px-6 text-center space-x-2">
-            {% if user == request.user %}
-              <p class="text-gray-400 italic">You cannot remove yourself</p>
-            {% else %}
-              <a href="{% url 'remove_employee' user.id %}" 
-                 class="text-red-500 hover:text-red-700 font-medium">Remove</a>
-            {% endif %}
-          </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="6" class="text-center py-6 text-gray-500 italic">No employees found.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            <!-- Admin Toggle -->
+            <td class="py-4 px-6 text-center">
+              {% if user != request.user %}
+              <a href="{% url 'toggle_admin_role' user.id %}" class="inline-flex items-center cursor-pointer">
+                <div class="relative">
+                  <div class="w-10 h-5 bg-white/10 rounded-full transition-colors border border-white/5"></div>
+                  {% if user.role == 'org_admin' %}
+                  <div
+                    class="dot absolute left-5 top-0.5 bg-indigo-600 w-4 h-4 rounded-full transition-all shadow-lg shadow-indigo-500/50">
+                  </div>
+                  {% else %}
+                  <div class="dot absolute left-1 top-0.5 bg-gray-600 w-4 h-4 rounded-full transition-all"></div>
+                  {% endif %}
+                </div>
+              </a>
+              {% else %}
+              <span class="text-xs text-indigo-400/50 font-bold uppercase">You</span>
+              {% endif %}
+            </td>
+
+            <!-- Actions -->
+            <td class="py-4 px-6 text-center">
+              {% if user == request.user %}
+              <span class="text-[10px] text-gray-600 uppercase font-bold">LOCKED</span>
+              {% else %}
+              <a href="{% url 'remove_employee' user.id %}"
+                class="text-red-400/70 hover:text-red-400 text-xs font-bold uppercase tracking-wider transition-colors">Delete</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-12 text-gray-500 italic">No employees found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- 🔧 Live Search Script (keeps toggle buttons) -->
+<!-- 🔧 Live Search Script -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const searchInput = document.getElementById("employee-search");
-  const tableBody = document.getElementById("employee-table-body");
-  const currentUserId = Number('{{ request.user.id }}'); // to protect self on admin toggle/remove
-  let timeout = null;
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("employee-search");
+    const tableBody = document.getElementById("employee-table-body");
+    const currentUserId = Number('{{ request.user.id }}');
+    let timeout = null;
 
-  function roleBadge(role) {
-    if (role === 'org_admin') return '<span class="text-indigo-600 font-bold">Org Admin</span>';
-    if (role === 'manager')  return '<span class="text-green-600">Manager</span>';
-    if (role === 'hr')       return '<span class="text-blue-600">HR</span>';
-    return '<span class="text-gray-600">Employee</span>';
-  }
+    function roleBadge(role) {
+      const roles = {
+        'org_admin': '<span class="text-indigo-400 text-xs font-bold uppercase tracking-wider">Org Admin</span>',
+        'manager': '<span class="text-purple-400 text-xs font-bold uppercase tracking-wider">Manager</span>',
+        'hr': '<span class="text-pink-400 text-xs font-bold uppercase tracking-wider">HR</span>',
+        'employee': '<span class="text-gray-500 text-xs font-bold uppercase tracking-wider">Employee</span>'
+      };
+      return roles[role] || roles['employee'];
+    }
 
-  function chatToggle(user) {
-    // Link to your panel route
-    const href = `/panel/toggle-chat-access/${user.id}/`;
-    const dot = user.has_chat_access
-      ? '<div class="dot absolute left-6 top-0.5 bg-green-500 w-5 h-5 rounded-full transition"></div>'
-      : '<div class="dot absolute left-1 top-0.5 bg-red-500 w-5 h-5 rounded-full transition"></div>';
-
-    return `
+    function toggleSwitch(enabled, href, activeColorClass) {
+      const dotColor = enabled ? `${activeColorClass} left-5 shadow-lg shadow-indigo-500/50` : 'bg-gray-600 left-1';
+      return `
       <a href="${href}" class="inline-flex items-center cursor-pointer">
         <div class="relative">
-          <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
-          ${dot}
+          <div class="w-10 h-5 bg-white/10 rounded-full transition-colors border border-white/5"></div>
+          <div class="dot absolute top-0.5 ${dotColor} w-4 h-4 rounded-full transition-all"></div>
         </div>
       </a>`;
-  }
-
-  function adminToggle(user) {
-    if (user.id === currentUserId) {
-      return '<span class="text-gray-400 italic">You</span>';
-    }
-    const href = `/panel/toggle-admin/${user.id}/`;
-    const dot = (user.role === 'org_admin')
-      ? '<div class="dot absolute left-6 top-0.5 bg-indigo-600 w-5 h-5 rounded-full transition"></div>'
-      : '<div class="dot absolute left-1 top-0.5 bg-gray-400 w-5 h-5 rounded-full transition"></div>';
-
-    return `
-      <a href="${href}" class="inline-flex items-center cursor-pointer">
-        <div class="relative">
-          <div class="w-12 h-6 bg-gray-300 rounded-full shadow-inner transition"></div>
-          ${dot}
-        </div>
-      </a>`;
-  }
-
-  function actionsCell(user) {
-    if (user.id === currentUserId) {
-      return '<p class="text-gray-400 italic">You cannot remove yourself</p>';
-    }
-    return `<a href="/panel/remove-employee/${user.id}/" class="text-red-500 hover:text-red-700 font-medium">Remove</a>`;
-  }
-
-  function renderRows(employees) {
-    tableBody.innerHTML = "";
-    if (!employees || employees.length === 0) {
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center py-6 text-gray-500 italic">No matching employees found.</td>
-        </tr>`;
-      return;
     }
 
-    const rows = employees.map(user => `
-      <tr class="border-b hover:bg-gray-50 transition">
-        <td class="py-3 px-6">${user.name || "-"}</td>
-        <td class="py-3 px-6">${user.username}</td>
-        <td class="py-3 px-6 font-semibold">${roleBadge(user.role)}</td>
-        <td class="py-3 px-6 text-center">${chatToggle(user)}</td>
-        <td class="py-3 px-6 text-center">${adminToggle(user)}</td>
-        <td class="py-3 px-6 text-center">${actionsCell(user)}</td>
+    function renderRows(employees) {
+      tableBody.innerHTML = "";
+      if (!employees || employees.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-gray-500 italic">No matching employees found.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = employees.map(user => `
+      <tr class="hover:bg-white/5 transition-colors group">
+        <td class="py-4 px-6">
+          <div class="font-semibold text-white group-hover:text-indigo-300 transition-colors">${user.name || "-"}</div>
+          <div class="text-xs text-gray-500">${user.email}</div>
+        </td>
+        <td class="py-4 px-6">
+          <span class="bg-white/5 px-2 py-1 rounded text-xs text-gray-400 font-mono">${user.username}</span>
+        </td>
+        <td class="py-4 px-6">${roleBadge(user.role)}</td>
+        <td class="py-4 px-6 text-center">${toggleSwitch(user.has_chat_access, `/panel/toggle-chat-access/${user.id}/`, 'bg-indigo-500')}</td>
+        <td class="py-4 px-6 text-center">
+          ${user.id === currentUserId
+          ? '<span class="text-xs text-indigo-400/50 font-bold uppercase">You</span>'
+          : toggleSwitch(user.role === 'org_admin', `/panel/toggle-admin/${user.id}/`, 'bg-indigo-600')}
+        </td>
+        <td class="py-4 px-6 text-center">
+          ${user.id === currentUserId
+          ? '<span class="text-[10px] text-gray-600 uppercase font-bold">LOCKED</span>'
+          : `<a href="/panel/remove-employee/${user.id}/" class="text-red-400/70 hover:text-red-400 text-xs font-bold uppercase tracking-wider transition-colors">Delete</a>`}
+        </td>
       </tr>
     `).join("");
-    tableBody.innerHTML = rows;
-  }
+    }
 
-  searchInput.addEventListener("input", function() {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      const query = searchInput.value.trim();
-      fetch(`/panel/search-employee/?q=${encodeURIComponent(query)}`)
-        .then(r => r.json())
-        .then(data => renderRows(data.results || []))
-        .catch(() => {
-          tableBody.innerHTML = `
-            <tr>
-              <td colspan="6" class="text-center py-6 text-red-500 italic">Error fetching results.</td>
-            </tr>`;
-        });
-    }, 300); // debounce
+    searchInput.addEventListener("input", function () {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const query = searchInput.value.trim();
+        fetch(`/panel/search-employee/?q=${encodeURIComponent(query)}`)
+          .then(r => r.json())
+          .then(data => renderRows(data.results || []))
+          .catch(() => {
+            tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-red-400 italic font-bold">Error fetching results.</td></tr>`;
+          });
+      }, 300);
+    });
   });
-});
 </script>
 {% endblock %}

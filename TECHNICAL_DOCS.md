@@ -60,7 +60,22 @@ The data layer is refactored into a modular package `core/models/`.
 -   **Policy**: Metadata for HR policies (Title, Source Type: File/URL).
 -   **PolicyChunk**: Text chunks extracted from policies, stored with metadata for RAG.
 
-## 3. Agent Workflow
+### API Endpoints (`core/api.py`)
+-   `GET /api/conversations/`: Lists recent conversations for the logged-in user.
+-   `GET /api/conversations/<id>/messages/?limit=20&offset=0`: Fetches paginated history for meaningful "infinite scroll".
+
+## 3. Frontend Architecture
+
+The frontend is built with **Django Templates** and **Vanilla JavaScript** (no heavy frameworks), styled with **Tailwind CSS**.
+
+-   **Chat Interface (`core/templates/core/`)**:
+    -   **WebSockets**: Real-time communication via `/ws/chat/`.
+    -   **State Management**: `chat_scripts.html` manages `currentConversationId`, message history pagination, and UI states.
+    -   **Sidebar**: A responsive, collapsible "Rail" navigation.
+        -   **Desktop**: Collapses to a compact icon-only rail (`w-20`). Hits "New Chat" or history icons to switch context.
+        -   **Mobile**: Off-canvas slide-out menu with overlay.
+
+## 4. Agent Workflow
 
 The agent logic is defined in `core/llm_graph/`.
 

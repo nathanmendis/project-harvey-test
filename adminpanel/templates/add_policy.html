@@ -3,63 +3,85 @@
 {% block title %}Add Policy | {{ org.name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white shadow rounded-lg p-8">
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Add New Policy</h2>
+<div class="max-w-2xl mx-auto py-8">
+    <div class="glass-card rounded-3xl p-8 border-white/10 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
 
-    {% if messages %}
-    <div class="mb-4">
-        {% for message in messages %}
-        <div
-            class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
-            {{ message }}
+        <div class="relative z-10">
+            <h2 class="text-3xl font-extrabold tracking-tight mb-2">New Knowledge Asset</h2>
+            <p class="text-pink-400 text-[10px] font-bold uppercase tracking-widest mb-8">Add to {{ org.name }} RAG
+                Pipeline</p>
+
+            {% if messages %}
+            <div class="space-y-3 mb-8">
+                {% for message in messages %}
+                <div
+                    class="glass-card px-6 py-4 rounded-xl border-l-4 border-red-500 bg-red-500/5 text-red-300 flex items-center gap-3 text-sm">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <div class="space-y-2">
+                    <label for="title" class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Policy
+                        Title</label>
+                    <input type="text" name="title" id="title" required placeholder="e.g. Remote Work Policy 2025"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all">
+                </div>
+
+                <div class="space-y-2">
+                    <label for="description"
+                        class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Internal
+                        Description</label>
+                    <textarea name="description" id="description" rows="3"
+                        placeholder="Brief summary for internal reference..."
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="source_type"
+                        class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Ingestion Method</label>
+                    <select name="source_type" id="source_type" onchange="toggleSourceFields()"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all appearance-none cursor-pointer">
+                        <option value="upload" class="bg-gray-900">Document Upload (PDF, DOCX, TXT)</option>
+                        <option value="url" class="bg-gray-900">Public/External URL</option>
+                    </select>
+                </div>
+
+                <div id="file-field" class="space-y-2 bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10">
+                    <label for="uploaded_file"
+                        class="block text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Select
+                        Document</label>
+                    <div class="relative">
+                        <input type="file" name="uploaded_file" id="uploaded_file"
+                            class="block w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 file:cursor-pointer transition-all">
+                    </div>
+                </div>
+
+                <div id="url-field" class="hidden space-y-2">
+                    <label for="external_url"
+                        class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Target URL</label>
+                    <input type="url" name="external_url" id="external_url"
+                        placeholder="https://portal.company.com/policy-pdf"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all">
+                </div>
+
+                <div class="flex items-center justify-between mt-10 pt-8 border-t border-white/5">
+                    <a href="{% url 'manage_policies' %}"
+                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Cancel</a>
+                    <button type="submit"
+                        class="bg-pink-600 hover:bg-pink-700 text-white px-10 py-4 rounded-2xl shadow-xl shadow-pink-600/30 font-bold transition-all hover:scale-[1.05] active:scale-100 flex items-center gap-2">
+                        <i class="fas fa-magic"></i> Index Policy
+                    </button>
+                </div>
+            </form>
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
-
-    <form method="POST" enctype="multipart/form-data" class="space-y-6">
-        {% csrf_token %}
-
-        <div>
-            <label for="title" class="block text-sm font-medium text-gray-700">Policy Title</label>
-            <input type="text" name="title" id="title" required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
-        </div>
-
-        <div>
-            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-            <textarea name="description" id="description" rows="3"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"></textarea>
-        </div>
-
-        <div>
-            <label for="source_type" class="block text-sm font-medium text-gray-700">Source Type</label>
-            <select name="source_type" id="source_type" onchange="toggleSourceFields()"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
-                <option value="upload">File Upload (PDF, DOCX, TXT)</option>
-                <option value="url">External URL</option>
-            </select>
-        </div>
-
-        <div id="file-field">
-            <label for="uploaded_file" class="block text-sm font-medium text-gray-700">Upload File</label>
-            <input type="file" name="uploaded_file" id="uploaded_file"
-                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-        </div>
-
-        <div id="url-field" class="hidden">
-            <label for="external_url" class="block text-sm font-medium text-gray-700">External URL</label>
-            <input type="url" name="external_url" id="external_url" placeholder="https://example.com/policy"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
-        </div>
-
-        <div class="flex justify-end pt-4">
-            <a href="{% url 'manage_policies' %}"
-                class="bg-gray-200 text-gray-700 px-4 py-2 rounded mr-2 hover:bg-gray-300">Cancel</a>
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add
-                Policy</button>
-        </div>
-    </form>
 </div>
 
 <script>
@@ -80,5 +102,7 @@
             document.getElementById('external_url').required = true;
         }
     }
+    // Initialize required state
+    toggleSourceFields();
 </script>
 {% endblock %}

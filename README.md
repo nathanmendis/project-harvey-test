@@ -6,6 +6,7 @@ Harvey is an intelligent HR assistant designed to streamline recruitment workflo
 
 ### 🤖 Intelligent Agent
 -   **Context-Aware**: Built with **LangGraph**, Harvey maintains conversation state, remembers goals, and adapts to topic shifts.
+-   **Multi-Session Memory**: Supports **Multiple Conversations** per user. Switch between chat sessions seamlessly with isolated context and full history.
 -   **Anti-Hallucination**: Implements "Action Reality" protocols to ensure the agent only claims actions it has actually performed via tools.
 -   **Structured Memory**: Uses **Redis** for low-latency conversation history and context retrieval.
 

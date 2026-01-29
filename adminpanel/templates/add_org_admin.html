@@ -1,47 +1,74 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="min-h-screen bg-gray-50 flex justify-center items-center py-10">
-  <div class="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
-    <h2 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">
-      🧑‍💼 Add Organization Admin to <span class="text-indigo-600">{{ org.name }}</span>
-    </h2>
+<div class="max-w-2xl mx-auto py-8">
+  <div class="glass-card rounded-3xl p-8 border-white/10 relative overflow-hidden">
+    <!-- Decorative Glow -->
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="bg-{{ message.tags }}-100 text-{{ message.tags }}-800 border-l-4 border-{{ message.tags }}-500 p-4 mb-4 rounded">
+    <div class="relative z-10">
+      <h2 class="text-3xl font-extrabold tracking-tight mb-2 flex items-center gap-3">
+        <span class="text-indigo-400"><i class="fas fa-user-shield"></i></span>
+        Add Organization Admin
+      </h2>
+      <p class="text-indigo-300/60 text-[10px] font-bold uppercase tracking-[0.2em] mb-10">Restricted to: {{ org.name }}
+      </p>
+
+      {% if messages %}
+      <div class="space-y-3 mb-8">
+        {% for message in messages %}
+        <div
+          class="glass-card px-6 py-3 rounded-xl border-l-4 {% if message.tags == 'error' %}border-red-500 bg-red-500/5 text-red-300{% else %}border-indigo-500 bg-indigo-500/5 text-indigo-300{% endif %} flex items-center gap-3 text-sm">
+          <i
+            class="fas {% if message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %}"></i>
           {{ message }}
         </div>
-      {% endfor %}
-    {% endif %}
-
-    <form method="POST" class="space-y-5">
-      {% csrf_token %}
-
-      <div>
-        <label class="block text-gray-700 font-semibold mb-1">Full Name</label>
-        <input type="text" name="name" class="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500" required>
+        {% endfor %}
       </div>
+      {% endif %}
 
-      <div>
-        <label class="block text-gray-700 font-semibold mb-1">Username</label>
-        <input type="text" name="username" class="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500" required>
-      </div>
+      <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+        {% csrf_token %}
 
-      <div>
-        <label class="block text-gray-700 font-semibold mb-1">Email</label>
-        <input type="email" name="email" class="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500" required>
-      </div>
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Full Name</label>
+          <input type="text" name="name" placeholder="Admin Name"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            required>
+        </div>
 
-      <div>
-        <label class="block text-gray-700 font-semibold mb-1">Password</label>
-        <input type="password" name="password" class="w-full border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-500" required>
-      </div>
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Login ID</label>
+          <input type="text" name="username" placeholder="admin_user"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            required>
+        </div>
 
-      <div class="flex justify-between mt-6">
-        <a href="{% url 'manage_org_admins' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</a>
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Add Admin</button>
-      </div>
-    </form>
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Business Email</label>
+          <input type="email" name="email" placeholder="admin@{{ org.name|lower|cut:' ' }}.com"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            required>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest">Access Password</label>
+          <input type="password" name="password" placeholder="••••••••"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            required>
+        </div>
+
+        <div class="flex items-center justify-between md:col-span-2 mt-10 pt-8 border-t border-white/5">
+          <a href="{% url 'manage_org_admins' %}"
+            class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Back to Admins
+          </a>
+          <button type="submit"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-2xl shadow-xl shadow-indigo-600/30 font-bold transition-all hover:scale-[1.05] active:scale-100">
+            Provision Administrator
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}
