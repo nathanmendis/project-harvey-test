@@ -122,6 +122,12 @@ def execute_node(state):
     start = time.time()
     try:
         logger.info(f"Executing tool: {call['name']} with args: {args}")
+        
+        # Fix: Remove 'user' from args if the LLM provided it (usually as None)
+        # to avoid "multiple values for keyword argument" error.
+        if "user" in args:
+            del args["user"]
+
         result = func(user=user, **args)
         parsed = json.loads(result)
         message = parsed.get("message", result)

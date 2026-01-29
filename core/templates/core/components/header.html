@@ -1,0 +1,48 @@
+<!-- Header -->
+<header
+    class="glass-panel z-20 flex justify-between items-center py-4 px-6 relative shadow-lg border-b-0 border-white/5">
+    <div class="flex items-center gap-3">
+        <div class="h-10 w-10 bg-indigo-600/20 border border-indigo-500/30 rounded-xl flex items-center justify-center">
+            <i class="fas fa-robot text-indigo-400 text-xl"></i>
+        </div>
+        <div>
+            <div class="text-lg font-bold tracking-wide">Harvey</div>
+            <div class="text-xs text-indigo-300 font-medium tracking-wider uppercase">AI HR Assistant</div>
+        </div>
+    </div>
+    <div class="relative" id="user-menu-container">
+        <button id="user-menu-btn"
+            class="flex items-center gap-3 hover:bg-white/5 py-2 px-3 rounded-xl transition-all border border-transparent hover:border-white/5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+            <div
+                class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold shadow-lg shadow-indigo-500/20">
+                {{ user.username|make_list|first|upper }}
+            </div>
+            <span class="text-sm text-gray-300 hidden md:block font-medium">{{ user.username }}</span>
+            <i class="fas fa-chevron-down text-xs text-gray-500 ml-1 transition-transform duration-200"
+                id="menu-arrow"></i>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="user-dropdown"
+            class="absolute right-0 top-full mt-2 w-48 glass-panel rounded-xl shadow-2xl py-2 hidden opacity-0 transform scale-95 transition-all duration-200 origin-top-right z-50 border border-white/10">
+
+            {% if user.is_superuser or user.role == 'org_admin' %}
+            <a href="{% url 'admin_dashboard' %}"
+                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors">
+                <i class="fas fa-tachometer-alt w-4 text-indigo-400"></i>
+                Dashboard
+            </a>
+            <div class="h-px bg-white/10 my-1 mx-2"></div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'logout' %}" class="block">
+                {% csrf_token %}
+                <button type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-colors text-left">
+                    <i class="fas fa-sign-out-alt w-4"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</header>

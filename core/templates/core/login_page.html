@@ -1,16 +1,36 @@
-{% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Harvey HR Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    {% tailwind_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-pattern {
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .password-container {
             position: relative;
         }
+
         .password-container i {
             position: absolute;
             right: 15px;
@@ -21,101 +41,174 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-10">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-900">Sign in to Your Account</h2>
-            <p class="mt-2 text-sm text-gray-500">Welcome to <span class="font-semibold text-indigo-600">Harvey HR</span></p>
+<body class="hero-pattern flex items-center justify-center min-h-screen text-white">
+
+    <!-- Background decorative blobs -->
+    <div
+        class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+    </div>
+
+
+    <div class="w-full max-w-sm glass-card rounded-2xl shadow-2xl p-6 relative z-10">
+        <div class="text-center mb-6">
+            <div
+                class="h-10 w-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30 mx-auto mb-3">
+                <i class="fas fa-robot text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
+            <p class="mt-2 text-xs text-gray-400">Sign in to <span class="font-semibold text-indigo-400">Project
+                    Harvey</span></p>
         </div>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <span class="block sm:inline">{{ message }}</span>
-                </div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
         {% endif %}
 
         {% if request.GET.access_denied %}
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
-                You don’t have access to the chatbot. Contact your admin.
-            </div>
+        <div class="bg-yellow-900/50 border border-yellow-500/50 text-yellow-200 px-4 py-3 rounded relative mb-4"
+            role="alert">
+            You don’t have access to the chatbot. Contact your admin.
+        </div>
         {% endif %}
 
         <!-- Future Google/Apple login options (optional) -->
         <div class="space-y-4">
             <button type="button" disabled
-                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
+                class="w-full flex items-center justify-center px-4 py-2 border border-gray-700/50 rounded-lg shadow-sm text-sm font-medium text-gray-500 bg-gray-800/50 cursor-not-allowed transition-colors">
                 <i class="fab fa-google mr-2"></i>
-                Continue with Google (coming soon)
+                Continue with Google (soon)
             </button>
-            <!-- <button type="button" disabled
-                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed">
-                <i class="fab fa-apple mr-2"></i>
-                Continue with Apple (coming soon)
-            </button> -->
         </div>
 
         <div class="my-6 flex items-center">
-            <div class="flex-grow border-t border-gray-300"></div>
-            <span class="mx-4 text-sm text-gray-500">Or continue with</span>
-            <div class="flex-grow border-t border-gray-300"></div>
+            <div class="flex-grow border-t border-gray-500"></div>
+            <span class="mx-4 text-sm text-gray-300">Or sign in with email</span>
+            <div class="flex-grow border-t border-gray-700"></div>
         </div>
 
-        <!-- ✅ Login form -->
+        <!-- Login form -->
         <form method="POST" action="{% url 'login' %}" class="space-y-6">
             {% csrf_token %}
             <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
                 <div class="mt-1">
                     <input type="text" name="username" id="username"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+                        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                         placeholder="Enter username" required>
                 </div>
             </div>
 
             <div class="password-container">
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
                 <div class="mt-1 relative">
                     <input type="password" name="password" id="password"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+                        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-700 rounded-lg shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                         placeholder="••••••••" required>
-                    <i class="fas fa-eye-slash" id="togglePassword"></i>
+                    <i class="fas fa-eye-slash text-gray-500 hover:text-gray-300 transition-colors"
+                        id="togglePassword"></i>
                 </div>
             </div>
 
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox"
-                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-700 rounded bg-gray-900/50">
+                    <label for="remember-me" class="ml-2 block text-sm text-gray-400">Remember me</label>
                 </div>
 
                 <div class="text-sm">
-                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Trouble Logging in?</a>
+                    <a href="#" id="forgotPasswordLink"
+                        class="font-medium text-indigo-400 hover:text-indigo-300 transition-colors">Forgot
+                        password?</a>
                 </div>
             </div>
 
             <div>
                 <button type="submit"
-                    class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md hover:bg-indigo-700 transition duration-200">
+                    class="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 transition-all duration-200 transform hover:-translate-y-0.5">
                     Sign In
                 </button>
             </div>
         </form>
+
+        <div class="mt-6 text-center text-sm text-gray-500">
+            <a href="{% url 'landing_page' %}" class="hover:text-white transition-colors"><i
+                    class="fas fa-arrow-left mr-1"></i> Back to Home</a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-gray-900 border border-gray-700 p-8 rounded-2xl shadow-2xl max-w-sm text-center transform scale-95 transition-transform duration-300"
+            id="modalContent">
+            <div
+                class="h-12 w-12 bg-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
+                <i class="fas fa-lock text-indigo-400 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Password Reset</h3>
+            <p class="text-gray-400 text-sm mb-6">Please contact your organization administrator to reset your password.
+            </p>
+            <button id="closeModal"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors">
+                Got it
+            </button>
+        </div>
     </div>
 
     <script>
         const togglePassword = document.querySelector('#togglePassword');
         const password = document.querySelector('#password');
+        const forgotPasswordLink = document.querySelector('#forgotPasswordLink');
+        const modal = document.querySelector('#forgotPasswordModal');
+        const modalContent = document.querySelector('#modalContent');
+        const closeModal = document.querySelector('#closeModal');
 
+        // Toggle Password Visibility
         togglePassword.addEventListener('click', function () {
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
+
+        // Modal Logic
+        function openModal(e) {
+            e.preventDefault();
+            modal.classList.remove('hidden');
+            // Small delay to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function hideModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        forgotPasswordLink.addEventListener('click', openModal);
+        closeModal.addEventListener('click', hideModal);
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) hideModal();
+        });
     </script>
 </body>
+
 </html>

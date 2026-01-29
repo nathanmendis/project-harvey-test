@@ -40,6 +40,8 @@ def add_candidate(name: str, email: str, skills: str, phone: str, source: str = 
     )
     return ok(f"Candidate '{name}' added successfully.", id=c.id, name=name)
 
+import os
+
 @tool("add_candidate_with_resume", return_direct=True)
 def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", phone: str = "", user=None) -> str:
     """
@@ -49,6 +51,19 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
     org = get_org(user)
     if not org:
         return err("User is not associated with any organization. Please contact support.")
+
+    # Fix: Resolve file path if it's just a filename
+    if not os.path.exists(file_path):
+        # Try finding it in 'resumes' folder
+        potential_path = os.path.join("resumes", os.path.basename(file_path))
+        if os.path.exists(potential_path):
+            file_path = potential_path
+        else:
+            # Try absolute path fallback (user's project root)
+            base_dir = r"d:\Code\project_harvey\project-harvey-test"
+            potential_path_2 = os.path.join(base_dir, "resumes", os.path.basename(file_path))
+            if os.path.exists(potential_path_2):
+                file_path = potential_path_2
 
     parser = ResumeParser()
     try:

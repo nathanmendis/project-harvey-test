@@ -1,6 +1,8 @@
 from langchain_core.tools import tool
 from core.vector_store import get_vector_store
 
+from core.tools.base import ok
+
 @tool
 def search_knowledge_base(query: str, user=None):
     """
@@ -11,10 +13,10 @@ def search_knowledge_base(query: str, user=None):
     results = store.similarity_search(query, k=3)
     
     if not results:
-        return "No relevant information found in the knowledge base."
+        return ok("No relevant information found in the knowledge base.")
     
     formatted_results = "\n\n".join(
         f"--- Result {i+1} ---\n{doc.page_content}" 
         for i, doc in enumerate(results)
     )
-    return f"Found the following information:\n{formatted_results}"
+    return ok(f"Found the following information:\n{formatted_results}")

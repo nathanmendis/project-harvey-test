@@ -1,6 +1,4 @@
 import os
-from langchain_postgres import PGVector
-from langchain_huggingface import HuggingFaceEmbeddings
 from django.conf import settings
 
 class VectorStore:
@@ -11,11 +9,14 @@ class VectorStore:
 
     @classmethod
     def get_embeddings(cls):
+        from langchain_huggingface import HuggingFaceEmbeddings
         if cls._embeddings_instance is None:
             cls._embeddings_instance = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         return cls._embeddings_instance
 
     def _initialize(self):
+        from langchain_postgres import PGVector
+        
         # Use cached embeddings
         self.embeddings = self.get_embeddings()
         

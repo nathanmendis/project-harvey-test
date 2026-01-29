@@ -19,15 +19,19 @@ Harvey is an intelligent HR assistant designed to streamline recruitment workflo
 -   **Knowledge Base**: Real-time semantic search over organizational data.
 
 ### 🖥️ Admin Panel & UI
+-   **Public Landing Page**: Premium, responsive landing page with project information.
 -   **Dashboard**: Overview of organization stats (Users, Staff, Admins).
 -   **Employee Management**: Add/Remove employees, toggle chatbot access, manage roles.
 -   **Policy Management**: Upload, view, and re-index HR policies.
 -   **Modern UI**: Styled with **Tailwind CSS** for a responsive and premium feel.
 
+### 🧠 Automatic Knowledge Base
+-   **Auto-Indexing**: Candidates and Job Roles are automatically indexed into the vector store upon creation, enabling instant semantic search availability.
+
 ## 🏗️ Architecture
 
 -   **Backend**: Django 5.1 (ASGI)
--   **Agent**: LangGraph + Google Gemini 2.5 Flash
+-   **Agent**: LangGraph + Groq (Llama 3.3) / Google Gemini 2.5 Flash
 -   **Vector Store**: PostgreSQL + pgvector (Dockerized)
 -   **Database**: SQLite (Data) + Redis (State)
 
@@ -101,6 +105,6 @@ poetry run python manage.py migrate
 
 ## 🧪 Testing
 
--   **Run Unit Tests**: `poetry run python manage.py test tests`
+-   **Run Unit Tests**: `poetry run pytest`
 -   **Verify Vector Search**: `poetry run python core/llm_graph/test_search.py`
 -   **Verify Context Switching**: `poetry run python core/llm_graph/test_context.py`

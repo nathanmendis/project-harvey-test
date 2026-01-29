@@ -1,31 +1,73 @@
-{% extends 'core_base.html' %}
-{% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-indigo-100">
-  <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-md text-center border border-gray-100">
-    
-    <div class="mb-6">
-      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-        <span class="text-4xl text-red-600">🚫</span>
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Denied - Project Harvey</title>
+  {% tailwind_css %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .hero-pattern {
+      background-color: #0f172a;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+
+<body class="hero-pattern min-h-screen flex items-center justify-center text-white relative overflow-hidden">
+
+  <!-- Background decorative blobs -->
+  <div
+    class="absolute top-1/3 left-1/4 w-96 h-96 bg-red-900/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+  </div>
+  <div
+    class="absolute bottom-1/3 right-1/4 w-96 h-96 bg-orange-900/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+  </div>
+
+  <div
+    class="glass-card shadow-2xl rounded-2xl p-10 max-w-md text-center border border-white/10 relative z-10 w-full mx-4">
+
+    <div class="mb-8">
+      <div
+        class="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+        <i class="fas fa-ban text-4xl text-red-500"></i>
       </div>
     </div>
 
-    <h2 class="text-3xl font-bold text-gray-800 mb-2">Access Denied</h2>
-    <p class="text-gray-600 mb-6">
-      You don’t have permission to access the chatbot at this time.<br>
-      Please contact your organization admin for access.
+    <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-orange-400 mb-4">Access
+      Denied</h2>
+    <p class="text-gray-400 mb-8 leading-relaxed">
+      You don’t have permission to access the chatbot.<br>
+      Please contact your organization administrator to request access.
     </p>
 
-    <form method="POST" action="{% url 'logout' %}" class="inline-block">
+    <form method="POST" action="{% url 'logout' %}" class="block">
       {% csrf_token %}
       <button type="submit"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md font-semibold transition-all duration-200">
-         Back to Login
+        class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 group">
+        <i class="fas fa-sign-out-alt group-hover:-translate-x-1 transition-transform"></i> Return to Login
       </button>
     </form>
 
-    <p class="text-xs text-gray-400 mt-6">
-      If you think this is a mistake, please reach out to your HR administrator.
+    <p class="text-xs text-gray-500 mt-8">
+      Project Harvey • HR Intelligence
     </p>
   </div>
-</div>
-{% endblock %}
+</body>
+
+</html>

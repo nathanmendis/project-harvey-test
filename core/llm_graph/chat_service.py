@@ -84,11 +84,15 @@ def generate_llm_reply(prompt: str, user, request=None):
         "trace": prev_state.get("trace", []),
     }
 
-    logger.debug(f"Graph invoke with state: {state_input}")
+    # Summary logging instead of full dump to avoid Unicode errors and massive logs
+    logger.debug(f"Graph invoke. User: {user.username}, Msg Count: {len(state_input.get('messages', []))}")
 
     try:
         result = graph.invoke(state_input, config=config)
-        logger.debug(f"Graph completed. Result: {result}")
+        # Reduce log verbosity: only show keys and last message preview
+        msgs = result.get("messages", [])
+        last_msg = msgs[-1].content[:50] + "..." if msgs else "No messages"
+        logger.debug(f"Graph completed. Keys: {list(result.keys())}, Last output: {last_msg}")
 
         pending_tool = result.get("pending_tool")
         final_text = ""

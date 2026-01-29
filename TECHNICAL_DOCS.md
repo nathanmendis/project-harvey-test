@@ -12,19 +12,23 @@ Project Harvey is a modular, agentic AI application built on a robust Django bac
         -   `core`: Contains models, tools, LLM logic, and API endpoints.
         -   `adminpanel`: Custom administrative interface for managing organizations, users, and policies.
         -   `theme`: Tailwind CSS configuration.
+    -   **URL Routing**:
+        -   Root `/` -> Public Landing Page (with login redirects).
+        -   `/app/` -> Authenticated Chat Interface.
 
 -   **Agent Framework**: LangGraph
     -   Implements a state machine for the AI agent.
     -   **Nodes**: `harvey_node` (LLM decision making), `tool_node` (Action execution).
     -   **State**: `HarveyState` (TypedDict) manages conversation history, context, and traces.
 
--   **LLM Provider**: Google Gemini 2.5 Flash
-    -   Accessed via `langchain-google-genai`.
-    -   Selected for high speed and cost-effectiveness.
+-   **LLM Provider**: Dual-Stack Support
+    -   **Groq (Primary)**: Uses `llama-3.3-70b-versatile` for ultra-fast inference. Used if `GROQ_API_KEY` is present.
+    -   **Google Gemini (Fallback)**: Uses `gemini-2.5-flash` if Groq is unavailable.
+    -   Accessed via `langchain-groq` and `langchain-google-genai`.
 
 -   **Memory & State Management**:
-    -   **Redis**: Stores short-term conversation state and agent checkpoints for low-latency retrieval.
-    -   **SQLite**: Persistent storage for application data (Users, Candidates, Policies) and long-term logs (`GraphRun`).
+    -   **SQLite (`checkpoints.db`)**: Stores conversation state and agent checkpoints (Active configuration).
+    -   **Redis**: Optional/Legacy configuration for state persistence (currently disabled in favor of SQLite).
 
 -   **RAG (Retrieval-Augmented Generation)**:
     -   **Vector Store**: PostgreSQL + pgvector (Dockerized).
@@ -68,9 +72,11 @@ The agent logic is defined in `core/llm_graph/`.
     -   **Anti-Hallucination**: "Action Reality" rule enforces tool usage for DB writes.
 3.  **Tool Node** (Conditional):
     -   Executes if the LLM requests a tool.
-    -   Returns the tool output to the graph state.
-4.  **Loop**: The graph loops back to the Harvey Node with the tool output.
-5.  **End**: Returns the final text response to the user.
+    -   Loops back to the **Harvey Node** with tool output.
+4.  **Summary Node** (Conditional, if no tool):
+    -   Analyzes the conversation turn.
+    -   Updates the structured `context` state (goals, extracted info).
+5.  **End**: Returns the final response.
 
 ### Tools (`core/tools/`)
 -   `add_candidate`: Creates a new candidate record.
@@ -83,7 +89,11 @@ The agent logic is defined in `core/llm_graph/`.
 ## 4. RAG Pipeline
 
 ### Indexing
--   **Candidates/Jobs**: `core/management/commands/index_data.py` script iterates DB and adds embeddings to PostgreSQL.
+### Indexing
+-   **Candidates/Jobs (Automatic)**: 
+    -   Handled by `core/services/model_indexer.py`.
+    -   Triggered by **Django Signals** (`post_save`) on `Candidate` and `JobRole`.
+    -   Indexing runs in a background thread to prevent blocking the HTTP response.
 -   **Policies**: `core/services/policy_indexer.py` handles file parsing (PDF/Docx/Txt) and URL scraping. It chunks text and updates the vector store in real-time.
 
 ### Retrieval

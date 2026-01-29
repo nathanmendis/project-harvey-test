@@ -1,0 +1,246 @@
+<script>
+    const sendBtn = document.getElementById("send-btn");
+    const userInput = document.getElementById("user-input");
+    const chatBox = document.getElementById("chat-box");
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const chatSocket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/chat/`);
+
+    // State for attached files
+    let attachedFiles = [];
+
+    function appendMessage(sender, text) {
+        const bubbleContainer = document.createElement("div");
+        bubbleContainer.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up");
+
+        // Profile Icon
+        const iconDiv = document.createElement("div");
+        iconDiv.className = "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-md";
+
+        if (sender === "user") {
+            bubbleContainer.classList.add("flex-row-reverse");
+            iconDiv.classList.add("bg-indigo-600", "text-white");
+            iconDiv.innerText = "ME";
+        } else {
+            iconDiv.classList.add("bg-gradient-to-br", "from-indigo-500", "to-purple-600", "text-white");
+            iconDiv.innerHTML = '<i class="fas fa-robot"></i>';
+        }
+
+        const bubble = document.createElement("div");
+        bubble.classList.add("p-4", "rounded-2xl", "max-w-2xl", "leading-relaxed", "text-sm", "shadow-sm");
+
+        if (sender === "user") {
+            bubble.classList.add("chat-bubble-user", "text-white");
+        } else {
+            bubble.classList.add("chat-bubble-ai");
+        }
+
+        // Simple line break handling
+        bubble.innerHTML = text.replace(/\n/g, '<br>');
+
+        bubbleContainer.appendChild(iconDiv);
+        bubbleContainer.appendChild(bubble);
+        chatBox.appendChild(bubbleContainer);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        const responseText = data.response;
+
+        // Remove initial placeholder
+        const initialPlaceholder = document.getElementById('welcome-placeholder');
+        if (initialPlaceholder) initialPlaceholder.remove();
+
+        if (responseText === "Thinking...") {
+            let thinkingBubble = chatBox.querySelector('.thinking-bubble');
+            if (!thinkingBubble) {
+                thinkingBubble = document.createElement("div");
+                thinkingBubble.className = "flex items-start gap-3 thinking-bubble animate-pulse";
+                thinkingBubble.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-md">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="chat-bubble-ai px-4 py-3 rounded-2xl flex gap-1 items-center h-10">
+                             <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                             <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                             <div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+                        </div>
+                    `;
+                chatBox.appendChild(thinkingBubble);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        } else {
+            const thinkingBubble = chatBox.querySelector('.thinking-bubble');
+            if (thinkingBubble) thinkingBubble.remove();
+            appendMessage("ai", responseText);
+        }
+    };
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    function sendMessage() {
+        let prompt = userInput.value.trim();
+
+        // Append attached files to prompt invisibly
+        if (attachedFiles.length > 0) {
+            const fileConstraints = attachedFiles.map(f => ` [Attached Resume: ${f.path}]`).join(" ");
+            prompt += fileConstraints;
+        }
+
+        if (!prompt && attachedFiles.length === 0) return; // Only return if no prompt AND no files
+
+        // Remove initial placeholder if first message
+        const initialPlaceholder = document.getElementById('welcome-placeholder');
+        if (initialPlaceholder) {
+            initialPlaceholder.classList.add('opacity-0');
+            setTimeout(() => initialPlaceholder.remove(), 300);
+        }
+
+        // If user didn't type anything but has files, show "Sent X files" or just the prompt
+        const displayPrompt = userInput.value.trim() || (attachedFiles.length > 0 ? `Sent ${attachedFiles.length} file(s)...` : "...");
+
+        appendMessage("user", displayPrompt);
+        userInput.value = "";
+        clearAttachments();
+
+        chatSocket.send(JSON.stringify({ 'prompt': prompt }));
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    // Dropdown Logic
+    const menuBtn = document.getElementById('user-menu-btn');
+    const dropdown = document.getElementById('user-dropdown');
+    const arrow = document.getElementById('menu-arrow');
+    const container = document.getElementById('user-menu-container');
+
+    if (menuBtn && dropdown) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = dropdown.classList.contains('hidden');
+
+            if (isHidden) {
+                // Open
+                dropdown.classList.remove('hidden');
+                // Small delay for transition
+                requestAnimationFrame(() => {
+                    dropdown.classList.remove('opacity-0', 'scale-95');
+                    dropdown.classList.add('opacity-100', 'scale-100');
+                    if (arrow) arrow.classList.add('rotate-180');
+                });
+            } else {
+                closeDropdown();
+            }
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+    }
+
+    function closeDropdown() {
+        if (!dropdown) return;
+        dropdown.classList.remove('opacity-100', 'scale-100');
+        dropdown.classList.add('opacity-0', 'scale-95');
+        if (arrow) arrow.classList.remove('rotate-180');
+
+        // Wait for transition to finish before hiding
+        setTimeout(() => {
+            dropdown.classList.add('hidden');
+        }, 200);
+    }
+
+    // File Upload Logic
+    const uploadBtn = document.getElementById("upload-btn");
+    const resumeUpload = document.getElementById("resume-upload");
+    const filePreviews = document.getElementById("file-previews");
+
+    uploadBtn.addEventListener("click", () => resumeUpload.click());
+
+    function renderAttachments() {
+        filePreviews.innerHTML = '';
+        if (attachedFiles.length > 0) {
+            filePreviews.classList.remove('hidden');
+        } else {
+            filePreviews.classList.add('hidden');
+        }
+
+        attachedFiles.forEach((file, index) => {
+            const chip = document.createElement('div');
+            chip.className = "flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-xs text-indigo-200 animate-fade-in";
+            chip.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <span class="max-w-[150px] truncate">${file.name}</span>
+                    <button onclick="removeAttachment(${index})" class="hover:text-white transition-colors ml-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            filePreviews.appendChild(chip);
+        });
+    }
+
+    function removeAttachment(index) {
+        attachedFiles.splice(index, 1);
+        renderAttachments();
+    }
+
+    function clearAttachments() {
+        attachedFiles = [];
+        renderAttachments();
+    }
+
+    // Expose removeAttachment to global scope due to onclick attribute
+    window.removeAttachment = removeAttachment;
+
+    resumeUpload.addEventListener("change", function () {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const formData = new FormData();
+            formData.append("resume", file);
+
+            // Show loading state
+            const originalIcon = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-indigo-400"></i>';
+            uploadBtn.disabled = true;
+
+            fetch("/upload_resume/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.file_path) {
+                        // Verify uniqueness if needed, or just append
+                        attachedFiles.push({
+                            name: data.filename || file.name,
+                            path: data.file_path
+                        });
+                        renderAttachments();
+                        userInput.focus();
+                    } else {
+                        alert("Upload failed: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Upload error");
+                })
+                .finally(() => {
+                    uploadBtn.innerHTML = originalIcon;
+                    uploadBtn.disabled = false;
+                    resumeUpload.value = ""; // Reset input
+                });
+        }
+    });
+</script>
