@@ -5,14 +5,220 @@
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const chatSocket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/chat/`);
 
-    // State for attached files
+    // State
     let attachedFiles = [];
+    let currentConversationId = null;
+    let messageOffset = 0;
+    let hasMoreHistory = false;
+    let isLoadingHistory = false;
 
-    function appendMessage(sender, text) {
+    function handleSidebarClick(e) {
+        // Find closest interactive element
+        const interactive = e.target.closest('button') || e.target.closest('.cursor-pointer');
+        const sidebar = document.getElementById('chat-sidebar');
+
+        // If we clicked an interactive element that IS NOT the sidebar itself
+        if (interactive && interactive !== sidebar) {
+            // If sidebar is expanded, let the interactive element do its job
+            if (sidebar.classList.contains('w-64')) {
+                return;
+            }
+        }
+        toggleSidebar();
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('chat-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const isMobile = window.innerWidth < 768;
+        const texts = sidebar.querySelectorAll('.sidebar-text');
+
+        if (isMobile) {
+            // Mobile: Toggle Translate & Overlay
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        } else {
+            // Desktop: Toggle Width (Rail vs Expanded)
+            if (sidebar.classList.contains('w-64')) {
+                // Collapse to Rail (w-20 = 5rem / 80px)
+                // Actually matching the padding/icon size, w-20 is good.
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+
+                // Hide Text
+                texts.forEach(el => {
+                    el.classList.remove('opacity-100');
+                    el.classList.add('opacity-0', 'w-0', 'p-0', 'm-0', 'overflow-hidden');
+                });
+
+            } else {
+                // Expand
+                sidebar.classList.add('w-64');
+                sidebar.classList.remove('w-20');
+
+                // Show Text
+                texts.forEach(el => {
+                    el.classList.add('opacity-100');
+                    el.classList.remove('opacity-0', 'w-0', 'p-0', 'm-0', 'overflow-hidden');
+                });
+            }
+        }
+    }
+
+    async function loadConversations() {
+        try {
+            const res = await fetch('/api/conversations/');
+            const data = await res.json();
+            renderConversationList(data.conversations);
+        } catch (e) {
+            console.error("Failed to load conversations:", e);
+        }
+    }
+
+    function renderConversationList(conversations) {
+        const container = document.getElementById('conversation-list');
+        container.innerHTML = '';
+        conversations.forEach(c => {
+            const div = document.createElement('div');
+            // Check if active
+            const isActive = currentConversationId === c.id;
+            div.className = `p-3 rounded-lg cursor-pointer transition-colors text-sm flex items-center gap-3 overflow-hidden ${isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`;
+            div.onclick = (e) => {
+                e.stopPropagation(); // Prevent Sidebar click
+                loadConversation(c.id);
+            };
+
+            // Generate Initial (2 chars)
+            const initials = c.title ? c.title.substring(0, 5).toUpperCase() : 'NC';
+
+            div.innerHTML = `
+                <div class="w-8 min-w-[2rem] flex items-center justify-center text-xs font-bold tracking-wide uppercase ${isActive ? 'text-indigo-400' : 'text-gray-500'}">
+                    ${initials}
+                </div>
+                <span class="whitespace-nowrap truncate transition-opacity duration-200 sidebar-text opacity-100 font-medium">${c.title}</span>
+            `;
+
+            container.appendChild(div);
+        });
+
+        // Check current sidebar state to hide/show text immediately
+        const sidebar = document.getElementById('chat-sidebar');
+        if (!sidebar.classList.contains('w-64')) {
+            const texts = container.querySelectorAll('.sidebar-text');
+            texts.forEach(t => t.classList.remove('opacity-100'));
+            texts.forEach(t => t.classList.add('opacity-0'));
+        }
+    }
+
+    function startNewChat() {
+        currentConversationId = null;
+        messageOffset = 0;
+        hasMoreHistory = false;
+        chatBox.innerHTML = ''; // Clear chat
+        renderWelcomeScreen(); // Show welcome
+        loadConversations(); // Refresh list to remove highlight
+
+        // Close sidebar on mobile
+        if (window.innerWidth < 768) {
+            const sidebar = document.getElementById('chat-sidebar');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                toggleSidebar();
+            }
+        }
+    }
+
+    async function loadConversation(id) {
+        currentConversationId = id;
+        messageOffset = 0;
+        hasMoreHistory = false;
+        chatBox.innerHTML = ''; // Clear current view
+
+        // Close sidebar on mobile
+        if (window.innerWidth < 768) {
+            const sidebar = document.getElementById('chat-sidebar');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                toggleSidebar();
+            }
+        }
+
+        await fetchMessages(id, 0);
+        loadConversations(); // Refresh to highlight active
+    }
+
+    async function fetchMessages(id, offset) {
+        if (isLoadingHistory && offset > 0) return;
+        isLoadingHistory = true;
+
+        try {
+            // Show loader if history
+            if (offset > 0) {
+                const loader = document.createElement('div');
+                loader.id = 'history-loader';
+                loader.className = 'text-center text-xs text-gray-500 py-2';
+                loader.innerText = 'Loading history...';
+                chatBox.prepend(loader);
+            }
+
+            const res = await fetch(`/api/conversations/${id}/messages/?limit=20&offset=${offset}`);
+            const data = await res.json();
+
+            if (offset === 0) {
+                chatBox.innerHTML = ''; // Ensure clean slate
+                // Remove placeholder if exists
+                const ph = document.getElementById('welcome-placeholder');
+                if (ph) ph.remove();
+            } else {
+                document.getElementById('history-loader')?.remove();
+            }
+
+            // data.messages is Oldest -> Newest.
+            // If offset > 0, we prepend them.
+            // If offset == 0, we append them.
+
+            // For prepend logic (scroll up):
+            // We need to maintain scroll position.
+            const oldScrollHeight = chatBox.scrollHeight;
+
+            data.messages.forEach(msg => {
+                // If prepending, we insert at top
+                if (offset > 0) {
+                    const bubble = createMessageBubble(msg.sender, msg.text);
+                    chatBox.insertBefore(bubble, chatBox.firstChild);
+                } else {
+                    appendMessage(msg.sender, msg.text);
+                }
+            });
+
+            // Restore scroll position logic for infinite scroll
+            if (offset > 0) {
+                chatBox.scrollTop = chatBox.scrollHeight - oldScrollHeight;
+            } else {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            hasMoreHistory = data.has_more;
+            messageOffset = offset + data.messages.length;
+
+        } catch (e) {
+            console.error("Error fetching messages:", e);
+        } finally {
+            isLoadingHistory = false;
+        }
+    }
+
+    // Infinite Scroll
+    chatBox.addEventListener('scroll', () => {
+        if (chatBox.scrollTop === 0 && hasMoreHistory && !isLoadingHistory && currentConversationId) {
+            fetchMessages(currentConversationId, messageOffset);
+        }
+    });
+
+    // --- Message Rendering ---
+
+    function createMessageBubble(sender, text) {
         const bubbleContainer = document.createElement("div");
-        bubbleContainer.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up");
+        bubbleContainer.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up", "mb-4");
 
-        // Profile Icon
         const iconDiv = document.createElement("div");
         iconDiv.className = "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-md";
 
@@ -34,18 +240,49 @@
             bubble.classList.add("chat-bubble-ai");
         }
 
-        // Simple line break handling
         bubble.innerHTML = text.replace(/\n/g, '<br>');
 
         bubbleContainer.appendChild(iconDiv);
         bubbleContainer.appendChild(bubble);
-        chatBox.appendChild(bubbleContainer);
+        return bubbleContainer;
+    }
+
+    function appendMessage(sender, text) {
+        const bubble = createMessageBubble(sender, text);
+        chatBox.appendChild(bubble);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
+
+    function renderWelcomeScreen() {
+        const div = document.createElement('div');
+        div.id = 'welcome-placeholder';
+        div.className = "flex flex-col items-center justify-center h-full opacity-60 transition-opacity duration-500";
+        div.innerHTML = `
+            <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 animate-pulse border border-white/5 shadow-[0_0_30px_rgba(79,70,229,0.1)]">
+                <i class="fas fa-comment-alt text-4xl text-indigo-400"></i>
+            </div>
+            <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">
+                Hello, {{ user.username }}</h3>
+            <div class="text-center text-gray-400 max-w-sm text-sm leading-relaxed">How can I assist you with your HR
+                tasks or policy questions today?</div>
+        `;
+        chatBox.appendChild(div);
+    }
+
+
+    // --- WebSocket & Send Logic ---
 
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         const responseText = data.response;
+
+        // Update conversation ID if provided
+        if (data.conversation_id) {
+            if (currentConversationId !== data.conversation_id) {
+                currentConversationId = data.conversation_id;
+                loadConversations(); // Refresh list to show new title
+            }
+        }
 
         // Remove initial placeholder
         const initialPlaceholder = document.getElementById('welcome-placeholder');
@@ -55,7 +292,7 @@
             let thinkingBubble = chatBox.querySelector('.thinking-bubble');
             if (!thinkingBubble) {
                 thinkingBubble = document.createElement("div");
-                thinkingBubble.className = "flex items-start gap-3 thinking-bubble animate-pulse";
+                thinkingBubble.className = "flex items-start gap-3 thinking-bubble animate-pulse mb-4";
                 thinkingBubble.innerHTML = `
                         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-md">
                             <i class="fas fa-robot"></i>
@@ -83,29 +320,30 @@
     function sendMessage() {
         let prompt = userInput.value.trim();
 
-        // Append attached files to prompt invisibly
         if (attachedFiles.length > 0) {
             const fileConstraints = attachedFiles.map(f => ` [Attached Resume: ${f.path}]`).join(" ");
             prompt += fileConstraints;
         }
 
-        if (!prompt && attachedFiles.length === 0) return; // Only return if no prompt AND no files
+        if (!prompt && attachedFiles.length === 0) return;
 
-        // Remove initial placeholder if first message
         const initialPlaceholder = document.getElementById('welcome-placeholder');
         if (initialPlaceholder) {
             initialPlaceholder.classList.add('opacity-0');
             setTimeout(() => initialPlaceholder.remove(), 300);
         }
 
-        // If user didn't type anything but has files, show "Sent X files" or just the prompt
         const displayPrompt = userInput.value.trim() || (attachedFiles.length > 0 ? `Sent ${attachedFiles.length} file(s)...` : "...");
 
         appendMessage("user", displayPrompt);
         userInput.value = "";
         clearAttachments();
 
-        chatSocket.send(JSON.stringify({ 'prompt': prompt }));
+        // Send payload with conversation_id
+        chatSocket.send(JSON.stringify({
+            'prompt': prompt,
+            'conversation_id': currentConversationId
+        }));
     }
 
     sendBtn.addEventListener("click", sendMessage);
@@ -127,7 +365,6 @@
             if (isHidden) {
                 // Open
                 dropdown.classList.remove('hidden');
-                // Small delay for transition
                 requestAnimationFrame(() => {
                     dropdown.classList.remove('opacity-0', 'scale-95');
                     dropdown.classList.add('opacity-100', 'scale-100');
@@ -138,7 +375,6 @@
             }
         });
 
-        // Close when clicking outside
         document.addEventListener('click', (e) => {
             if (!container.contains(e.target)) {
                 closeDropdown();
@@ -152,13 +388,12 @@
         dropdown.classList.add('opacity-0', 'scale-95');
         if (arrow) arrow.classList.remove('rotate-180');
 
-        // Wait for transition to finish before hiding
         setTimeout(() => {
             dropdown.classList.add('hidden');
         }, 200);
     }
 
-    // File Upload Logic
+    // File Upload Logic (Preserved)
     const uploadBtn = document.getElementById("upload-btn");
     const resumeUpload = document.getElementById("resume-upload");
     const filePreviews = document.getElementById("file-previews");
@@ -196,8 +431,6 @@
         attachedFiles = [];
         renderAttachments();
     }
-
-    // Expose removeAttachment to global scope due to onclick attribute
     window.removeAttachment = removeAttachment;
 
     resumeUpload.addEventListener("change", function () {
@@ -206,7 +439,6 @@
             const formData = new FormData();
             formData.append("resume", file);
 
-            // Show loading state
             const originalIcon = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-indigo-400"></i>';
             uploadBtn.disabled = true;
@@ -214,33 +446,27 @@
             fetch("/upload_resume/", {
                 method: "POST",
                 body: formData,
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}"
-                }
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.file_path) {
-                        // Verify uniqueness if needed, or just append
-                        attachedFiles.push({
-                            name: data.filename || file.name,
-                            path: data.file_path
-                        });
+                        attachedFiles.push({ name: data.filename || file.name, path: data.file_path });
                         renderAttachments();
                         userInput.focus();
                     } else {
                         alert("Upload failed: " + (data.error || "Unknown error"));
                     }
                 })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Upload error");
-                })
+                .catch(error => { console.error("Error:", error); alert("Upload error"); })
                 .finally(() => {
                     uploadBtn.innerHTML = originalIcon;
                     uploadBtn.disabled = false;
-                    resumeUpload.value = ""; // Reset input
+                    resumeUpload.value = "";
                 });
         }
     });
+
+    // Init Logic
+    loadConversations();
 </script>

@@ -1,9 +1,12 @@
 from rest_framework import serializers, viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Policy
+from .models import Policy, Conversation, Message
 from core.services.policy_indexer import PolicyIndexer
 import threading
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 class PolicySerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,3 +30,60 @@ class PolicyViewSet(viewsets.ModelViewSet):
         thread = threading.Thread(target=indexer.index_policy, args=(policy.id,))
         thread.start()
         return Response({'status': 'indexing started'}, status=status.HTTP_202_ACCEPTED)
+
+
+# --- Multiple Conversations API ---
+
+@login_required
+def list_conversations(request):
+    """
+    Returns a JSON list of all conversations for the current user,
+    ordered by most recently updated.
+    """
+    conversations = Conversation.objects.filter(
+        user=request.user
+    ).order_by('-updated_at').values('id', 'title', 'updated_at')
+    
+    return JsonResponse({"conversations": list(conversations)})
+
+
+@login_required
+def get_conversation_messages(request, conversation_id):
+    """
+    Returns paginated messages for a conversation.
+    Offset: Number of messages to skip from the end (reverse chronological).
+    Limit: Number of messages to return.
+    """
+    try:
+        # Verify ownership
+        convo = Conversation.objects.get(id=conversation_id, user=request.user)
+    except Conversation.DoesNotExist:
+        return JsonResponse({"error": "Conversation not found"}, status=404)
+
+    limit = int(request.GET.get("limit", 20))
+    offset = int(request.GET.get("offset", 0))
+
+    # Fetch messages sorted by timestamp DESC (newest first) with ID tiebreaker
+    all_messages = Message.objects.filter(conversation=convo).order_by('-timestamp', '-id')
+    
+    # Slice the query
+    messages_slice = all_messages[offset : offset + limit]
+    
+    # Check if there are more
+    total_count = all_messages.count()
+    has_more = (offset + limit) < total_count
+
+    data = []
+    # Reverse back to Oldest -> Newest for display
+    for msg in reversed(messages_slice):
+        data.append({
+            "sender": msg.sender,
+            "text": msg.message_text,
+            "timestamp": msg.timestamp.isoformat()
+        })
+
+    return JsonResponse({
+        "messages": data,
+        "has_more": has_more,
+        "title": convo.title
+    })

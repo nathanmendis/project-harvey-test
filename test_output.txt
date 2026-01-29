@@ -1,0 +1,43 @@
+Creating test database for alias 'default'...
+
+EE
+======================================================================
+ERROR: test_list_conversations (tests.test_multi_convo_api.MultipleConversationsTest.test_list_conversations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Code\project_harvey\project-harvey-test\tests\test_multi_convo_api.py", line 28, in setUp
+    Message.objects.create(conversation=self.c1, organization=self.org, sender="user", message_text=f"Msg {i}", user=self.user)
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj = self.model(**kwargs)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\base.py", line 569, in __init__
+    raise TypeError(
+TypeError: Message() got unexpected keyword arguments: 'user'
+
+======================================================================
+ERROR: test_pagination (tests.test_multi_convo_api.MultipleConversationsTest.test_pagination)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Code\project_harvey\project-harvey-test\tests\test_multi_convo_api.py", line 28, in setUp
+    Message.objects.create(conversation=self.c1, organization=self.org, sender="user", message_text=f"Msg {i}", user=self.user)
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\query.py", line 663, in create
+    obj = self.model(**kwargs)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nathan\AppData\Local\pypoetry\Cache\virtualenvs\project-harvey-6vTpI_AH-py3.12\Lib\site-packages\django\db\models\base.py", line 569, in __init__
+    raise TypeError(
+TypeError: Message() got unexpected keyword arguments: 'user'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.603s
+
+FAILED (errors=2)
+Destroying test database for alias 'default'...
+
+Found 2 test(s).
+System check identified no issues (0 silenced).

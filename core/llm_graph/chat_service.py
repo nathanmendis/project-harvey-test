@@ -1,4 +1,3 @@
-
 import json
 import logging
 from django.utils import timezone
@@ -16,6 +15,8 @@ logger = logging.getLogger("harvey")
 
 class LLMResponse(BaseModel):
     response: str
+    conversation_id: int
+    title: str
 
 
 def _content_to_text(content):
@@ -46,16 +47,25 @@ def _save_chat(convo, user, user_input, ai_output):
     )
 
 
-def generate_llm_reply(prompt: str, user, request=None):
+def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
     # 1. Check for Rate Limit Block
     if cache.get(f"chat_block_{user.id}"):
-        return LLMResponse(response="⚠️ System is cooling down due to high traffic. Please try again in 60 seconds.")
+        return LLMResponse(response="⚠️ System is cooling down due to high traffic. Please try again in 60 seconds.", conversation_id=0, title="Error")
 
-    convo, _ = Conversation.objects.get_or_create(
-        organization=user.organization,
-        user=user,
-        defaults={"title": "Chat Session"},
-    )
+    if conversation_id:
+        try:
+            convo = Conversation.objects.get(id=conversation_id, user=user)
+        except Conversation.DoesNotExist:
+            return LLMResponse(response="⚠️ Conversation not found.", conversation_id=0, title="Error")
+    else:
+        # Create NEW conversation
+        # Generate a title based on the first few words of the prompt
+        title = " ".join(prompt.split()[:4]) + "..." if prompt else "New Chat"
+        convo = Conversation.objects.create(
+            organization=user.organization,
+            user=user,
+            title=title,
+        )
 
     run = GraphRun.objects.create(
         conversation=convo,
@@ -142,7 +152,11 @@ def generate_llm_reply(prompt: str, user, request=None):
         # Save chat history
         _save_chat(convo, user, prompt, final_text)
 
-        return LLMResponse(response=final_text)
+        return LLMResponse(
+            response=final_text,
+            conversation_id=convo.id,
+            title=convo.title
+        )
 
     except ResourceExhausted:
         logger.warning(f"Rate Limit Hit for user {user.id}")
@@ -153,7 +167,11 @@ def generate_llm_reply(prompt: str, user, request=None):
         run.error_message = "Rate Limit Exceeded (429)"
         run.save()
         
-        return LLMResponse(response="⚠️ API Rate limit reached. System is cooling down. Please wait 60 seconds.")
+        return LLMResponse(
+            response="⚠️ API Rate limit reached. System is cooling down. Please wait 60 seconds.",
+            conversation_id=convo.id if locals().get('convo') else 0,
+            title="Error"
+        )
 
     except Exception as e:
         logger.error(f"Graph ERROR: {repr(e)}", exc_info=True)
@@ -163,4 +181,8 @@ def generate_llm_reply(prompt: str, user, request=None):
         run.finished_at = timezone.now()
         run.save()
 
-        return LLMResponse(response="⚠️ Something went wrong. Try again!")
+        return LLMResponse(
+            response="⚠️ Something went wrong. Try again!",
+            conversation_id=convo.id if locals().get('convo') else 0,
+            title="Error"
+        )

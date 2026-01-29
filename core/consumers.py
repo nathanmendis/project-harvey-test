@@ -13,64 +13,38 @@ if not django.conf.settings.configured:
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        from .models import Conversation
-
         self.user = self.scope["user"]
         if not self.user.is_authenticated:
             await self.close()
             return
 
-        organization = await sync_to_async(lambda: self.user.organization)()
-
-       
-        conversation, _ = await sync_to_async(Conversation.objects.get_or_create)(
-            organization=organization,
-            user=self.user,
-            defaults={"title": "Chat Session"},
-        )
-        self.conversation = conversation
-
+        # No longer locking to a single conversation on connect
         await self.accept()
 
     async def receive(self, text_data):
-        from .models import Message
-
         data = json.loads(text_data)
         prompt = data.get("prompt", "").strip()
+        conversation_id = data.get("conversation_id") # May be None for new chat
+
         if not prompt:
             await self.send(text_data=json.dumps({
                 "response": "Please type something."
             }))
             return
 
-        organization = await sync_to_async(lambda: self.user.organization)()
-
-        
-        await sync_to_async(Message.objects.create)(
-            organization=organization,
-            conversation=self.conversation,
-            sender="user",
-            message_text=prompt,
-        )
-
-        
         await self.send(text_data=json.dumps({"response": "Thinking..."}))
  
-        # ✅Generate the LLM reply (Redis-based memory, no request needed)
+        # Generate the LLM reply via service
+        # Service handles DB saving for both User/AI messages now
         llm_response = await sync_to_async(generate_llm_reply)(
             prompt,
             user=self.user,
+            conversation_id=conversation_id
         )
 
-       
-        await sync_to_async(Message.objects.create)(
-            organization=organization,
-            conversation=self.conversation,
-            sender="ai",
-            message_text=llm_response.response,
-        )
-
-       
+        # Send back response + metadata (id/title) so frontend can lock context
         await self.send(text_data=json.dumps({
-            "response": llm_response.response
+            "response": llm_response.response,
+            "conversation_id": llm_response.conversation_id,
+            "title": llm_response.title
         }))

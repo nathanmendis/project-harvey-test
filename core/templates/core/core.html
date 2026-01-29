@@ -72,11 +72,58 @@
     <!-- Header Component -->
     {% include "core/components/header.html" %}
 
-    <!-- Chat Area Component -->
-    {% include "core/components/chat_area.html" %}
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex overflow-hidden relative">
 
-    <!-- Footer / Input Component -->
-    {% include "core/components/footer_input.html" %}
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" onclick="toggleSidebar()"
+            class="fixed inset-0 bg-black/50 z-30 hidden md:hidden transition-opacity backdrop-blur-sm"></div>
+
+        <!-- Sidebar -->
+        <aside id="chat-sidebar" onclick="handleSidebarClick(event)"
+            class="w-64 shrink-0 bg-black/20 border-r border-white/5 flex flex-col -translate-x-full md:translate-x-0 transition-all duration-300 absolute md:static top-0 left-0 h-full z-40 backdrop-blur-md md:backdrop-blur-none cursor-pointer group/sidebar"
+            style="background-color: rgba(15, 23, 42, 0.95);">
+
+            <div class="p-4 transition-all duration-200">
+                <button onclick="startNewChat()"
+                    class="w-full h-12 bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white rounded-xl flex items-center justify-start px-3 gap-3 transition-all border border-white/5 font-medium backdrop-blur-sm group overflow-hidden">
+                    <i class="fas fa-plus text-lg min-w-[20px] text-center"></i>
+                    <span class="whitespace-nowrap transition-opacity duration-200 sidebar-text opacity-100">New
+                        Chat</span>
+                </button>
+            </div>
+
+            <div class="px-6 pb-2 transition-opacity duration-200 sidebar-text">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 whitespace-nowrap">History
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-3 space-y-1 chat-box pb-4" id="conversation-list">
+                <!-- Dynamic Items -->
+                <div class="animate-pulse flex space-x-4 p-3">
+                    <div class="rounded-full bg-white/10 h-2 w-full"></div>
+                </div>
+            </div>
+
+            <!-- Mobile Close Button -->
+            <button onclick="toggleSidebar()"
+                class="md:hidden absolute top-4 right-4 text-gray-400 hover:text-white z-50">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </aside>
+
+        <!-- Chat Container -->
+        <div class="flex-1 flex flex-col relative w-full min-w-0 bg-transparent">
+            <!-- Sidebar Toggle (Visible Mobile Only) -->
+            <button onclick="toggleSidebar()"
+                class="md:hidden absolute top-4 left-4 z-40 text-white/50 hover:text-white p-2 bg-black/40 rounded-lg hover:bg-white/10 transition-colors">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            {% include "core/components/chat_area.html" %}
+            {% include "core/components/footer_input.html" %}
+        </div>
+    </div>
 
     <!-- Scripts Component -->
     {% include "core/components/chat_scripts.html" %}
