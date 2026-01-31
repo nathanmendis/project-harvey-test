@@ -34,7 +34,7 @@ class User(AbstractUser):
         Organization, on_delete=models.CASCADE, related_name="users", null=True, blank=True
     )
     has_chat_access = models.BooleanField(default=True)
-
+    
     def is_org_admin(self):
         """Helper to check if user is an organization-level admin."""
         return self.role == "org_admin"

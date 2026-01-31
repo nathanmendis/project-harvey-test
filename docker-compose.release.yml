@@ -5,7 +5,7 @@ services:
     container_name: project-harvey
 
     command: daphne -b 0.0.0.0 -p 8000 project_harvey.asgi:application
-    # No volume mount needed, code is inside the image
+  
     ports:
       - "8000:8000"
     environment:
@@ -19,7 +19,7 @@ services:
 
       - DJANGO_SETTINGS_MODULE=project_harvey.settings
 
-    # Secrets are injected here at runtime!
+    
     # Option 1: Users create a .env file locally
     env_file:
       - .env

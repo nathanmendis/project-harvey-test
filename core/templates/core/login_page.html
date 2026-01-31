@@ -81,11 +81,11 @@
 
         <!-- Future Google/Apple login options (optional) -->
         <div class="space-y-4">
-            <button type="button" disabled
-                class="w-full flex items-center justify-center px-4 py-2 border border-gray-700/50 rounded-lg shadow-sm text-sm font-medium text-gray-500 bg-gray-800/50 cursor-not-allowed transition-colors">
-                <i class="fab fa-google mr-2"></i>
-                Continue with Google (soon)
-            </button>
+            <a href="{% url 'google_login' %}"
+                class="w-full flex items-center justify-center px-4 py-3 bg-white/10 border border-white/10 rounded-xl shadow-lg text-sm font-bold text-white hover:bg-white/20 hover:border-white/20 hover:shadow-indigo-500/10 transition-all duration-200 group backdrop-blur-md">
+                <i class="fab fa-google mr-2 text-white group-hover:scale-110 transition-transform"></i>
+                Continue with Google
+            </a>
         </div>
 
         <div class="my-6 flex items-center">

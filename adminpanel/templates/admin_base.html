@@ -89,6 +89,13 @@
               </a>
             </li>
             <li>
+              <a href="{% url 'manage_invites' %}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_invites' %}active text-white{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-envelope-open-text mr-3 transition-transform group-hover:scale-110"></i>
+                <span class="font-medium">Invites</span>
+              </a>
+            </li>
+            <li>
               <a href="{% url 'chat_view' %}"
                 class="flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white transition-all duration-200 group">
                 <i class="fas fa-robot mr-3 transition-transform group-hover:scale-110"></i>
@@ -126,6 +133,27 @@
     <main class="flex-1 p-8 overflow-y-auto relative">
       <div class="absolute inset-0 bg-indigo-500/5 pointer-events-none"></div>
       <div class="relative z-10 max-w-7xl mx-auto">
+        <!-- Messages / Alerts -->
+        {% if messages %}
+        <div class="mb-6 space-y-4">
+          {% for message in messages %}
+          <div class="p-4 rounded-xl border flex items-center gap-3 backdrop-blur-md
+                      {% if message.tags == 'success' %}bg-green-500/10 border-green-500/20 text-green-400
+                      {% elif message.tags == 'error' %}bg-red-500/10 border-red-500/20 text-red-400
+                      {% elif message.tags == 'warning' %}bg-yellow-500/10 border-yellow-500/20 text-yellow-400
+                      {% else %}bg-blue-500/10 border-blue-500/20 text-blue-400{% endif %}">
+
+            {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>
+            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+
+            <span class="font-medium">{{ message }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}
         <!-- Page content gets injected here -->
         {% endblock %}

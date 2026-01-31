@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto glass-card p-8 rounded-3xl shadow-2xl border border-white/10 relative overflow-hidden">
+    <!-- Decorative Glow -->
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <h2 class="text-3xl font-bold mb-8 text-white relative z-10">Invite New User</h2>
+
+    <form method="post" class="space-y-6 relative z-10">
+        {% csrf_token %}
+
+        <div>
+            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">Email
+                Address</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <p class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                {{ form.email.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">Role</label>
+            {{ form.role }}
+            <p class="text-gray-500 text-xs mt-2">The user will be assigned this role upon joining.</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-6 border-t border-white/10 mt-8">
+            <a href="{% url 'admin_dashboard' %}" class="text-gray-400 hover:text-white transition-colors">Cancel</a>
+            <button type="submit"
+                class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 transition-all duration-200 transform hover:-translate-y-0.5">
+                Send Invite
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

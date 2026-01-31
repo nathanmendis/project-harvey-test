@@ -10,6 +10,11 @@ Harvey is an intelligent HR assistant designed to streamline recruitment workflo
 -   **Anti-Hallucination**: Implements "Action Reality" protocols to ensure the agent only claims actions it has actually performed via tools.
 -   **Structured Memory**: Uses **Redis** for low-latency conversation history and context retrieval.
 
+### 🔐 Secure OAuth & Identity
+-   **System-Wide Integration**: Uses a centralized system account for sending emails, ensuring reliability without requiring individual users to verify their apps.
+-   **Minimal Access**: User login only requires basic `email` scope, preserving user privacy.
+-   **Invite System**: Secure, token-based invitation flow for onboarding new employees.
+
 ### 📚 RAG (Retrieval-Augmented Generation)
 -   **Candidate & Job Search**: Semantically searches for candidates and job roles using **PostgreSQL (pgvector)** and **Sentence Transformers**.
 -   **Policy Assistant**: Upload HR policies (PDF, Docx, TXT) or URLs. Harvey automatically indexes them and answers policy-related questions.

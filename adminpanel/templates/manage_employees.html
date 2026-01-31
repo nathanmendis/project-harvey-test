@@ -10,8 +10,9 @@
     </div>
 
     <a href="{% url 'add_employee' %}"
-      class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/20 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 font-semibold">
-      <i class="fas fa-plus-circle"></i> Add New Employee
+      class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 border border-indigo-500/30 px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/20 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 font-semibold backdrop-blur-md">
+      <i class="fas fa-plus-circle text-indigo-400"></i>
+      <span>Add New Employee</span>
     </a>
   </div>
 
@@ -65,38 +66,50 @@
             <!-- Chatbot Access Toggle -->
             <td class="py-4 px-6 text-center">
               <a href="{% url 'toggle_chat_access' user.id %}" class="inline-flex items-center cursor-pointer">
-                <div class="relative">
-                  <div class="w-10 h-5 bg-white/10 rounded-full transition-colors border border-white/5"></div>
-                  {% if user.has_chat_access %}
-                  <div
-                    class="dot absolute left-5 top-0.5 bg-indigo-500 w-4 h-4 rounded-full transition-all shadow-lg shadow-indigo-500/50">
+                <div class="relative w-10 h-5">
+                  <!-- track -->
+                  <div class="absolute inset-0 rounded-full border border-white/5 transition-colors duration-300
+               {% if user.has_chat_access %}bg-indigo-600/20{% else %}bg-white/10{% endif %}">
                   </div>
-                  {% else %}
-                  <div class="dot absolute left-1 top-0.5 bg-gray-600 w-4 h-4 rounded-full transition-all"></div>
-                  {% endif %}
+
+                  <!-- dot -->
+                  <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-all duration-300 ease-in-out
+               {% if user.has_chat_access %}
+                 translate-x-5 bg-indigo-500 shadow-lg shadow-indigo-500/50
+               {% else %}
+                 bg-gray-600
+               {% endif %}">
+                  </div>
                 </div>
               </a>
             </td>
+
 
             <!-- Admin Toggle -->
             <td class="py-4 px-6 text-center">
               {% if user != request.user %}
               <a href="{% url 'toggle_admin_role' user.id %}" class="inline-flex items-center cursor-pointer">
-                <div class="relative">
-                  <div class="w-10 h-5 bg-white/10 rounded-full transition-colors border border-white/5"></div>
-                  {% if user.role == 'org_admin' %}
-                  <div
-                    class="dot absolute left-5 top-0.5 bg-indigo-600 w-4 h-4 rounded-full transition-all shadow-lg shadow-indigo-500/50">
+                <div class="relative w-10 h-5">
+                  <!-- track -->
+                  <div class="absolute inset-0 rounded-full border border-white/5 transition-colors duration-300
+               {% if user.role == 'org_admin' %}bg-indigo-600/20{% else %}bg-white/10{% endif %}">
                   </div>
-                  {% else %}
-                  <div class="dot absolute left-1 top-0.5 bg-gray-600 w-4 h-4 rounded-full transition-all"></div>
-                  {% endif %}
+
+                  <!-- dot -->
+                  <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-all duration-300 ease-in-out
+               {% if user.role == 'org_admin' %}
+                 translate-x-5 bg-indigo-600 shadow-lg shadow-indigo-500/50
+               {% else %}
+                 bg-gray-600
+               {% endif %}">
+                  </div>
                 </div>
               </a>
               {% else %}
               <span class="text-xs text-indigo-400/50 font-bold uppercase">You</span>
               {% endif %}
             </td>
+
 
             <!-- Actions -->
             <td class="py-4 px-6 text-center">

@@ -5,3 +5,4 @@ from .recruitment import (
     EmailLog, CalendarEvent, HRMSIntegrationConfig
 )
 from .policy import Policy, PolicyChunk
+from .invite import Invite

@@ -10,10 +10,10 @@
         <div class="text-center mb-12 md:mb-16">
             <h2
                 class="text-3xl md:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 via-white to-indigo-200 mb-4 tracking-tight">
-                System Intelligence
+                Why harvey ?
             </h2>
             <p class="text-gray-400 max-w-xl mx-auto text-sm md:text-base">
-                Core processing modules connected in a unified workflow.
+                Simple. Fast . Effortless . Secure
             </p>
         </div>
 
@@ -37,19 +37,7 @@
                         class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
                         <div
                             class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] group-hover:border-indigo-500/30 transition-all duration-300">
-                            <!-- Mobile Node: 
-                                     Wrapper padding-left: 12 (3rem = 48px).
-                                     Line position: 4 (1rem = 16px).
-                                     Diff: 32px.
-                                     Node center needs to be at -32px.
-                                     Node width 4 (1rem=16px). Center is at 8px.
-                                     So Left edge should be at -32px - 8px? No.
-                                     If 'left' is 0, it starts at 48px.
-                                     We want center at 16px.
-                                     Center of node is left + width/2.
-                                     (48 + left + 8) = 16 => left = 16 - 8 - 48 = -40px.
-                                     Let's try -left-[40px] or -left-[2.5rem].
-                                -->
+
                             <div
                                 class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-indigo-500 z-20 node-mobile transition-colors duration-500">
                             </div>
@@ -198,6 +186,32 @@
                     </div>
                 </div>
 
+                <!-- Feature 7: Left (New) -->
+                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
+                    <div
+                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
+                        <div
+                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(251,146,60,0.15)] group-hover:border-orange-500/30 transition-all duration-300">
+                            <div
+                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-orange-500 z-20 node-mobile transition-colors duration-500">
+                            </div>
+
+                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-orange-300 transition-colors">
+                                Secure OAuth</h3>
+                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Enterprise-grade Google
+                                Identity integration.</p>
+                            <div
+                                class="inline-flex md:ml-auto items-center gap-2 text-orange-400 text-xs font-semibold bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/10 w-fit">
+                                <i class="fab fa-google"></i> Identity
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
+                    </div>
+                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
+                </div>
+
                 <!-- Endpoint (Admin) -->
                 <div class="relative flex flex-col items-center justify-center pt-8 timeline-item" id="admin-node">
                     <!-- Stop line here -->
@@ -235,6 +249,7 @@
                 '#ec4899', // Pink
                 '#22c55e', // Green
                 '#ef4444', // Red
+                '#fb923c', // Orange (New)
                 '#06b6d4'  // Cyan (Admin)
             ];
 

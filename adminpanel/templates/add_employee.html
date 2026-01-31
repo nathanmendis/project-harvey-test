@@ -1,84 +1,145 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="max-w-2xl mx-auto py-8">
+<div class="max-w-4xl mx-auto py-8">
   <div class="glass-card rounded-3xl p-8 border-white/10 relative overflow-hidden">
     <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
 
     <div class="relative z-10">
-      <h2 class="text-3xl font-extrabold tracking-tight mb-2">Add New Employee</h2>
+      <h2 class="text-3xl font-extrabold tracking-tight mb-2 text-white">Add Team Member</h2>
       <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8">Organization: {{ org.name }}</p>
 
-      <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {% csrf_token %}
-        <div class="space-y-2">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
-          <input type="text" name="name" placeholder="John Doe"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-            required>
-        </div>
+      <!-- Tabs -->
+      <div class="flex gap-4 mb-8 border-b border-white/10">
+        <button onclick="switchTab('invite')" id="tab-invite"
+          class="pb-3 text-sm font-bold uppercase tracking-wider text-indigo-400 border-b-2 border-indigo-400 transition-colors">
+          <i class="fas fa-envelope mr-2"></i>Invite via Email
+        </button>
+        <button onclick="switchTab('create')" id="tab-create"
+          class="pb-3 text-sm font-bold uppercase tracking-wider text-gray-400 hover:text-white transition-colors border-b-2 border-transparent">
+          <i class="fas fa-user-plus mr-2"></i>Manual Creation
+        </button>
+      </div>
 
-        <div class="space-y-2">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Username</label>
-          <input type="text" name="username" placeholder="jdoe"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-            required>
-        </div>
+      <!-- Invite Form -->
+      <div id="content-invite" class="animate-fade-in">
+        <form method="POST" class="max-w-xl space-y-6">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="invite">
 
-        <div class="space-y-2">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
-          <input type="email" name="email" placeholder="john@example.com"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-            required>
-        </div>
+          <div>
+            <label for="{{ invite_form.email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">Email
+              Address</label>
+            {{ invite_form.email }}
+            {% if invite_form.email.errors %}
+            <p class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+              {{ invite_form.email.errors.0 }}</p>
+            {% endif %}
+          </div>
 
-        <div class="space-y-2">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Password</label>
-          <input type="password" name="password" placeholder="••••••••"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
-            required>
-        </div>
+          <div>
+            <label for="{{ invite_form.role.id_for_label }}"
+              class="block text-sm font-medium text-gray-300 mb-2">Role</label>
+            {{ invite_form.role }}
+            <p class="text-gray-500 text-xs mt-2">The user will be assigned this role and receive an email to join via
+              Google Login.</p>
+          </div>
 
-        <div class="space-y-2 md:col-span-2">
-          <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Access Role</label>
-          <select name="role"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all appearance-none cursor-pointer">
-            <option value="employee" class="bg-gray-900">Employee</option>
-            <option value="manager" class="bg-gray-900">Manager</option>
-            <option value="hr" class="bg-gray-900">HR</option>
-          </select>
-        </div>
+          <div class="pt-6">
+            <button type="submit"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/20 font-bold transition-all hover:scale-[1.02]">
+              Send Invitation
+            </button>
+          </div>
+        </form>
+      </div>
 
-        <div class="flex items-center gap-3 md:col-span-2 py-2">
-          <label for="chatbot_access" class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" name="chatbot_access" id="chatbot_access" class="sr-only peer">
+      <!-- Manual Creation Form (Hidden by default) -->
+      <div id="content-create" class="hidden animate-fade-in">
+        <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="create">
 
-            <!-- track -->
-            <div
-              class="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-indigo-600 transition-colors duration-300">
-            </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</label>
+            <input type="text" name="name" placeholder="John Doe"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+              required>
+          </div>
 
-            <!-- thumb -->
-            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300
-             peer-checked:translate-x-5">
-            </div>
-          </label>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Username</label>
+            <input type="text" name="username" placeholder="jdoe"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+              required>
+          </div>
 
-          <span class="text-sm text-gray-400 select-none">
-            Grant automated chatbot access to this user
-          </span>
-        </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</label>
+            <input type="email" name="email" placeholder="john@example.com"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+              required>
+          </div>
 
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Password</label>
+            <input type="password" name="password" placeholder="••••••••"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+              required>
+          </div>
 
-        <div class="flex items-center justify-between md:col-span-2 mt-8 pt-6 border-t border-white/5">
-          <a href="{% url 'manage_employees' %}"
-            class="text-gray-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">Cancel</a>
-          <button type="submit"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/20 font-bold transition-all hover:scale-[1.02]">
-            Create Employee Account
-          </button>
-        </div>
-      </form>
+          <div class="space-y-2 md:col-span-2">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Access Role</label>
+            <select name="role"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all appearance-none cursor-pointer">
+              <option value="employee" class="bg-gray-900">Employee</option>
+              <option value="manager" class="bg-gray-900">Manager</option>
+              <option value="hr" class="bg-gray-900">HR</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-3 md:col-span-2 py-2">
+            <label for="chatbot_access" class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" name="chatbot_access" id="chatbot_access" class="sr-only peer">
+              <div
+                class="w-11 h-6 bg-white/10 rounded-full peer peer-checked:bg-indigo-600 transition-colors duration-300">
+              </div>
+              <div
+                class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5">
+              </div>
+            </label>
+            <span class="text-sm text-gray-400 select-none">Grant automated chatbot access</span>
+          </div>
+
+          <div class="md:col-span-2 pt-6">
+            <button type="submit"
+              class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-xl shadow-lg font-bold transition-all hover:scale-[1.02]">
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </div>
 </div>
+
+<script>
+  function switchTab(tab) {
+    // Buttons
+    document.getElementById('tab-invite').classList.remove('text-indigo-400', 'border-indigo-400');
+    document.getElementById('tab-invite').classList.add('text-gray-400', 'border-transparent');
+
+    document.getElementById('tab-create').classList.remove('text-indigo-400', 'border-indigo-400');
+    document.getElementById('tab-create').classList.add('text-gray-400', 'border-transparent');
+
+    // Active Button
+    document.getElementById(`tab-${tab}`).classList.remove('text-gray-400', 'border-transparent');
+    document.getElementById(`tab-${tab}`).classList.add('text-indigo-400', 'border-indigo-400');
+
+    // Content
+    document.getElementById('content-invite').classList.add('hidden');
+    document.getElementById('content-create').classList.add('hidden');
+    document.getElementById(`content-${tab}`).classList.remove('hidden');
+  }
+</script>
 {% endblock %}

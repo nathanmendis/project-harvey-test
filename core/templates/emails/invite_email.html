@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Email client resets */
+        body {
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        body,
+        table,
+        td,
+        div,
+        p,
+        a {
+            -webkit-font-smoothing: antialiased;
+            text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            line-height: 100%;
+        }
+
+        table,
+        td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+            border-collapse: collapse !important;
+            border-spacing: 0;
+        }
+
+        img {
+            border: 0;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+    </style>
+</head>
+
+<body style="background-color: #0f172a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #e2e8f0;">
+
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"
+        style="background-color: #0f172a; padding: 40px 0;">
+        <tr>
+            <td align="center">
+
+                <!-- Main Glass Card -->
+                <table role="presentation" width="600" border="0" cellspacing="0" cellpadding="0"
+                    style="width: 100%; max-width: 600px; background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px);">
+
+                    <!-- Header with Glow -->
+                    <tr>
+                        <td align="center" style="padding: 40px 40px 20px 40px; position: relative;">
+                            <!-- Icon -->
+                            <div
+                                style="width: 48px; height: 48px; background-color: #4f46e5; border-radius: 12px; display: inline-block; line-height: 48px; text-align: center; box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);">
+                                <span style="font-size: 24px; color: #ffffff;">🤖</span>
+                            </div>
+                            <h1
+                                style="margin: 20px 0 0 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
+                                PROJECT HARVEY</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="height: 1px; background-color: rgba(255, 255, 255, 0.1); width: 100%;"></div>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px 40px;">
+                            <h2 style="margin: 0 0 15px 0; color: #ffffff; font-size: 20px; font-weight: 600;">You've
+                                been invited!</h2>
+                            <p style="margin: 0 0 25px 0; color: #94a3b8; font-size: 16px; line-height: 1.6;">
+                                Hello there,<br>
+                                You have been invited to join the team at :
+                                <strong style="color: #ffffff;">{{org_name}}</strong>.
+                            </p>
+
+                            <!-- Info Box -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"
+                                style="background-color: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.2); border-radius: 12px; margin-bottom: 25px;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table role="presentation" width="100%" border="0" cellspacing="0"
+                                            cellpadding="0">
+                                            <tr>
+                                                <td width="100"
+                                                    style="color: #818cf8; font-size: 14px; font-weight: bold; padding-bottom: 8px;">
+                                                    Role:</td>
+
+                                                <td style="color: #e2e8f0; font-size: 14px; padding-bottom: 8px;">
+                                                    {{role}}
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="100"
+                                                    style="color: #818cf8; font-size: 14px; font-weight: bold;">Invited
+                                                    By:</td>
+                                                <td style="color: #e2e8f0; font-size: 14px;">{{ inviter_name }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 30px 0; color: #94a3b8; font-size: 16px; line-height: 1.6;">
+                                Prepare to experience the future of HR management. Click the button below to initialize
+                                your account.
+                            </p>
+
+                            <!-- Button -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ invite_link }}"
+                                            style="display: inline-block; padding: 16px 32px; background-color: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); text-align: center;">Join
+                                            Workspace &rarr;</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center"
+                            style="padding: 30px; background-color: rgba(0, 0, 0, 0.2); border-top: 1px solid rgba(255, 255, 255, 0.05);">
+                            <p style="margin: 0; color: #64748b; font-size: 12px;">&copy; 2026 Project Harvey. All
+                                rights reserved.</p>
+                            <p style="margin: 10px 0 0 0; color: #475569; font-size: 12px;">If you can see this, you are
+                                part of the future.</p>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

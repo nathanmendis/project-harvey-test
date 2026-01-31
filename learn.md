@@ -78,6 +78,43 @@ sequenceDiagram
     *   Daphne (listening to Redis) picks it up and pushes it to the user's browser.
 *   **Caching**: We use it to store "throttling" keys (e.g., prevent User X from spamming the LLM).
 
+### F. Cost & Latency (Do we call the LLM twice?)
+**Answer**: It depends on what the user asks. The Agent is dynamic.
+
+*   **Scenario A: Simple Chit-Chat** ("Hi", "What is your name?")
+    *   **1 Call**.
+    *   `HARVEY` Node -> Output ("I am Harvey").
+    *   *Latency*: ~1-2 seconds.
+*   **Scenario B: Tool Usage** (User: "Schedule an interview with Steve")
+    *   **Total Calls: 2 to Groq/Gemini**
+    *   **Call #1 (Decision)**:
+        *   *Input*: "Schedule interview with Steve"
+        *   *Output*: `null` (Content), `tool_calls=[{name: 'schedule_interview', args: {'name': 'Steve'}}]`
+        *   *Action*: The Python code pauses, executes `schedule_interview('Steve')`, and gets back "Success: Interview created ID 55".
+    *   **Call #2 (Confirmation)**:
+        *   *Input*: "User said schedule... I called tool... Tool said Success."
+        *   *Output*: "I have scheduled the interview with Steve." (Content)
+    *   *Latency*: ~4-7 seconds.
+*   **Scenario C: Multi-step Reasoning** ("Check calendar, then email John")
+    *   **3+ Calls**.
+        1.  "Check calendar" (Call 1) -> Tool Output.
+        2.  "Okay, calendar is free. Now send email." (Call 2) -> Tool Output.
+        2.  "Okay, calendar is free. Now send email." (Call 2) -> Tool Output.
+        3.  "Email sent." (Call 3).
+
+### G. Can We Lower the API Call Rate? (Optimization)
+**Answer**: Yes, but it comes with risks.
+The **2-step** process (Decide -> Confirm) is the industry standard "ReAct" (Reason + Act) pattern. It is the safest way to ensure the AI definitely knows the tool succeeded before telling the user.
+
+*   **Optimization 1: "Fire and Forget" (1 Call)**
+    *   *Technique*: We can modify the code to run the tool and *immediately* return a generic "I'm doing it" message without waiting for the tool to finish.
+    *   *Risk*: If the tool fails (e.g., "Calendar full"), the user sees "Done!" but it actually failed. This creates "Silent Failures".
+*   **Optimization 2: Parallel Tool Calling**
+    *   *Technique*: If the user says "Email John AND Steve", modern LLMs can output *two* tool calls in one JSON response.
+    *   *Status*: **Supported**. Our loop handles lists of tool calls, so it will execute both in parallel and then do just 1 confirmation call. This is efficient.
+
+---
+
 ---
 
 ## 📚 3. Component Deep Dive
@@ -314,3 +351,35 @@ Here is exactly what happens when you press "Send" in the UI.
 1.  **"Is Redis running?"**: Channels needs Redis.
 2.  **"Did the Tool crash?"**: Look at `core_graphrun` table.
 3.  **"Why did it pick that policy?"**: Check `core_policychunk` embeddings. If vectors are all Zeros, the embedding model failed.
+
+---
+
+## 🔐 9. Identity & Integrations (The OAuth System)
+
+We use a **Two-Tier OAuth Strategy** to solve the "Unverified App" problem.
+
+### The Problem
+Google restricts sensitive scopes (like `gmail.send`) for unverified apps. If every user who logs in is asked for permission to send emails, they will see a "This app isn't verified" warning, and you (the dev) have to manually add them as Testers. This is not scalable.
+
+### The Solution: "System Token" vs "User Token"
+
+1.  **User Token (Login)**:
+    *   **Scopes**: `email`, `profile` (openid).
+    *   **Risk**: Low. Google allows this for anyone without scary warnings.
+    *   **Purpose**: Authentication only. "Who are you?"
+
+2.  **System Token (Backend)**:
+    *   **Scopes**: `https://www.googleapis.com/auth/gmail.send`.
+    *   **Storage**: Encrypted/Stored in `GOOGLE_SYSTEM_REFRESH_TOKEN` env var.
+    *   **Purpose**: The *System* sends emails, not the *User*. When Admin Alice clicks "Invite Bob", the code uses the **System Token** to send the email from `no-reply@yourorg.com` (or the system account), not from Alice's personal Gmail.
+
+### The Invite Flow
+1.  **Admin** creates Invite -> Insert `Invite` row (Token: `UUID`).
+2.  **System** sends HTML Email with link: `/auth/google/login?invite=UUID`.
+3.  **New User** clicks link -> Logs in with Google.
+4.  **Callback**:
+    *   Code checks `request.session['invite_token']`.
+    *   Finds `Invite` row.
+    *   Creates `User` linked to `Invite.organization`.
+    *   Deletes `Invite` (One-time use).
+

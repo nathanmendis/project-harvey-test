@@ -36,6 +36,8 @@
         <span>Launch Admin Chat</span>
       </a>
 
+
+
       <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit"
@@ -134,6 +136,8 @@
         <h4 class="font-bold text-white mb-1">Add Employee</h4>
         <p class="text-xs text-gray-400 leading-relaxed">Onboard new members to the portal.</p>
       </a>
+
+
 
       <a href="{% url 'manage_policies' %}"
         class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-pink-500/50 hover:bg-white/5">

@@ -34,7 +34,15 @@ dmypy.json
 
 # LangGraph
 checkpoints.db
+checkpoints.db-wal
 
 # User Data/Logs
 logs/
 policies/
+
+# Secrets & Local Scripts
+get_gmail_token.py
+client_secret.json
+token.json
+debug_email_render.py
+debug_output.html
