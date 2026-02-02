@@ -21,13 +21,24 @@ def send_email_tool(recipient_email: str, subject: str, body: str, user=None) ->
             status="sent"
         )
     
-    # For now, we just return a success message to simulate the action.
-    return json.dumps({
-        "status": "success",
-        "ok": True,
-        "message": f"Email sent to {recipient_email}",
-        "details": {
-            "recipient": recipient_email,
-            "subject": subject
-        }
-    })
+    try:
+        from integrations.services.google.gmail import GmailService
+        service = GmailService(user=user)
+        service.send_email(recipient_email, subject, body)
+        
+        return json.dumps({
+            "status": "success",
+            "ok": True,
+            "message": f"Email sent to {recipient_email}",
+            "details": {
+                "recipient": recipient_email,
+                "subject": subject
+            }
+        })
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "ok": False,
+            "message": f"Failed to send email: {str(e)}"
+        })
+

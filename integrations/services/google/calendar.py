@@ -1,14 +1,11 @@
-from integrations.services.base import EmailService
+from integrations.services.base import CalendarService as BaseCalendarService
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-import base64
-from email.mime.text import MIMEText
 import os
 
-class GmailService(EmailService):
+class CalendarService(BaseCalendarService):
     def __init__(self, user=None):
-        # User is optional now, as we use system creds
         super().__init__(user)
         self.creds = None
         self._authenticate()
@@ -32,8 +29,8 @@ class GmailService(EmailService):
             refresh_token = os.environ.get("GOOGLE_SYSTEM_REFRESH_TOKEN")
 
         if not refresh_token:
-             # If neither is found, we cannot send email
-             raise ValueError("No Email Integration found. Please connect Google Workspace in Settings.")
+             # If neither is found, we cannot perform actions
+             raise ValueError("No Email/Calendar Integration found. Please connect Google Workspace in Settings.")
 
         client_id = os.environ.get("GOOGLE_CLIENT_ID")
         client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
@@ -44,7 +41,7 @@ class GmailService(EmailService):
             token_uri="https://oauth2.googleapis.com/token",
             client_id=client_id,
             client_secret=client_secret,
-            scopes=["https://www.googleapis.com/auth/gmail.send"]
+            scopes=["https://www.googleapis.com/auth/calendar"] 
         )
 
         # Force refresh to get a valid access token
@@ -52,40 +49,51 @@ class GmailService(EmailService):
             self.creds.refresh(Request())
         except Exception as e:
             raise ValueError(f"Failed to refresh token: {e}")
-            
 
     def get_auth_url(self):
-        # Handled by core/auth_views.py
         pass
     
     def handle_callback(self, code):
-         # Handled by core/auth_views.py
          pass
     
     def get_credentials(self):
         return self.creds
 
-    def send_email(self, recipient_email, subject, body, html_content=None):
-        """Send an email using Gmail API."""
+    def create_event(self, title, start_time, end_time, attendees=None, description=None):
+        """Create a calendar event using Google Calendar API."""
         if not self.creds:
-            print("❌ GmailService Error: Not authenticated")
             raise ValueError("Not authenticated")
 
-        print(f"📧 Sending email to {recipient_email} via Gmail API...")
-        service = build('gmail', 'v1', credentials=self.creds)
+        print(f"📅 Creating event '{title}' via Google Calendar API...")
+        service = build('calendar', 'v3', credentials=self.creds)
 
-        message = MIMEText(html_content if html_content else body, 'html' if html_content else 'plain')
-        message['to'] = recipient_email
-        message['subject'] = subject
-        
-        # 'me' is the special value for the authenticated user
-        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
-        
+        # attendees is expected to be a list of emails ["a@b.com", "c@d.com"]
+        if isinstance(attendees, str):
+            # Split comma-separated string if passed
+            attendee_list = [{'email': email.strip()} for email in attendees.split(',') if email.strip()]
+        elif isinstance(attendees, list):
+            attendee_list = [{'email': email} for email in attendees]
+        else:
+            attendee_list = []
+
+        event = {
+            'summary': title,
+            'description': description or "",
+            'start': {
+                'dateTime': start_time, # ISO format e.g., '2015-05-28T09:00:00-07:00'
+                'timeZone': 'UTC', # Defaulting to UTC if not specified in string
+            },
+            'end': {
+                'dateTime': end_time,
+                'timeZone': 'UTC',
+            },
+            'attendees': attendee_list,
+        }
+
         try:
-            message_box = {'raw': raw_message}
-            sent_message = service.users().messages().send(userId="me", body=message_box).execute()
-            print(f"✅ Email SENT Successfully! Message ID: {sent_message.get('id')}")
-            return sent_message
+            event_result = service.events().insert(calendarId='primary', body=event).execute()
+            print(f"✅ Event created: {event_result.get('htmlLink')}")
+            return event_result
         except Exception as e:
-            print(f"❌ Error sending email: {e}")
+            print(f"❌ Error creating event: {e}")
             raise e

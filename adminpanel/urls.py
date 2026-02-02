@@ -18,4 +18,7 @@ urlpatterns = [
     path("policies/add/", views.add_policy, name="add_policy"),
     path("policies/reindex/<uuid:policy_id>/", views.reindex_policy, name="reindex_policy"),
     path("policies/delete/<uuid:policy_id>/", views.delete_policy, name="delete_policy"),
+    
+    # Org Settings
+    path("settings/", views.org_settings, name="org_settings"),
 ]

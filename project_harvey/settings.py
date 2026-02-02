@@ -165,6 +165,9 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
+# Messages Storage (Session-based to auto-clear on logout)
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+
 
 # Logging Configuration
 # import os

@@ -9,13 +9,19 @@ class Organization(models.Model):
     org_id = models.CharField(
         max_length=50,
         unique=True,
-        default=generate_org_id,  
+        default=generate_org_id,   
         editable=False
     )
     name = models.CharField(max_length=255)
     domain = models.CharField(max_length=100, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Email Integration 
+    google_refresh_token = models.TextField(null=True, blank=True)
+    google_token_expires = models.DateTimeField(null=True, blank=True)
+    google_connected_email = models.EmailField(null=True, blank=True)
+    
 
     def __str__(self):
         return f"{self.name} ({self.org_id})"

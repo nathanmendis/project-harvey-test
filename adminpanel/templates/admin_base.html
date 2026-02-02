@@ -109,6 +109,13 @@
                 <span class="font-medium">Policies</span>
               </a>
             </li>
+            <li>
+              <a href="{% url 'org_settings' %}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active text-white{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-cog mr-3 transition-transform group-hover:scale-110"></i>
+                <span class="font-medium">Settings</span>
+              </a>
+            </li>
           </ul>
         </nav>
       </div>

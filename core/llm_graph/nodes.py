@@ -4,6 +4,7 @@ from .harvey_prompt import SYSTEM_PROMPT
 from .summarizer import summarize
 from django.contrib.auth import get_user_model
 import json, time
+import datetime
 import logging
 
 logger = logging.getLogger("harvey")
@@ -67,8 +68,11 @@ def harvey_node(state):
 
     messages = get_state_value(state, "messages", [])
 
+    current_date = datetime.datetime.now().strftime("%A, %B %d, %Y")
+
     sys = SYSTEM_PROMPT.format(
         current_goal=current_goal, 
+        current_date=current_date,
         last_active_topic=last_active_topic,
         extracted_info=extracted_info,
         tools=tools
@@ -131,6 +135,10 @@ def execute_node(state):
         result = func(user=user, **args)
         parsed = json.loads(result)
         message = parsed.get("message", result)
+        
+        # Ensure the LLM sees the link if one was returned
+        if parsed.get("link"):
+            message += f"\nLink: {parsed['link']}"
 
         append_trace(state, {
             "node": "TOOL",

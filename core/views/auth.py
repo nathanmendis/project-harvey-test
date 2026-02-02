@@ -1,13 +1,61 @@
-from django.shortcuts import redirect, render
-from django.conf import settings
-from django.contrib.auth import login
+from django.shortcuts import render, redirect, reverse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LogoutView
 from django.contrib import messages
-from django.urls import reverse
+from django.conf import settings
 import requests
+import os
 from core.models.organization import User
 from core.models.invite import Invite
-from django.utils import timezone
-import os
+
+# --- Standard Auth ---
+
+def login_view(request):
+    
+    if request.user.is_authenticated:
+        # Already logged in: redirect by role
+        if request.user.role == "org_admin" or request.user.is_superuser:
+            return redirect('admin_dashboard')
+        elif getattr(request.user, "has_chat_access", False):
+            return redirect('chat_view')
+        else:
+            return render(request, 'core/no_access.html')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+
+            # Remember Me Logic
+            if request.POST.get('remember-me'):
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # Expires on browser close
+
+            # Redirect based on role or permissions
+            if user.role == "org_admin" or user.is_superuser:
+                return redirect('admin_dashboard')
+            elif getattr(user, "has_chat_access", False):
+                return redirect('chat_view')
+            else:
+                return render(request, 'core/no_access.html')
+        else:
+            messages.error(request, 'Invalid username or password.')
+
+    return render(request, 'core/login_page.html')
+
+class CustomLogoutView(LogoutView):
+    """Allow GET requests for logout (useful for admin links)."""
+
+    def get(self, request, *args, **kwargs):
+        request.session.pop("harvey_memory", None)
+        return self.post(request, *args, **kwargs)
+
+
+# --- Google Auth ---
 
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"

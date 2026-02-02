@@ -1,6 +1,7 @@
 from django.db import models
 from .organization import Organization, User
 import uuid
+from core.utils.encryption import encrypt_token, decrypt_token
 
 class Conversation(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
@@ -22,8 +23,28 @@ class Message(models.Model):
     message_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+
+    def save(self, *args, **kwargs):
+        # Encrypt if not already encrypted
+        if self.message_text and not self.message_text.startswith('enc:'):
+            encrypted = encrypt_token(self.message_text)
+            if encrypted:
+                self.message_text = f"enc:{encrypted}"
+        super().save(*args, **kwargs)
+
+    @property
+    def text(self):
+        """Returns the decrypted text."""
+        if self.message_text and self.message_text.startswith('enc:'):
+            # Strip 'enc:' prefix (first 4 chars) and decrypt
+            encrypted_payload = self.message_text[4:]
+            decrypted = decrypt_token(encrypted_payload)
+            return decrypted if decrypted else "[Decryption Error]"
+        return self.message_text
+
     def __str__(self):
-        return f"{self.sender.capitalize()} → {self.message_text[:40]}"
+        # Use decrypted text for string representation
+        return f"{self.sender.capitalize()} → {self.text[:40]}"
 
 
 class GraphRun(models.Model):

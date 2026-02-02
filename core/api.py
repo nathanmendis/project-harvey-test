@@ -78,7 +78,7 @@ def get_conversation_messages(request, conversation_id):
     for msg in reversed(messages_slice):
         data.append({
             "sender": msg.sender,
-            "text": msg.message_text,
+            "text": msg.text,  # Use decrypted property
             "timestamp": msg.timestamp.isoformat()
         })
 
