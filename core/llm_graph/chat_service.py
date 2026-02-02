@@ -50,13 +50,13 @@ def _save_chat(convo, user, user_input, ai_output):
 def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
     # 1. Check for Rate Limit Block
     if cache.get(f"chat_block_{user.id}"):
-        return LLMResponse(response="⚠️ System is cooling down due to high traffic. Please try again in 60 seconds.", conversation_id=0, title="Error")
+        return LLMResponse(response=" System is cooling down due to high traffic. Please try again in 60 seconds.", conversation_id=0, title="Error")
 
     if conversation_id:
         try:
             convo = Conversation.objects.get(id=conversation_id, user=user)
         except Conversation.DoesNotExist:
-            return LLMResponse(response="⚠️ Conversation not found.", conversation_id=0, title="Error")
+            return LLMResponse(response=" Conversation not found.", conversation_id=0, title="Error")
     else:
         # Create NEW conversation
         # Generate a title based on the first few words of the prompt

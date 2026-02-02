@@ -32,22 +32,26 @@ tool_registry = {t.name: t.func for t in AVAILABLE_TOOLS}
 
 from langchain_groq import ChatGroq
 
-def get_llm():
+def get_router_llm():
+    """Small, fast model for intent classification"""
     groq_key = os.getenv("GROQ_API_KEY")
-    if groq_key:
-        return ChatGroq(
-            model="llama-3.3-70b-versatile",
-            temperature=0.0,
-            api_key=groq_key
-        )
-
-    # Fallback to Gemini
-    key = os.getenv("GOOGLE_API_KEY")
-    if not key:
-        raise RuntimeError("GOOGLE_API_KEY not set")
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+    if not groq_key: 
+        raise ValueError("GROQ_API_KEY not set")
+        
+    return ChatGroq(
+        model="llama-3.1-8b-instant",
         temperature=0.0,
-        google_api_key=key,
-        max_retries=0
+        api_key=groq_key
+    )
+
+def get_reasoner_llm():
+    """Large, powerful model for complex reasoning and drafting"""
+    groq_key = os.getenv("GROQ_API_KEY")
+    if not groq_key:
+         raise ValueError("GROQ_API_KEY not set")
+
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        temperature=0.0,
+        api_key=groq_key
     )

@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
-from .tools_registry import get_llm
+from .tools_registry import get_reasoner_llm
 import json
 import logging
 
@@ -31,7 +31,7 @@ def summarize(messages) -> Dict:
     if len(messages) < 2:
         return {}
     
-    llm = get_llm()
+    llm = get_reasoner_llm()
     # Include more history for better context
     text = "\n".join(f"{m.type}: {m.content}" for m in messages[-20:])
 
