@@ -10,7 +10,9 @@ def search_knowledge_base(query: str, user=None):
     Use this to find people with specific skills or details about job openings.
     """
     store = get_vector_store()
-    results = store.similarity_search(query, k=3)
+    # Filter for candidates and jobs
+    filter_spec = {"doc_type": {"$in": ["candidate", "job"]}}
+    results = store.similarity_search(query, k=3, filter=filter_spec)
     
     if not results:
         return ok("No relevant information found in the knowledge base.")

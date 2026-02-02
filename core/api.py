@@ -6,6 +6,8 @@ from core.services.policy_indexer import PolicyIndexer
 import threading
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 
 class PolicySerializer(serializers.ModelSerializer):
@@ -87,3 +89,19 @@ def get_conversation_messages(request, conversation_id):
         "has_more": has_more,
         "title": convo.title
     })
+
+@csrf_exempt
+@login_required
+@require_http_methods(["DELETE", "POST"])
+def delete_conversation(request, conversation_id):
+    """
+    Delete a specific conversation.
+    """
+    try:
+        convo = Conversation.objects.get(id=conversation_id, user=request.user)
+        convo.delete()
+        return JsonResponse({"status": "success", "message": "Conversation deleted"})
+    except Conversation.DoesNotExist:
+        return JsonResponse({"error": "Conversation not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

@@ -31,6 +31,7 @@ class ModelIndexer:
             metadata = {
                 "source": candidate.name,
                 "type": "candidate",
+                "doc_type": "candidate",
                 "candidate_id": str(candidate.id),
                 "organization_id": str(candidate.organization.id)
             }
@@ -60,6 +61,7 @@ class ModelIndexer:
             metadata = {
                 "source": job.title,
                 "type": "job_role",
+                "doc_type": "job",
                 "job_id": str(job.id),
                 "organization_id": str(job.organization.id)
             }

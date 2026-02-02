@@ -11,12 +11,19 @@ def search_policies(query: str, user=None) -> str:
     """
     vector_store = get_vector_store()
     
-    filter_args = {}
+    display_filter = {}
     if user and user.organization:
-        filter_args = {"filter": {"organization_id": str(user.organization.id)}}
+        # We need to construct the filter carefully. 
+        # combining org_id AND doc_type='policy'
+        display_filter = {
+             "organization_id": str(user.organization.id),
+             "doc_type": "policy"
+        }
+    else:
+        display_filter = {"doc_type": "policy"}
 
     # We might want to filter by type='policy' if possible, but for now we rely on semantic search
-    results = vector_store.similarity_search(query, k=3, **filter_args)
+    results = vector_store.similarity_search(query, k=3, filter=display_filter)
     
     if not results:
         return json.dumps({
@@ -27,22 +34,7 @@ def search_policies(query: str, user=None) -> str:
     formatted_results = []
     for doc in results:
         source = doc.metadata.get('source', 'Unknown Policy')
-        # Filter out non-policy results if they accidentally get mixed in (though separate index is better)
-        # For now, we assume the index is shared or we just return what we find.
-        # Ideally, we check doc.metadata.get('type') == 'policy'
-        
-        if doc.metadata.get('type') == 'policy':
-            formatted_results.append(f"Source: {source}\nContent: {doc.page_content}")
-        elif 'policy' in source.lower(): # Fallback heuristic
-             formatted_results.append(f"Source: {source}\nContent: {doc.page_content}")
-
-    if not formatted_results:
-        # If strict filtering returns nothing, return raw results (maybe it's a mixed index)
-        # Or just return "No policies found"
-        # Let's be lenient for now as we are just starting
-        for doc in results:
-             source = doc.metadata.get('source', 'Unknown')
-             formatted_results.append(f"Source: {source}\nContent: {doc.page_content}")
+        formatted_results.append(f"Source: {source}\nContent: {doc.page_content}")
 
     return json.dumps({
         "ok": True,

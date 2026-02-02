@@ -4,7 +4,7 @@ from .views import (
     chat_with_llm, chat_page, login_view, CustomLogoutView, upload_resume, landing_page,
     google_login, google_callback, org_google_login
 )
-from .api import list_conversations, get_conversation_messages
+from .api import list_conversations, get_conversation_messages, delete_conversation
 from adminpanel import views as admin_views
 
 urlpatterns = [
@@ -21,6 +21,7 @@ urlpatterns = [
     path("chat/", chat_with_llm, name="chat_with_llm"),
     path("api/conversations/", list_conversations, name="list_conversations"),
     path("api/conversations/<int:conversation_id>/messages/", get_conversation_messages, name="get_conversation_messages"),
+    path("api/conversations/<int:conversation_id>/delete/", delete_conversation, name="delete_conversation"),
     path("upload_resume/", upload_resume, name="upload_resume"),
     path('logout/', CustomLogoutView.as_view(next_page='login'), name='logout'),
 ]

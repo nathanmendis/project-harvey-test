@@ -50,6 +50,7 @@ class PolicyIndexer:
                     "policy_id": str(policy.id),
                     "chunk_index": i,
                     "type": "policy",
+                    "doc_type": "policy",
                     "organization_id": str(policy.created_by.organization.id) if policy.created_by.organization else None
                 })
 

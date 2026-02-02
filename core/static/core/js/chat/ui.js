@@ -139,5 +139,48 @@ Harvey.UI = {
             `;
             previews.appendChild(chip);
         });
+    },
+
+    showConfirmDialog: (message, onConfirm) => {
+        // Remove existing
+        document.getElementById('harvey-confirm-dialog')?.remove();
+
+        const dialog = document.createElement('div');
+        dialog.id = 'harvey-confirm-dialog';
+        dialog.className = 'fixed top-24 left-1/2 -translate-x-1/2 z-[10000] flex items-center gap-4 bg-[#1e293b]/95 backdrop-blur-md border border-red-500/30 px-6 py-4 rounded-xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200';
+
+        dialog.innerHTML = `
+            <div class="flex items-center gap-3 text-sm text-gray-200 font-medium">
+                <i class="fas fa-exclamation-triangle text-red-400"></i>
+                <span>${message}</span>
+            </div>
+            <div class="flex items-center gap-2 border-l border-white/10 pl-4 ml-2">
+                <button id="confirm-cancel-btn" class="px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-md transition-colors">
+                    Cancel
+                </button>
+                <button id="confirm-yes-btn" class="px-3 py-1.5 text-xs font-medium bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-md transition-all shadow-sm">
+                    Delete
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(dialog);
+
+        // Handlers
+        const close = () => {
+            dialog.classList.add('opacity-0', '-translate-y-4');
+            setTimeout(() => dialog.remove(), 200);
+        };
+
+        document.getElementById('confirm-cancel-btn').onclick = close;
+        document.getElementById('confirm-yes-btn').onclick = () => {
+            close();
+            onConfirm();
+        };
+
+        // Auto close after 10s if ignored
+        setTimeout(() => {
+            if (document.body.contains(dialog)) close();
+        }, 10000);
     }
 };
