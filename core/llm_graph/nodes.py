@@ -120,10 +120,25 @@ def router_node(state):
 
 
 def harvey_node(state):
-    llm = get_reasoner_llm() # 70B Model
+    messages = get_state_value(state, "messages", [])
+    intent = get_state_value(state, "intent", "chat")
+    
+    # If the last message was a Tool execution, we BYPASS the LLM and return the result directly.
+    # This ensures links and details are preserved exactly as the tool returned them.
+    if messages and isinstance(messages[-1], ToolMessage):
+        logger.info("[INFO] Harvey Node: Bypassing LLM (Returning Tool Output Directly)")
+        tool_output = messages[-1].content
+        return {"messages": [AIMessage(content=tool_output)]}
+
+    # --- MODEL SELECTION STRATEGY ---
+    if intent == "chat":
+        llm = get_router_llm() # 8B Model for Chat
+        logger.info("[INFO] Harvey Node: Using 8B Model (Chat Mode)")
+    else:
+        llm = get_reasoner_llm() # 70B Model for Tools
+        logger.info("[INFO] Harvey Node: Using 70B Model (Tool Mode)")
     
     context = get_state_value(state, "context", {})
-    messages = get_state_value(state, "messages", [])
     
     # --- Human-in-the-Loop Check (Existing Logic) ---
     requires_approval = get_state_value(state, "requires_approval", False)
@@ -141,54 +156,66 @@ def harvey_node(state):
                  logger.info("User rejected or digressed.")
                  set_state_value(state, "requires_approval", False)
                  set_state_value(state, "pending_tool", None)
-                 return {"messages": [AIMessage(content="❌ Action cancelled. What would you like to do instead?")], 
+                 return {"messages": [AIMessage(content="Action cancelled. What would you like to do instead?")], 
                          "pending_tool": None, "requires_approval": False}
 
     current_goal = context.get("current_goal", "None")
     last_active_topic = context.get("last_active_topic", "None")
     extracted_info = json.dumps(context.get("extracted_info", {}), indent=2)
-    tools = "\n".join(f"- {t.name}: {t.description}" for t in AVAILABLE_TOOLS)
+    if intent == "chat":
+        tools_str = "No tools available in Chat Mode."
+    else:
+        tools_str = "\n".join(f"- {t.name}: {t.description}" for t in AVAILABLE_TOOLS)
 
-    current_date = datetime.datetime.now().strftime("%A, %B %d, %Y")
+    # Add User Timezone Context (Hardcoded to IST for now as per user location)
+    # Ideally this comes from user profile.
+    user_timezone = "IST (UTC+05:30)"
+    
+    current_date = datetime.datetime.now().strftime("%A, %B %d, %Y, %I:%M %p")
 
     sys = SYSTEM_PROMPT.format(
         current_goal=current_goal, 
-        current_date=current_date,
+        current_date=f"{current_date} {user_timezone}",
         last_active_topic=last_active_topic,
         extracted_info=extracted_info,
-        tools=tools
+        tools=tools_str
     )
     
+    # Add explicit instruction for Chat mode to prevent hallucinations
+    if intent == "chat":
+        sys += "\n\nMODE: CHAT. You have NO tools. Do not pretend to execute actions. Just answer the user."
+
     history = messages[-10:]
     while history and not isinstance(history[0], HumanMessage):
         history.pop(0)
 
     msgs = [SystemMessage(content=sys)] + history
 
-    # --- ROUTING LOGIC ---
-    intent = get_state_value(state, "intent", "chat")
     target_tool = get_state_value(state, "target_tool", None)
     
     start = time.time()
     try:
-        logger.debug(f"Harvey (70B) executing with Intent: {intent}")
+        logger.debug(f"Harvey executing with Intent: {intent}")
         
         if intent == "tool":
             # 70B drafts the tool input
-            # We bind ALL tools so it can pick the schema, but we expect it to use target_tool
-            # Optimization: We COULD bind only the specific tool if we trust the router 100%
-            # For now, binding all is safer if Router matched vaguely.
             result = llm.bind_tools(AVAILABLE_TOOLS).invoke(msgs)
         else:
-             # Chat mode: NO tools bound. 
-             # preventing 70B from hallucinating tool usage.
+             # Chat mode: 8B model, NO tools bound.
              result = llm.invoke(msgs)
+             
+
 
         append_trace(state, {
             "node": "HARVEY",
             "duration_ms": int((time.time() - start) * 1000),
             "tool_call": bool(result.tool_calls),
         })
+
+        # --- LOG TOKEN USAGE ---
+        if hasattr(result, "response_metadata"):
+            usage = result.response_metadata.get("token_usage", {})
+            logger.info(f"[INFO] Token Usage: {usage}")
 
         if result.tool_calls:
             tool_call = result.tool_calls[0]
@@ -219,7 +246,7 @@ def harvey_node(state):
     except Exception as e:
         logger.error(f"Harvey thought error: {e}")
         append_trace(state, {"node": "HARVEY", "error": str(e)})
-        return {"messages": [AIMessage(content="⚠️ Thought error. Try again.")]}
+        return {"messages": [AIMessage(content="Thought error. Try again.")]}
     
 
 def should_execute(state):
@@ -232,6 +259,18 @@ def should_execute(state):
         return False
         
     return bool(pending)
+
+
+def get_user(state):
+    """Retrieve user object from state using user_id"""
+    user_id = get_state_value(state, "user_id")
+    if user_id:
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            logger.error(f"User with id {user_id} not found.")
+            return None
+    return None
 
 
 def execute_node(state):
@@ -253,14 +292,11 @@ def execute_node(state):
         parsed = json.loads(result)
         message = parsed.get("message", result)
         
-        # Ensure the LLM sees the link if one was returned
-        if parsed.get("link"):
-            message += f"\nLink: {parsed['link']}"
-
         append_trace(state, {
             "node": "TOOL",
             "tool": call["name"],
             "duration_ms": int((time.time() - start) * 1000),
+            "link": parsed.get("link")
         })
 
         set_state_value(state, "pending_tool", None)
@@ -271,7 +307,7 @@ def execute_node(state):
         logger.error(f"Tool execution failed: {e}")
         append_trace(state, {"node": "TOOL", "tool": call["name"], "error": str(e)})
         set_state_value(state, "pending_tool", None)
-        return {"messages": [AIMessage(content=f"⚠️ Tool failed: {e}")], "pending_tool": None}
+        return {"messages": [AIMessage(content=f" Tool failed: {e}")], "pending_tool": None}
 
 
 def summary_node(state):
@@ -288,6 +324,8 @@ def summary_node(state):
     requires_approval = get_state_value(state, "requires_approval", False)
     if not requires_approval:
         updates["pending_tool"] = None
+        # Safety net: Ensure approval is False if we are clearing tool
+        updates["requires_approval"] = False
 
     if new_context:
         updates["context"] = new_context

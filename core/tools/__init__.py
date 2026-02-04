@@ -1,4 +1,4 @@
-from .base import (
+from .recruitment_tools import (
     add_candidate,
     create_job_description,
     schedule_interview,

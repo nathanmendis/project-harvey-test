@@ -1,4 +1,6 @@
 import json
+import os
+from typing import Union
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from langchain_core.tools import tool
@@ -6,18 +8,7 @@ from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, Can
 from core.models.organization import Organization
 from core.services.resume_parser import ResumeParser
 from core.services.candidate_scorer import CandidateScorer
-
-def ok(message, **data):
-    return json.dumps({"ok": True, "message": message, **data})
-
-def err(message):
-    return json.dumps({"ok": False, "message": message})
-
-def get_org(user):
-    """Helper to get organization from user."""
-    if user and getattr(user, "organization", None):
-        return user.organization
-    return None
+from core.tools.utils import ok, err, get_org
 
 @tool("add_candidate", return_direct=True)
 def add_candidate(name: str, email: str, skills: str, phone: str, source: str = "Chatbot", user=None) -> str:
@@ -27,7 +18,7 @@ def add_candidate(name: str, email: str, skills: str, phone: str, source: str = 
         return err("User is not associated with any organization. Please contact support.")
 
     if Candidate.objects.filter(email=email, organization=org).exists():
-        return err(f"Candidate '{email}' already exists.")
+        return err(f"A candidate with the email '{email}' is already in the system.")
 
     c = Candidate.objects.create(
         organization=org,
@@ -38,9 +29,8 @@ def add_candidate(name: str, email: str, skills: str, phone: str, source: str = 
         source=source,
         status="pending",
     )
-    return ok(f"Candidate '{name}' added successfully.", id=c.id, name=name)
+    return ok(f"I've successfully added {name} as a new candidate.", id=c.id, name=name)
 
-import os
 
 @tool("add_candidate_with_resume", return_direct=True)
 def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", phone: str = "", user=None) -> str:
@@ -69,7 +59,7 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
     try:
         text = parser.parse(file_path)
     except Exception as e:
-        return err(f"Failed to parse resume: {e}")
+        return err(f"I encountered an issue parsing the resume: {e}")
 
     # Simple extraction fallback if not provided (in real app, use LLM here too)
     # For now, we assume the user provides basic details or we just create with what we have.
@@ -78,7 +68,7 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
         return err("Please provide the candidate's email address along with the resume.")
     
     if Candidate.objects.filter(email=email, organization=org).exists():
-        return err(f"Candidate '{email}' already exists.")
+        return err(f"A candidate with the email '{email}' is already in the system.")
 
     c = Candidate.objects.create(
         organization=org,
@@ -92,7 +82,7 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
         status="pending",
     )
     
-    return ok(f"Candidate '{c.name}' added with resume.", id=c.id, name=c.name)
+    return ok(f"I've successfully added {c.name} and attached their resume.", id=c.id, name=c.name)
 
 
 @tool("create_job_description", return_direct=True)
@@ -109,28 +99,64 @@ def create_job_description(title: str, description: str, requirements: str, depa
         requirements=requirements,
         department=department,
     )
-    return ok(f"Job role '{title}' created successfully.", id=j.id, title=title)
+    return ok(f"I've created the new job role for '{title}' in the {department} department.", id=j.id, title=title)
 
 
 @tool("schedule_interview", return_direct=True)
-def schedule_interview(candidate_id: int, when: str, interviewer_id: int, duration_minutes: int = 30, location_link: str = "", user=None) -> str:
-    """Schedules a job interview."""
+def schedule_interview(candidate: str, start_time: str, duration_minutes: int = 30, user=None) -> str:
+    """
+    Schedules an interview with a candidate for the current user.
+    candidate: The Name or Email of the candidate.
+    start_time: ISO 8601 datetime string (e.g., '2023-10-27T10:00:00').
+    """
+    # 1. Validation
     org = get_org(user)
     if not org:
-        return err("User is not associated with any organization. Please contact support.")
+        return err("User not associated with organization.")
+    
+    if not user or not user.pk:
+         return err("No logged-in user found to set as interviewer.")
 
-    dt = parse_datetime(when)
+    # 2. Resolve Candidate (Email or Name) -> ID
+    val = candidate.strip()
+    c_id = None
+    
+    # Try Email
+    if "@" in val:
+        c_obj = Candidate.objects.filter(email__iexact=val, organization=org).first()
+        if c_obj: c_id = c_obj.id
+    
+    # Try Name if not found
+    if not c_id:
+        c_objs = Candidate.objects.filter(name__iexact=val, organization=org)
+        if c_objs.count() == 1:
+            c_id = c_objs.first().id
+        elif c_objs.count() > 1:
+            return err(f"Multiple candidates named '{val}'. Please use their email.")
+            
+    if not c_id:
+        # Fallback: Is it an ID?
+        if val.isdigit() and Candidate.objects.filter(id=int(val), organization=org).exists():
+             c_id = int(val)
+        else:
+             return err(f"I couldn't find a candidate named '{val}'. Please ensure they are added first.")
+
+    # 3. Create Interview
+    dt = parse_datetime(start_time)
     if not dt:
-        return err("Invalid date format. Use ISO 8601 datetime.")
+        return err("Invalid date format. Please use ISO 8601.")
 
-    i = Interview.objects.create(
-        organization=org,
-        candidate_id=candidate_id,
-        interviewer_id=interviewer_id,
-        date_time=dt,
-        status="scheduled",
-    )
-    return ok("Interview scheduled.", interview_id=i.id, when=str(dt))
+    try:
+        i = Interview.objects.create(
+            organization=org,
+            candidate_id=c_id,
+            interviewer_id=user.pk, # Always the current user
+            date_time=dt,
+            status="scheduled",
+        )
+        return ok(f"I have confirmed that the interview with {val} is scheduled.", interview_id=i.id, when=str(dt))
+    except Exception as e:
+        return err(f"Database Error: {str(e)}")
 
 
 @tool("send_email", return_direct=True)
@@ -148,7 +174,7 @@ def send_email(recipient: str, subject: str, body: str, user=None) -> str:
         status="sent",
         sent_time=timezone.now(),
     )
-    return ok(f"Email sent to {recipient}", log_id=e.id)
+    return ok(f"I've sent the email to {recipient} regarding '{subject}'.", log_id=e.id)
 
 
 @tool("shortlist_candidates", return_direct=True)
@@ -191,7 +217,7 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
             scored_results.sort(key=lambda x: x["score"], reverse=True)
             scored_results = scored_results[:limit]
             
-            msg = f"Top {len(scored_results)} candidates for '{job_role.title}':"
+            msg = f"Here are the top {len(scored_results)} candidates for '{job_role.title}':"
             return ok(msg, results=scored_results)
 
         except JobRole.DoesNotExist:
@@ -212,5 +238,5 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
     ]
     matched = matched[:limit]
 
-    msg = f"Shortlisted: {', '.join(c['name'] for c in matched) or 'none'}."
+    msg = f"I found the following candidates matching the skills: {', '.join(c['name'] for c in matched) or 'None found'}."
     return ok(msg, results=matched)

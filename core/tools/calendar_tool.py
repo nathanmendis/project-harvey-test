@@ -33,10 +33,15 @@ def create_calendar_event_tool(title: str, start_time: str, end_time: str, descr
             attendees=final_attendees
         )
         
+        link = event_result.get('htmlLink')
+        message = f"I have successfully scheduled the event '{title}' on your calendar."
+        if link:
+            message += f" Link: {link}"
+        
         return json.dumps({
             "status": "success",
-            "message": f"Event '{title}' created.",
-            "link": event_result.get('htmlLink'),
+            "message": message,
+            "link": link,
             "details": {
                 "title": title,
                 "start": start_time,

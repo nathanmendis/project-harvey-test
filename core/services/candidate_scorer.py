@@ -4,8 +4,8 @@ from langchain_core.messages import HumanMessage
 
 class CandidateScorer:
     def __init__(self):
-        from core.llm_graph.tools_registry import get_llm
-        self.llm = get_llm()
+        from core.llm_graph.tools_registry import get_reasoner_llm
+        self.llm = get_reasoner_llm()
 
     def score_candidate(self, candidate, job_role):
         """

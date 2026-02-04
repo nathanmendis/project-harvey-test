@@ -1,7 +1,7 @@
 from langchain_core.tools import tool
 from core.vector_store import get_vector_store
 
-from core.tools.base import ok
+from core.tools.utils import ok
 
 @tool
 def search_knowledge_base(query: str, user=None):
@@ -17,8 +17,9 @@ def search_knowledge_base(query: str, user=None):
     if not results:
         return ok("No relevant information found in the knowledge base.")
     
-    formatted_results = "\n\n".join(
-        f"--- Result {i+1} ---\n{doc.page_content}" 
-        for i, doc in enumerate(results)
-    )
+    formatted_results = ""
+    for i, doc in enumerate(results):
+        metadata_str = ", ".join(f"{k}: {v}" for k, v in doc.metadata.items())
+        formatted_results += f"--- Result {i+1} ---\n{doc.page_content}\nMetadata: {metadata_str}\n\n"
+    
     return ok(f"Found the following information:\n{formatted_results}")

@@ -80,12 +80,12 @@ class CalendarService(BaseCalendarService):
             'summary': title,
             'description': description or "",
             'start': {
-                'dateTime': start_time, # ISO format e.g., '2015-05-28T09:00:00-07:00'
-                'timeZone': 'UTC', # Defaulting to UTC if not specified in string
+                'dateTime': start_time,
+                'timeZone': 'Asia/Kolkata', 
             },
             'end': {
                 'dateTime': end_time,
-                'timeZone': 'UTC',
+                'timeZone': 'Asia/Kolkata',
             },
             'attendees': attendee_list,
         }

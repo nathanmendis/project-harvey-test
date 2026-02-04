@@ -179,7 +179,10 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         run.status = "error"
         run.error_message = str(e)
         run.finished_at = timezone.now()
-        run.save()
+        try:
+            run.save()
+        except Exception as db_err:
+            logger.error(f"Failed to update GraphRun status: {db_err}")
 
         return LLMResponse(
             response="⚠️ Something went wrong. Try again!",

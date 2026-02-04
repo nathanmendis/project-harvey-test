@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import json
 from core.models.organization import Organization, User
 from core.models.recruitment import JobRole, Candidate, Interview, EmailLog, CandidateJobScore
-from core.tools.base import (
+from core.tools.recruitment_tools import (
     create_job_description,
     add_candidate_with_resume,
     shortlist_candidates,
@@ -37,8 +37,9 @@ class RecruitmentFlowTest(TestCase):
             """)
 
     @patch("core.services.resume_parser.ResumeParser.parse")
-    @patch("core.llm_graph.tools_registry.get_llm")
-    def test_end_to_end_recruitment(self, mock_get_llm, mock_parse):
+    @patch("core.llm_graph.tools_registry.get_reasoner_llm")
+    @patch("core.signals.ModelIndexer") 
+    def test_end_to_end_recruitment(self, mock_indexer, mock_get_llm, mock_parse):
         # --- Mocks Setup ---
         mock_parse.return_value = "John Doe\nPython Developer\nSkills: Python, Django, DRF"
         
@@ -62,7 +63,8 @@ class RecruitmentFlowTest(TestCase):
             department="Eng",
             user=self.user
         )
-        self.assertIn("created successfully", res_job)
+        print(f"Result: {res_job}")
+        self.assertIn("I've created the new job role", res_job)
         job = JobRole.objects.get(title="Senior Python Dev")
         
         # 2. Add Candidate via Resume
@@ -73,7 +75,7 @@ class RecruitmentFlowTest(TestCase):
             name="John Doe",
             user=self.user
         )
-        self.assertIn("added with resume", res_cand)
+        self.assertIn("I've successfully added", res_cand)
         candidate = Candidate.objects.get(email="john.doe@example.com")
         self.assertEqual(candidate.parsed_data, "John Doe\nPython Developer\nSkills: Python, Django, DRF")
 
@@ -95,14 +97,13 @@ class RecruitmentFlowTest(TestCase):
         print("4. Scheduling Interview...")
         interview_time = (timezone.now() + timezone.timedelta(days=2)).isoformat()
         res_interview = schedule_interview.func(
-            candidate_id=candidate.id,
-            when=interview_time,
-            interviewer_id=self.user.id,
+            candidate=candidate.email,  # Pass email as 'candidate' string
+            start_time=interview_time,  # 'when' -> 'start_time'
             user=self.user
         )
         print(f"Interview Result: {res_interview}")
         data_i = json.loads(res_interview)
-        self.assertEqual(data_i.get("message"), "Interview scheduled.")
+        self.assertIn("confirmed that the interview", data_i.get("message"))
         self.assertTrue(Interview.objects.filter(candidate=candidate, status="scheduled").exists())
 
         # 5. Send Offer/Email
@@ -116,7 +117,7 @@ class RecruitmentFlowTest(TestCase):
         print(f"Email Result: {res_email}")
         data_e = json.loads(res_email)
         self.assertTrue(data_e.get("ok"))
-        self.assertIn("Email sent to", data_e.get("message"))
+        self.assertIn("I've sent the email to", data_e.get("message"))
         self.assertTrue(EmailLog.objects.filter(recipient_email=candidate.email, status="sent").exists())
         
         print("--- Recruitment Flow Passed ---")

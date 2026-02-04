@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
-from core.tools.base import (
+from core.tools.recruitment_tools import (
     add_candidate,
     add_candidate_with_resume,
     schedule_interview,
