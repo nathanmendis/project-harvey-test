@@ -3,7 +3,7 @@ import os
 import django
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
-from .llm_graph.chat_service import generate_llm_reply
+from core.ai.agentic.graph.chat_service import generate_llm_reply
 
 
 if not django.conf.settings.configured:

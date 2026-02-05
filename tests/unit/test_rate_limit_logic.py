@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.cache import cache
 from core.models.organization import Organization, User
-from core.llm_graph.chat_service import generate_llm_reply
+from core.ai.agentic.graph.chat_service import generate_llm_reply
 from google.api_core.exceptions import ResourceExhausted
 from unittest.mock import patch, MagicMock
 
@@ -11,7 +11,7 @@ class RateLimitTest(TestCase):
         self.user = User.objects.create_user(username="test_user", password="password", organization=self.org)
         cache.clear()
 
-    @patch("core.llm_graph.chat_service.graph.invoke")
+    @patch("core.ai.agentic.graph.chat_service.graph.invoke")
     def test_rate_limit_handling(self, mock_invoke):
         # 1. Simulate API Error (Rate Limit)
         mock_invoke.side_effect = ResourceExhausted("Quota exceeded")

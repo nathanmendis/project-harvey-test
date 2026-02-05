@@ -32,7 +32,7 @@ def admin_dashboard(request):
     # Check Google Token Validity (if configured)
     if org and org.google_refresh_token:
         try:
-            from integrations.services.google.gmail import GmailService
+            from integrations.google.gmail import GmailService
             # Attempting to initialize service triggers auth check/refresh
             GmailService(user=request.user) 
         except Exception:

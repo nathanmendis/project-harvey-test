@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models.policy import Policy
-from core.services.policy_indexer import PolicyIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
 import threading
 from .utils import is_org_admin
 
@@ -13,7 +13,7 @@ def manage_policies(request):
     org = request.user.organization
     policies = Policy.objects.filter(created_by__organization=org).order_by('-created_at')
 
-    return render(request, "manage_policies.html", {
+    return render(request, "policies/manage.html", {
         "policies": policies,
         "org": org
     })
@@ -42,7 +42,7 @@ def add_policy(request):
                 policy.uploaded_file = request.FILES["uploaded_file"]
             else:
                 messages.error(request, "Please select a file to upload.")
-                return render(request, "add_policy.html", {"org": org})
+                return render(request, "policies/add.html", {"org": org})
         elif source_type == "url":
             policy.external_url = request.POST.get("external_url")
         
@@ -59,7 +59,7 @@ def add_policy(request):
         except Exception as e:
             messages.error(request, f"Error adding policy: {e}")
 
-    return render(request, "add_policy.html", {"org": org})
+    return render(request, "policies/add.html", {"org": org})
 
 
 @login_required

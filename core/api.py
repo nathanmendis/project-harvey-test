@@ -2,7 +2,7 @@ from rest_framework import serializers, viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Policy, Conversation, Message
-from core.services.policy_indexer import PolicyIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
 import threading
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required

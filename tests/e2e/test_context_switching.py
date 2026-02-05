@@ -2,8 +2,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core.models.organization import Organization
-from core.llm_graph.chat_service import generate_llm_reply
-from core.llm_graph.nodes import harvey_node
+from core.ai.agentic.graph.chat_service import generate_llm_reply
+from core.ai.agentic.graph.nodes import harvey_node
 from unittest.mock import patch, MagicMock
 import json
 

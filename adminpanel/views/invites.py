@@ -59,7 +59,7 @@ def invite_user(request):
     else:
         form = InviteForm()
     
-    return render(request, 'add_employee.html', {'form': form, 'org': org})
+    return render(request, 'employees/add.html', {'form': form, 'org': org})
 
 @login_required
 def manage_invites(request):
@@ -71,7 +71,7 @@ def manage_invites(request):
     org = request.user.organization
     invites = Invite.objects.filter(organization=org, accepted=False).order_by('-created_at')
     
-    return render(request, 'manage_invites.html', {'invites': invites})
+    return render(request, 'invites/manage.html', {'invites': invites})
 
 @login_required
 def delete_invite(request, invite_id):

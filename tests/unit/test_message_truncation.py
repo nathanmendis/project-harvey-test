@@ -1,11 +1,11 @@
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from core.llm_graph.nodes import harvey_node
+from core.ai.agentic.graph.nodes import harvey_node
 
 class MessageTruncationTest(TestCase):
     
-    @patch("core.llm_graph.nodes.get_llm")
+    @patch("core.ai.agentic.graph.nodes.get_llm")
     def test_message_truncation(self, mock_get_llm):
         # Setup Mock LLM
         mock_llm_instance = MagicMock()

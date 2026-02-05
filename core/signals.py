@@ -5,7 +5,7 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from core.models.policy import Policy
 from core.models.recruitment import Candidate, JobRole
-from core.services.model_indexer import ModelIndexer
+from core.ai.rag.model_indexer import ModelIndexer
 import threading
 
 @receiver(post_delete, sender=Policy)

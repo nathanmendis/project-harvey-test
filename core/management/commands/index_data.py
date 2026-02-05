@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 from core.models.recruitment import Candidate, JobRole
 from core.models.policy import Policy
-from core.services.model_indexer import ModelIndexer
-from core.services.policy_indexer import PolicyIndexer
-from core.vector_store import get_vector_store
+from core.ai.rag.model_indexer import ModelIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
+from core.ai.rag.vector_store import get_vector_store
 
 class Command(BaseCommand):
     help = 'Indexes Candidate, JobRole, and Policy data into PostgreSQL vector store using strict metadata'

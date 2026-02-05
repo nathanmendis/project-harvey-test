@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import json
 from core.models.organization import Organization, User
 from core.models.recruitment import JobRole, Candidate, Interview, EmailLog, CandidateJobScore
-from core.tools.recruitment_tools import (
+from core.ai.rag.tools.recruitment_tools import (
     create_job_description,
     add_candidate_with_resume,
     shortlist_candidates,
@@ -36,8 +36,8 @@ class RecruitmentFlowTest(TestCase):
                 AND pid <> pg_backend_pid();
             """)
 
-    @patch("core.services.resume_parser.ResumeParser.parse")
-    @patch("core.llm_graph.tools_registry.get_reasoner_llm")
+    @patch("core.ai.rag.resume_parser.ResumeParser.parse")
+    @patch("core.ai.agentic.graph.tools_registry.get_reasoner_llm")
     @patch("core.signals.ModelIndexer") 
     def test_end_to_end_recruitment(self, mock_indexer, mock_get_llm, mock_parse):
         # --- Mocks Setup ---

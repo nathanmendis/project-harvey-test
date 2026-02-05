@@ -2,7 +2,7 @@ import json
 from django.test import TestCase
 from unittest.mock import MagicMock, patch
 from langchain_core.messages import AIMessage, HumanMessage
-from core.llm_graph.graph import graph
+from core.ai.agentic.graph.graph import graph
 from core.models.organization import Organization, User
 
 from core.models.recruitment import EmailLog
@@ -12,7 +12,7 @@ class EmailFlowTest(TestCase):
         self.org = Organization.objects.create(name="Test Org")
         self.user = User.objects.create_user(username="testuser", password="password", organization=self.org)
 
-    @patch("core.llm_graph.nodes.get_llm")
+    @patch("core.ai.agentic.graph.nodes.get_llm")
     def test_email_tool_execution(self, mock_get_llm):
         # Setup mock LLM to return a tool call
         mock_llm = MagicMock()

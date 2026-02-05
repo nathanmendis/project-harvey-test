@@ -61,7 +61,7 @@ def add_employee(request):
                 text_content = strip_tags(html_content)
 
                 try:
-                    from integrations.services.google.gmail import GmailService
+                    from integrations.google.gmail import GmailService
                     # No user needed, uses system token
                     gmail_service = GmailService() 
                     
@@ -108,7 +108,7 @@ def add_employee(request):
             messages.success(request, f"Employee '{username}' created manually.")
             return redirect("manage_employees")
 
-    return render(request, "add_employee.html", {"org": org, "invite_form": invite_form})
+    return render(request, "employees/add.html", {"org": org, "invite_form": invite_form})
 
 
 @login_required
@@ -118,7 +118,7 @@ def manage_employees(request):
     org = request.user.organization
     employees = User.objects.filter(organization=org, is_superuser=False)
 
-    return render(request, "manage_employees.html", {
+    return render(request, "employees/manage.html", {
         "employees": employees,
         "org": org
     })

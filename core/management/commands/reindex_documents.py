@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 from core.models.policy import Policy
 from core.models.recruitment import Candidate, JobRole
-from core.services.policy_indexer import PolicyIndexer
-from core.services.model_indexer import ModelIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
+from core.ai.rag.model_indexer import ModelIndexer
 
 class Command(BaseCommand):
     help = 'Re-indexes all Candidates, Job Roles, and Policies with updated metadata'

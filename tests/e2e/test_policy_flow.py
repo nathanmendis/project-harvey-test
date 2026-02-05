@@ -2,9 +2,9 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from core.models.organization import Organization, User
 from core.models.policy import Policy
-from core.services.policy_indexer import PolicyIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
 from core.vector_store import get_vector_store
-from core.tools.policy_search_tool import search_policies
+from core.ai.rag.tools.policy_search_tool import search_policies
 import json
 
 class PolicyFlowTest(TestCase):

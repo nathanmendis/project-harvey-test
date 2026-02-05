@@ -1,15 +1,8 @@
-
-import os
-import django
-from django.conf import settings
+import json
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from core.models import Conversation, Message, Organization
 from core.api import list_conversations, get_conversation_messages
-import json
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_harvey.settings")
-django.setup()
 
 User = get_user_model()
 
@@ -34,9 +27,9 @@ class MultipleConversationsTest(TestCase):
         response = list_conversations(request)
         data = json.loads(response.content)
         
-        print(f"\nList Conversations: Found {len(data['conversations'])}")
         self.assertEqual(len(data['conversations']), 2)
-        self.assertEqual(data['conversations'][0]['title'], "Chat 2") # Recent first (created later)
+        # Assuming ordering is -timestamp or similar
+        self.assertEqual(data['conversations'][0]['title'], "Chat 2") 
 
     def test_pagination(self):
         # Fetch latest 20
@@ -45,14 +38,8 @@ class MultipleConversationsTest(TestCase):
         response = get_conversation_messages(request, self.c1.id)
         data = json.loads(response.content)
         
-        print(f"Pagination Page 1: Got {len(data['messages'])} messages. Has More: {data['has_more']}")
         self.assertEqual(len(data['messages']), 20)
         self.assertTrue(data['has_more'])
-        self.assertEqual(data['messages'][0]['text'], "Msg 10") # Oldest in this slice (since reversed for display: 10..29)
-        # Wait, slices are delicate. 
-        # API logic: order_by('-timestamp')[offset : offset+limit] => 29, 28... 10
-        # Then reversed => 10, 11... 29.
-        # So last message in list should be "Msg 29".
         self.assertEqual(data['messages'][-1]['text'], "Msg 29")
 
         # Fetch older 10
@@ -61,7 +48,6 @@ class MultipleConversationsTest(TestCase):
         response = get_conversation_messages(request, self.c1.id)
         data = json.loads(response.content)
         
-        print(f"Pagination Page 2: Got {len(data['messages'])} messages. Has More: {data['has_more']}")
-        self.assertEqual(len(data['messages']), 10) # 0..9 left
+        self.assertEqual(len(data['messages']), 10) 
         self.assertFalse(data['has_more'])
         self.assertEqual(data['messages'][0]['text'], "Msg 0")

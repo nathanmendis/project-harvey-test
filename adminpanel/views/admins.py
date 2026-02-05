@@ -38,7 +38,7 @@ def add_org_admin(request):
         messages.success(request, f"Org Admin '{username}' added successfully!")
         return redirect("manage_org_admins")
 
-    return render(request, "add_org_admin.html", {"org": org})
+    return render(request, "admins/add.html", {"org": org})
 
 
 @login_required
@@ -48,7 +48,7 @@ def manage_org_admins(request):
     org = request.user.organization
     admins = User.objects.filter(organization=org, role="org_admin")
 
-    return render(request, "manage_org_admins.html", {
+    return render(request, "admins/manage.html", {
         "admins": admins,
         "org": org
     })

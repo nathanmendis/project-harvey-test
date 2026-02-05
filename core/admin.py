@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 from django.contrib.auth.hashers import make_password
 from .models import Organization, User, Policy, PolicyChunk
-from core.services.policy_indexer import PolicyIndexer
+from core.ai.rag.policy_indexer import PolicyIndexer
 import threading
 
 

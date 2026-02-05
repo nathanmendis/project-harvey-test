@@ -1,17 +1,16 @@
-import pytest
+from django.test import TransactionTestCase
 from unittest.mock import patch, MagicMock
 from django.core.files.uploadedfile import SimpleUploadedFile
 from core.models.recruitment import Candidate, JobRole
 from core.models.organization import Organization, User
 
-@pytest.mark.django_db(transaction=True)
-class TestKnowledgeBaseIndexing:
+class TestKnowledgeBaseIndexing(TransactionTestCase):
     
-    def setup_method(self):
+    def setUp(self):
         self.org = Organization.objects.create(name="Test Org")
         self.user = User.objects.create(username="testadmin", organization=self.org)
 
-    @patch('core.services.model_indexer.get_vector_store')
+    @patch('core.ai.rag.model_indexer.get_vector_store')
     def test_candidate_indexing_signal(self, mock_get_store):
         # Setup mock
         mock_store_instance = MagicMock()
@@ -32,15 +31,15 @@ class TestKnowledgeBaseIndexing:
         time.sleep(1) # Give thread a moment
 
         # Verify add_documents was called
-        assert mock_store_instance.add_documents.called
+        self.assertTrue(mock_store_instance.add_documents.called)
         
         # Verify content
         args, _ = mock_store_instance.add_documents.call_args
         text_content = args[0][0]
-        assert "Alice Indexer" in text_content
-        assert "Python, AI" in text_content
+        self.assertIn("Alice Indexer", text_content)
+        self.assertIn("Python, AI", text_content)
 
-    @patch('core.services.model_indexer.get_vector_store')
+    @patch('core.ai.rag.model_indexer.get_vector_store')
     def test_job_role_indexing_signal(self, mock_get_store):
          # Setup mock
         mock_store_instance = MagicMock()
@@ -60,8 +59,8 @@ class TestKnowledgeBaseIndexing:
         time.sleep(1) 
 
         # Verify
-        assert mock_store_instance.add_documents.called
+        self.assertTrue(mock_store_instance.add_documents.called)
         args, _ = mock_store_instance.add_documents.call_args
         text_content = args[0][0]
-        assert "Senior AI Engineer" in text_content
-        assert "Build cool agents" in text_content
+        self.assertIn("Senior AI Engineer", text_content)
+        self.assertIn("Build cool agents", text_content)
