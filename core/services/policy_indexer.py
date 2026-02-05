@@ -47,6 +47,7 @@ class PolicyIndexer:
                 texts.append(chunk_text)
                 metadatas.append({
                     "source": policy.title,
+                    "title": policy.title,
                     "policy_id": str(policy.id),
                     "chunk_index": i,
                     "type": "policy",

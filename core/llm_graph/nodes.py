@@ -1,6 +1,6 @@
 from langchain_core.messages import SystemMessage, ToolMessage, AIMessage, HumanMessage
 from .tools_registry import AVAILABLE_TOOLS, tool_registry, get_router_llm, get_reasoner_llm
-from .harvey_prompt import SYSTEM_PROMPT
+from .harvey_prompt import STATIC_SYSTEM_PROMPT, DYNAMIC_PROMPT
 from .summarizer import summarize
 from django.utils import timezone
 from django.contrib.auth import get_user_model
@@ -69,37 +69,42 @@ def router_node(state):
         # If not human, assume we continue flow or just chat
         return {"intent": "chat", "target_tool": None}
 
-    llm = get_router_llm()
+    content = last_msg.content.lower()
+    if "draft" in content and "send" not in content:
+        return {"intent": "chat", "target_tool": None}
+
+    llm = get_router_llm().bind(temperature=0)
     
-    # Simple tool definitions for the router
-    tools_desc = "\n".join(f"- {t.name}: {t.description}" for t in AVAILABLE_TOOLS)
+    # Names-only for token efficiency
+    tools_desc = ", ".join(t.name for t in AVAILABLE_TOOLS)
     
     # Pass last 4 messages to router for better intent classification
     last_msgs = messages[-4:]
     last_msgs_text = "\n".join([f"{m.type}: {m.content}" for m in last_msgs])
     
+    parser = JsonOutputParser(pydantic_object=RouterOutput)
+    
     router_prompt = f"""
-    You are an intent classifier. Analyze the conversation history and decide if a tool is needed OR if it's a general conversation.
-    
-    AVAILABLE TOOLS:
-    {tools_desc}
-    
-    RULES:
-    1. Choose 'tool' ONLY if the user is requesting a NEW action (e.g., "send email", "schedule interview", "search for candidates").
-    2. Choose 'chat' if the user:
-       - Says hello/thanks/bye.
-       - Asks a general question.
-       - Asks a follow-up question about a PREVIOUS message or tool result (e.g., "where is the link?", "tell me more about him").
-    3. TOOL SELECTION CRITERIA:
-       - Use 'schedule_interview' ONLY if the user explicitly uses the word "interview".
-       - Use 'create_calendar_event_tool' if the user says "meeting", "schedule", "call", or "chat" without mentioning "interview".
-    4. Return JSON: {{ "intent": "tool" or "chat", "tool_name": "<name>" }}
-    
-    CONVERSATION HISTORY (Last 4):
+    Classify intent correctly.
+    {parser.get_format_instructions()}
+
+    TOOLS: {tools_desc}
+
+    Rules:
+    - Use "tool" for actions (schedule, send) OR info-seeking (who is X, what is policy Y).
+    - Use "chat" ONLY for greetings, thanks, or purely conversational non-technical talk.
+    - If the user asks to "send" an email or "email" someone -> ALWAYS use send_email_tool.
+    - If the user asks to "draft" AND "send", use send_email_tool (intent is action).
+    - ONLY use "chat" if the user ONLY wants to draft without sending.
+    - If user asks about a person, candidate, or staff -> search_knowledge_base.
+    - If user asks about a policy or rule -> search_policies.
+    - "interview" → schedule_interview
+
+    Response MUST be raw JSON. No markdown code blocks. No preamble.
+
+    History:
     {last_msgs_text}
     """
-    
-    parser = JsonOutputParser(pydantic_object=RouterOutput)
     
     try:
         logger.info("Router (8B) analyzing...")
@@ -109,19 +114,33 @@ def router_node(state):
         chain = llm | parser
         result = chain.invoke(router_prompt)
         
+        # Defensive normalization: Sometimes LLM puts tool name in intent
+        intent = result.get("intent", "chat").lower()
+        tool_name = result.get("tool_name", "None") or "None"
+        
+        if intent not in ["tool", "chat"]:
+            # If intent is a tool name, swap it
+            if intent in tool_registry:
+                tool_name = intent
+                intent = "tool"
+            else:
+                intent = "chat"
+
+        if tool_name == "None":
+             tool_name = None
+
         duration = int((time.time() - start) * 1000)
-        logger.info(f"Router Decision: {result} ({duration}ms)")
+        logger.info(f"Router Decision: {{'intent': {intent}, 'tool': {tool_name}}} ({duration}ms)")
         
         append_trace(state, {
             "node": "ROUTER",
-            "intent": result["intent"],
-            "tool": result.get("tool_name"),
-            "duration_ms": duration
+            "decision": {"intent": intent, "tool": tool_name},
+            "duration": duration
         })
 
         # Reset state on intent change or tool selection
-        updates = {"intent": result["intent"], "target_tool": result.get("tool_name")}
-        if result["intent"] == "chat":
+        updates = {"intent": intent, "target_tool": tool_name}
+        if intent == "chat":
             updates["pending_tool"] = None
             updates["requires_approval"] = False
             
@@ -129,7 +148,7 @@ def router_node(state):
 
     except Exception as e:
         logger.error(f"Router failed: {e}")
-        # Fallback to safe "chat"
+        # Fallback to safe \"chat\"
         return {"intent": "chat", "target_tool": None}
 
 
@@ -141,8 +160,8 @@ def harvey_node(state):
     # This ensures links and details are preserved exactly as the tool returned them.
     if messages and isinstance(messages[-1], ToolMessage):
         logger.info("[INFO] Harvey Node: Bypassing LLM (Returning Tool Output Directly)")
-        tool_output = messages[-1].content
-        return {"messages": [AIMessage(content=tool_output)]}
+        # Just return empty to keep state, tool_service will handle final formatting
+        return {}
 
     # --- MODEL SELECTION STRATEGY ---
     # 8B for Chat (low cost), 70B for Tool Drafting (high accuracy).
@@ -176,7 +195,7 @@ def harvey_node(state):
     if intent == "tool" and target_tool:
         target_tool_hint = f"\nROUTER HINT: The user specifically wants to use the '{target_tool}' tool. Prioritize this choice if it matches the request."
 
-    sys = SYSTEM_PROMPT.format(
+    sys = STATIC_SYSTEM_PROMPT + DYNAMIC_PROMPT.format(
         current_goal=current_goal, 
         current_date=f"{current_date_text} {user_timezone}",
         last_active_topic=last_active_topic,
@@ -186,7 +205,7 @@ def harvey_node(state):
     
     # Add explicit instruction for Chat mode to prevent hallucinations
     if intent == "chat":
-        sys += "\n\nMODE: CHAT. You have NO tools. Do not pretend to execute actions. Just answer the user."
+        sys += "\n\nMODE: CHAT. You have NO tools currently active. If the user asks to draft, generate the draft. Do not pretend to send it; stay in conversational mode."
 
     # Pass last 6 messages for better context in tool mode, 4 for chat.
     history_size = 6 if intent == "tool" else 4
@@ -218,6 +237,27 @@ def harvey_node(state):
             tool_call = result.tool_calls[0]
             tool_name = tool_call["name"]
             logger.info(f"Harvey decided to use tool: {tool_name}")
+
+            # Special case for "draft + send" in same turn
+            user_text = " ".join(
+                m.content.lower()
+                for m in messages
+                if isinstance(m, HumanMessage)
+            )
+            draft_requested = "draft" in user_text
+            
+            if draft_requested and tool_name == "send_email_tool":
+                # First return draft, THEN tool executes in same turn
+                draft_text = result.content
+                return {
+                    "messages": [
+                        AIMessage(content=f"Here is the drafted email:\n\n{draft_text}"),
+                        result
+                    ],
+                    "pending_tool": tool_call,
+                    "requires_approval": False
+                }
+
             return {"messages": [result], "pending_tool": tool_call, "requires_approval": False}
 
         return {"messages": [result]}
@@ -290,8 +330,13 @@ def execute_node(state):
 def summary_node(state):
     messages = get_state_value(state, "messages", [])
     
-    # Only summarize every 5 messages to save tokens
-    if len(messages) > 0 and len(messages) % 5 == 0:
+    # Skip summary after tool execution
+    if messages and isinstance(messages[-1], ToolMessage):
+        return {}
+        
+    last = messages[-1] if messages else None
+    # Only summarize when history gets long and user has replied
+    if isinstance(last, HumanMessage) and len(messages) >= 8:
         new_context = summarize(messages)
         logger.debug(f"Updated Context: {new_context}")
     else:
@@ -300,5 +345,7 @@ def summary_node(state):
     updates = {"pending_tool": None, "requires_approval": False}
     if new_context:
         updates["context"] = new_context
-    
+        # Prune history to last 4 messages after summarization
+        updates["messages"] = messages[-4:]
+        
     return updates

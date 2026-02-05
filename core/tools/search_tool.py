@@ -17,9 +17,23 @@ def search_knowledge_base(query: str, user=None):
     if not results:
         return ok("No relevant information found in the knowledge base.")
     
-    formatted_results = ""
+    formatted_results = []
     for i, doc in enumerate(results):
-        metadata_str = ", ".join(f"{k}: {v}" for k, v in doc.metadata.items())
-        formatted_results += f"--- Result {i+1} ---\n{doc.page_content}\nMetadata: {metadata_str}\n\n"
-    
-    return ok(f"Found the following information:\n{formatted_results}")
+        m = doc.metadata
+        dtype = m.get("doc_type", "unknown")
+        
+        if dtype == "candidate":
+            name = m.get("name", "Unknown Candidate")
+            email = m.get("email", "No Email")
+            skills = m.get("skills", "No Skills listed")
+            formatted_results.append(f"- **{name}** ({email}) | Skills: {skills}")
+        elif dtype == "job":
+            title = m.get("title", "Unknown Job")
+            dept = m.get("department", "General")
+            formatted_results.append(f"- **{title}** [{dept}]")
+        else:
+            source = m.get("source", "Unknown Source")
+            formatted_results.append(f"- **{source}**: {doc.page_content[:150]}...")
+
+    message = "I found the following matches in the knowledge base:\n\n" + "\n".join(formatted_results)
+    return ok(message)

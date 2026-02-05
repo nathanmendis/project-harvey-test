@@ -23,9 +23,11 @@ class TestRouterArchitecture(unittest.TestCase):
     def test_router_node_meeting_vs_interview(self, mock_get_router):
         """Verify that 'meeting' uses calendar and 'interview' uses interview tool."""
         mock_llm = MagicMock()
+        mock_bound = MagicMock()
         mock_runnable = MagicMock()
-        mock_llm.__or__.return_value = mock_runnable
         mock_get_router.return_value = mock_llm
+        mock_llm.bind.return_value = mock_bound
+        mock_bound.__or__.return_value = mock_runnable
 
         # 1. Test "meeting"
         mock_runnable.invoke.return_value = {

@@ -57,6 +57,19 @@ class VectorStore:
 
 
 
+    def delete_all(self):
+        """Clears all vectors in the collection."""
+        try:
+             # Dropping the collection is the cleanest way to clear everything
+             self.db.delete_collection()
+             # Re-initialize to recreate the collection if needed
+             self._initialize()
+             return True
+        except Exception as e:
+             # Fallback if delete_collection is not available or fails
+             print(f"Error deleting collection: {e}")
+             return False
+
     def similarity_search(self, query, k=3, **kwargs):
         return self.db.similarity_search(query, k=k, **kwargs)
 

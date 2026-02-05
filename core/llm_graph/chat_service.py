@@ -2,7 +2,7 @@ import json
 import logging
 from django.utils import timezone
 from pydantic import BaseModel
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 from django.core.cache import cache
 from google.api_core.exceptions import ResourceExhausted
@@ -113,34 +113,36 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
             tool_func = tool_registry.get(tool_name)
 
             logger.info(f"Running Tool: {tool_name}")
-            logger.debug(f"Tool Args: {tool_args}")
-
-            if not tool_func:
-                final_text = f"⚠️ Unknown tool '{tool_name}'"
-                result["pending_tool"] = pending_tool  # still unresolved
-            else:
+            if tool_func:
                 tool_args["user"] = user
-
                 try:
                     raw = tool_func(**tool_args)
                     data = json.loads(raw)
-
-                    if data.get("ok"):
-                        final_text = data.get("message", "Action completed.")
-                        result["pending_tool"] = None  # resolved ✔
-                    else:
-                        final_text = data.get("message", "I still need details.")
-                        result["pending_tool"] = pending_tool  # still pending ❗
-
+                    tool_msg = data.get("message", "Action completed.")
+                    # Append tool result to messages for history
+                    result["messages"].append(ToolMessage(tool_call_id=pending_tool["id"], content=tool_msg))
+                    result["pending_tool"] = None
                 except Exception as e:
-                    final_text = f"⚠️ Tool failed: {str(e)}"
-                    result["pending_tool"] = pending_tool  # still pending ❌
+                    logger.error(f"Tool execution failed: {e}")
+                    result["messages"].append(AIMessage(content=f"⚠️ Tool failed: {e}"))
+            else:
+                result["messages"].append(AIMessage(content=f"⚠️ Unknown tool '{tool_name}'"))
 
-            result["messages"].append(AIMessage(content=final_text))
-
+        # --- FINAL AGGREGATION ---
+        # Combine all NEW messages from this turn (AI or Tool) into a final transcript
+        new_msgs = result.get("messages", [])[len(state_input.get("messages", [])):]
+        
+        parts = []
+        for msg in new_msgs:
+            if isinstance(msg, (AIMessage, ToolMessage)):
+                txt = _content_to_text(msg.content)
+                if txt:
+                     parts.append(txt)
+        
+        if parts:
+            final_text = "\n\n".join(parts)
         else:
-            last = result["messages"][-1]
-            final_text = _content_to_text(last.content)
+            final_text = "Action completed."
 
         # Save DB run metadata
         run.status = "success"
@@ -168,7 +170,7 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         run.save()
         
         return LLMResponse(
-            response="⚠️ API Rate limit reached. System is cooling down. Please wait 60 seconds.",
+            response=" API Rate limit reached. System is cooling down. Please wait 60 seconds.",
             conversation_id=convo.id if locals().get('convo') else 0,
             title="Error"
         )

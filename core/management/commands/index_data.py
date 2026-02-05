@@ -1,39 +1,43 @@
 from django.core.management.base import BaseCommand
 from core.models.recruitment import Candidate, JobRole
+from core.models.policy import Policy
+from core.services.model_indexer import ModelIndexer
+from core.services.policy_indexer import PolicyIndexer
 from core.vector_store import get_vector_store
 
 class Command(BaseCommand):
-    help = 'Indexes Candidate and JobRole data into PostgreSQL vector store'
+    help = 'Indexes Candidate, JobRole, and Policy data into PostgreSQL vector store using strict metadata'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Starting indexing process...")
+        self.stdout.write("Starting strict indexing process...")
         
+        # Clear existing index to ensure "perfect" state
         store = get_vector_store()
-        texts = []
-        metadatas = []
+        try:
+            store.delete_all()
+            self.stdout.write(self.style.SUCCESS("Cleared existing vector index."))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"Could not clear index: {e}"))
+
+        model_indexer = ModelIndexer()
+        policy_indexer = PolicyIndexer()
 
         # Index Candidates
         candidates = Candidate.objects.all()
         for c in candidates:
-            # Create a rich text representation
-            text = f"Candidate: {c.name}\nEmail: {c.email}\nPhone: {c.phone}\nSkills: {c.skills}"
-            texts.append(text)
-            metadatas.append({"type": "candidate", "id": c.id, "name": c.name})
-        
-        self.stdout.write(f"Found {len(candidates)} candidates.")
+            model_indexer.index_candidate(c.id)
+        self.stdout.write(f"✅ Indexed {len(candidates)} candidates.")
 
         # Index Job Roles
         roles = JobRole.objects.all()
         for r in roles:
-            text = f"Job Role: {r.title}\nDepartment: {r.department}\nDescription: {r.description}\nRequirements: {r.requirements}"
-            texts.append(text)
-            metadatas.append({"type": "job_role", "id": r.id, "title": r.title})
+            model_indexer.index_job_role(r.id)
+        self.stdout.write(f"✅ Indexed {len(roles)} job roles.")
 
-        self.stdout.write(f"Found {len(roles)} job roles.")
+        # Index Policies
+        policies = Policy.objects.all()
+        for p in policies:
+            policy_indexer.index_policy(p.id)
+        self.stdout.write(f"✅ Indexed {len(policies)} policies.")
 
-        if texts:
-            self.stdout.write("Creating embeddings and indexing...")
-            store.create_index(texts, metadatas)
-            self.stdout.write(self.style.SUCCESS("Successfully indexed data."))
-        else:
-            self.stdout.write(self.style.WARNING("No data found to index."))
+        self.stdout.write(self.style.SUCCESS("Successfully re-indexed all data with strict metadata."))

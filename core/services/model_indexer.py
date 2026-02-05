@@ -30,6 +30,9 @@ class ModelIndexer:
 
             metadata = {
                 "source": candidate.name,
+                "name": candidate.name,
+                "email": candidate.email,
+                "skills": skills_str,
                 "type": "candidate",
                 "doc_type": "candidate",
                 "candidate_id": str(candidate.id),
@@ -38,7 +41,7 @@ class ModelIndexer:
 
             # Add to vector store (we add a SINGLE document for the candidate for now)
             # In a real system we might split resume text if it's huge
-            self.vector_store.add_documents([text_content], [metadata])
+            self.vector_store.add_documents([text_content.strip()], [metadata])
             print(f"✅ Indexed Candidate: {candidate.name}")
             return True
 
@@ -60,13 +63,15 @@ class ModelIndexer:
 
             metadata = {
                 "source": job.title,
+                "title": job.title,
+                "department": job.department,
                 "type": "job_role",
                 "doc_type": "job",
                 "job_id": str(job.id),
                 "organization_id": str(job.organization.id)
             }
 
-            self.vector_store.add_documents([text_content], [metadata])
+            self.vector_store.add_documents([text_content.strip()], [metadata])
             print(f"✅ Indexed Job Role: {job.title}")
             return True
         except Exception as e:
