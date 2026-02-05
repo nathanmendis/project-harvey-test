@@ -103,11 +103,14 @@ def create_job_description(title: str, description: str, requirements: str, depa
 
 
 @tool("schedule_interview", return_direct=True)
-def schedule_interview(candidate: str, start_time: str, duration_minutes: int = 30, user=None) -> str:
+def schedule_interview(candidate: str, start_time: str, job_title: str = "Candidate", duration_minutes: int = 30, user=None) -> str:
     """
     Schedules an interview with a candidate for the current user.
+    ONLY use this tool if the user explicitly mentions the word 'interview'. 
+    For generic meetings or scheduling, use create_calendar_event_tool.
     candidate: The Name or Email of the candidate.
     start_time: ISO 8601 datetime string (e.g., '2023-10-27T10:00:00').
+    job_title: The designation/role for the interview (e.g., 'Software Engineer').
     """
     # 1. Validation
     org = get_org(user)
@@ -119,42 +122,80 @@ def schedule_interview(candidate: str, start_time: str, duration_minutes: int = 
 
     # 2. Resolve Candidate (Email or Name) -> ID
     val = candidate.strip()
-    c_id = None
+    c_obj = None
     
     # Try Email
     if "@" in val:
         c_obj = Candidate.objects.filter(email__iexact=val, organization=org).first()
-        if c_obj: c_id = c_obj.id
     
     # Try Name if not found
-    if not c_id:
+    if not c_obj:
         c_objs = Candidate.objects.filter(name__iexact=val, organization=org)
         if c_objs.count() == 1:
-            c_id = c_objs.first().id
+            c_obj = c_objs.first()
         elif c_objs.count() > 1:
             return err(f"Multiple candidates named '{val}'. Please use their email.")
             
-    if not c_id:
+    if not c_obj:
         # Fallback: Is it an ID?
-        if val.isdigit() and Candidate.objects.filter(id=int(val), organization=org).exists():
-             c_id = int(val)
-        else:
-             return err(f"I couldn't find a candidate named '{val}'. Please ensure they are added first.")
+        if val.isdigit():
+             c_obj = Candidate.objects.filter(id=int(val), organization=org).first()
+        
+    if not c_obj:
+        return err(f"I couldn't find a candidate named '{val}'. Please ensure they are added first.")
 
-    # 3. Create Interview
+    # 3. Create Interview in DB
     dt = parse_datetime(start_time)
     if not dt:
         return err("Invalid date format. Please use ISO 8601.")
+    
+    # Localize naive datetime to IST if no timezone specified
+    if dt.tzinfo is None:
+        import pytz
+        ist = pytz.timezone("Asia/Kolkata")
+        dt = ist.localize(dt)
 
     try:
         i = Interview.objects.create(
             organization=org,
-            candidate_id=c_id,
+            candidate=c_obj,
             interviewer_id=user.pk, # Always the current user
             date_time=dt,
             status="scheduled",
         )
-        return ok(f"I have confirmed that the interview with {val} is scheduled.", interview_id=i.id, when=str(dt))
+        
+        # 4. Create Google Calendar Invite
+        calendar_link = ""
+        try:
+            from integrations.services.google.calendar import CalendarService
+            import datetime
+            service = CalendarService(user=user)
+            
+            end_dt = dt + datetime.timedelta(minutes=duration_minutes)
+            
+            event_title = f"{job_title} Interview"
+            attendees = [c_obj.email]
+            if user.email:
+                attendees.append(user.email)
+                
+            event_result = service.create_event(
+                title=event_title,
+                start_time=dt.isoformat(),
+                end_time=end_dt.isoformat(),
+                attendees=",".join(attendees),
+                description=f"Interview for {job_title} role with {c_obj.name}."
+            )
+            calendar_link = event_result.get('htmlLink', '')
+        except Exception as cal_err:
+            print(f"⚠️ Calendar Invite failed: {cal_err}")
+            # We don't fail the whole tool if just calendar fails, but we log it.
+
+        msg = f"I have confirmed that the {job_title} interview with {c_obj.name} is scheduled."
+        if calendar_link:
+            msg += f" Google Calendar Link: {calendar_link}"
+        
+        return ok(msg, interview_id=i.id, when=str(dt), link=calendar_link)
+        
     except Exception as e:
         return err(f"Database Error: {str(e)}")
 

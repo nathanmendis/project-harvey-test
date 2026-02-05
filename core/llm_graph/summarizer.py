@@ -27,8 +27,8 @@ History:
 {history}
 """
 
-def summarize(messages) -> Dict:
-    if len(messages) < 2:
+def summarize(messages, force=False) -> Dict:
+    if not force and len(messages) < 6:
         return {}
     
     # Optimization: Use 8B model for summarization

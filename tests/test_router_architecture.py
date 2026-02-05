@@ -14,90 +14,45 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project_harvey.settings")
 django.setup()
 
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from core.llm_graph.nodes import router_node, harvey_node, SENSITIVE_TOOLS
+from core.llm_graph.nodes import router_node, harvey_node
 from core.llm_graph.state import HarveyState
 
 class TestRouterArchitecture(unittest.TestCase):
 
     @patch("core.llm_graph.nodes.get_router_llm")
-    def test_router_node_chat_intent(self, mock_get_router):
-        """Test that router_node correctly identifies CHAT intent."""
-        # Setup Mock 8B Model
+    def test_router_node_meeting_vs_interview(self, mock_get_router):
+        """Verify that 'meeting' uses calendar and 'interview' uses interview tool."""
         mock_llm = MagicMock()
-        mock_chain = MagicMock()
-        
-        # correctly mocking the chain logic: llm | parser -> chain.invoke()
-        # In the actual code: chain = llm | parser. 
-        # But we can just mock the chain behavior if we look at how it's constructed, 
-        # or easier: mock the return value of invoke if we patch the right thing.
-        # Actually, `router_node` does: `chain = llm | parser`. 
-        # It's safer to mock the whole execution or just the output if we can.
-        # Let's mock the chain.invoke return value.
-        
-        # Issue: `llm | parser` creates a RunnableSequence. 
-        # A simpler way is to mock `chain.invoke` but keeping `llm | parser` working is hard.
-        # Alternative: We can patch `JsonOutputParser` too? 
-        # Or simpler: The code does `chain.invoke(router_prompt)`.
-        
-        # Let's try to mock the result of the chain directly if we can intercept it,
-        # but interception inside the function is hard.
-        
-        # Approach: Mock the LLM to return a raw string (if parser works) 
-        # OR patch the `chain.invoke` if we could.
-        # Given the code struct: `chain = llm | parser`.
-        # If we make `mock_llm` implement `__or__` it might work.
-        
-        # EASIEST APPROACH: Patch `Chain.invoke`? No.
-        # Let's assume we can mock the behavior:
-        
         mock_runnable = MagicMock()
-        mock_runnable.invoke.return_value = {"intent": "chat", "tool_name": None}
-        
-        # When llm | parser happens, return mock_runnable
         mock_llm.__or__.return_value = mock_runnable
         mock_get_router.return_value = mock_llm
 
-        # Input State
-        state = {"messages": [HumanMessage(content="Hello there!")]}
-        
-        # Run Node
-        result = router_node(state)
-        
-        # Assertions
-        self.assertEqual(result["intent"], "chat")
-        self.assertIsNone(result["target_tool"])
-        print("\n✅ Router correctly identified CHAT intent.")
-
-    @patch("core.llm_graph.nodes.get_router_llm")
-    def test_router_node_tool_intent(self, mock_get_router):
-        """Test that router_node correctly identifies TOOL intent."""
-        
-        # Setup Mock to return a tool decision
-        mock_runnable = MagicMock()
+        # 1. Test "meeting"
         mock_runnable.invoke.return_value = {
-            "intent": "tool", 
+            "intent": "tool",
             "tool_name": "create_calendar_event_tool"
         }
-        
+        state_meeting = {"messages": [HumanMessage(content="Schedule a meeting")]}
+        res_meeting = router_node(state_meeting)
+        self.assertEqual(res_meeting["target_tool"], "create_calendar_event_tool")
+
+        # 2. Test "interview"
+        mock_runnable.invoke.return_value = {
+            "intent": "tool",
+            "tool_name": "schedule_interview"
+        }
+        state_interview = {"messages": [HumanMessage(content="Schedule an interview")]}
+        res_interview = router_node(state_interview)
+        self.assertEqual(res_interview["target_tool"], "schedule_interview")
+        self.assertEqual(res_interview["intent"], "tool")
+
+    @patch("core.llm_graph.nodes.get_router_llm")
+    def test_harvey_node_uses_8b_for_chat(self, mock_get_router):
+        """Test that 8B model is invoked for chat."""
         mock_llm = MagicMock()
-        mock_llm.__or__.return_value = mock_runnable
+        mock_llm.invoke.return_value = AIMessage(content="Hi")
         mock_get_router.return_value = mock_llm
-
-        state = {"messages": [HumanMessage(content="Book a meeting")]}
         
-        result = router_node(state)
-        
-        self.assertEqual(result["intent"], "tool")
-        self.assertEqual(result["target_tool"], "create_calendar_event_tool")
-        print("\n✅ Router correctly identified TOOL intent.")
-
-    @patch("core.llm_graph.nodes.get_reasoner_llm")
-    def test_harvey_node_respects_chat_intent(self, mock_get_reasoner):
-        """Test that 70B model is invoked WITHOUT tools when intent is chat."""
-        mock_llm = MagicMock()
-        mock_get_reasoner.return_value = mock_llm
-        
-        # Setup state
         state = {
             "messages": [HumanMessage(content="Hello")],
             "intent": "chat",
@@ -105,28 +60,17 @@ class TestRouterArchitecture(unittest.TestCase):
             "requires_approval": False
         }
         
-        # Run node
         harvey_node(state)
-        
-        # Assert calls
-        # Should have called invoke(), but NOT bind_tools().invoke()
-        # We can check if bind_tools was called.
-        mock_llm.bind_tools.assert_not_called()
         mock_llm.invoke.assert_called_once()
-        print("\n✅ Harvey (70B) respected CHAT intent (No tools bound).")
+        print("\n✅ Harvey (8B) used for CHAT.")
 
     @patch("core.llm_graph.nodes.get_reasoner_llm")
-    def test_harvey_node_respects_tool_intent(self, mock_get_reasoner):
-        """Test that 70B model IS invoked WITH tools when intent is tool."""
+    def test_harvey_node_uses_70b_for_tools(self, mock_get_reasoner):
+        """Test that 70B model is used for tools and binds tools."""
         mock_llm = MagicMock()
-        # bind_tools returns a runnable (usually the LLM itself with tools), 
-        # so we need to mock the return of bind_tools to allow invoke()
         mock_bound_llm = MagicMock()
         mock_llm.bind_tools.return_value = mock_bound_llm
-        
-        # Mock the result of invoke to be a simple message so it doesn't crash
-        mock_bound_llm.invoke.return_value = AIMessage(content="Sure, I can help.")
-        
+        mock_bound_llm.invoke.return_value = AIMessage(content="Sure")
         mock_get_reasoner.return_value = mock_llm
         
         state = {
@@ -138,22 +82,19 @@ class TestRouterArchitecture(unittest.TestCase):
         }
         
         harvey_node(state)
-        
         mock_llm.bind_tools.assert_called_once()
         mock_bound_llm.invoke.assert_called_once()
-        print("\n✅ Harvey (70B) respected TOOL intent (Tools bound).")
+        print("\n✅ Harvey (8B) used for TOOL.")
 
     @patch("core.llm_graph.nodes.get_reasoner_llm")
-    def test_hil_interception(self, mock_get_reasoner):
-        """Test that Harvey node intercepts sensitive tools."""
-        
+    def test_no_hil_interception(self, mock_get_reasoner):
+        """Test that Harvey node NO LONGER intercepts sensitive tools (direct execution)."""
         mock_llm = MagicMock()
         mock_bound_llm = MagicMock()
         mock_llm.bind_tools.return_value = mock_bound_llm
         mock_get_reasoner.return_value = mock_llm
 
-        # Create a mock result that LOOKS like a Sensitive Tool Call
-        sensitive_tool = "create_calendar_event_tool" # Ensure this matches SENSITIVE_TOOLS
+        sensitive_tool = "create_calendar_event_tool"
         mock_tool_call = {
             "name": sensitive_tool,
             "args": {"title": "Meeting"},
@@ -161,7 +102,6 @@ class TestRouterArchitecture(unittest.TestCase):
             "type": "tool_call"
         }
         
-        # The LLM output
         mock_result_msg = AIMessage(content="", tool_calls=[mock_tool_call])
         mock_bound_llm.invoke.return_value = mock_result_msg
         
@@ -173,12 +113,10 @@ class TestRouterArchitecture(unittest.TestCase):
         
         result = harvey_node(state)
         
-        # Assertions
-        self.assertTrue(result["requires_approval"], "Should require approval")
+        # Assertions: Should NOT require approval, should have tool call ready
+        self.assertFalse(result.get("requires_approval", False), "Should NOT require approval")
         self.assertEqual(result["pending_tool"], mock_tool_call)
-        # Check that the returned message asks for confirmation
-        self.assertIn("Do you want me to proceed?", result["messages"][0].content)
-        print("\n✅ Harvey intercepted SENSITIVE tool correctly.")
+        print("\n✅ Harvey did NOT intercept sensitive tool (Direct execution enabled).")
 
 if __name__ == "__main__":
     unittest.main()

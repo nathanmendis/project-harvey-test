@@ -5,7 +5,8 @@ import json
 def create_calendar_event_tool(title: str, start_time: str, end_time: str, description: str = "", attendees: str = "", user=None) -> str:
     """
     Create a calendar event.
-    Use this tool when the user asks to schedule a meeting or add an event to their calendar.
+    Use this tool for all generic meeting scheduling, appointments, or when the user says "schedule" or "meeting" 
+    WITHOUT explicitly using the word "interview".
     'start_time' and 'end_time' should be in ISO format (e.g., '2023-10-27T10:00:00').
     'attendees' should be a comma-separated list of email addresses.
     """

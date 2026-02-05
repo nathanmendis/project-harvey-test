@@ -2,16 +2,16 @@ from langchain_core.messages import SystemMessage, ToolMessage, AIMessage, Human
 from .tools_registry import AVAILABLE_TOOLS, tool_registry, get_router_llm, get_reasoner_llm
 from .harvey_prompt import SYSTEM_PROMPT
 from .summarizer import summarize
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 import json, time
 import datetime
 import logging
+import pytz
 
 logger = logging.getLogger("harvey")
 
 User = get_user_model()
-
-CONFIRM = {"yes", "ok", "okay", "sure", "confirm", "send it", "go ahead", "yup"}
 
 def _content_to_plaintext(msg):
     content = msg.content
@@ -24,6 +24,7 @@ def _content_to_plaintext(msg):
             if isinstance(c, dict) and c.get("type") == "text"
         )
     return str(content)
+
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 
@@ -53,9 +54,6 @@ def append_trace(state, entry):
     set_state_value(state, "trace", trace)
 
 
-
-SENSITIVE_TOOLS = {"send_email_tool", "create_calendar_event_tool"}
-
 def router_node(state):
     """
     Uses Llama-3-8B to classify user intent.
@@ -76,19 +74,29 @@ def router_node(state):
     # Simple tool definitions for the router
     tools_desc = "\n".join(f"- {t.name}: {t.description}" for t in AVAILABLE_TOOLS)
     
+    # Pass last 4 messages to router for better intent classification
+    last_msgs = messages[-4:]
+    last_msgs_text = "\n".join([f"{m.type}: {m.content}" for m in last_msgs])
+    
     router_prompt = f"""
-    You are an intent classifier. Analyze the user's request and decide if a tool is needed or if it's a general conversation.
+    You are an intent classifier. Analyze the conversation history and decide if a tool is needed OR if it's a general conversation.
     
     AVAILABLE TOOLS:
     {tools_desc}
     
     RULES:
-    1. If the user asks to perform an action (email, calendar, search database, schedule interview), choose 'tool'.
-    2. If the user says hello, asks general questions, or thanks you, choose 'chat'.
-    3. Return JSON: {{ "intent": "tool" or "chat", "tool_name": "<name>" }}
+    1. Choose 'tool' ONLY if the user is requesting a NEW action (e.g., "send email", "schedule interview", "search for candidates").
+    2. Choose 'chat' if the user:
+       - Says hello/thanks/bye.
+       - Asks a general question.
+       - Asks a follow-up question about a PREVIOUS message or tool result (e.g., "where is the link?", "tell me more about him").
+    3. TOOL SELECTION CRITERIA:
+       - Use 'schedule_interview' ONLY if the user explicitly uses the word "interview".
+       - Use 'create_calendar_event_tool' if the user says "meeting", "schedule", "call", or "chat" without mentioning "interview".
+    4. Return JSON: {{ "intent": "tool" or "chat", "tool_name": "<name>" }}
     
-    USER QUERY:
-    {last_msg.content}
+    CONVERSATION HISTORY (Last 4):
+    {last_msgs_text}
     """
     
     parser = JsonOutputParser(pydantic_object=RouterOutput)
@@ -111,7 +119,13 @@ def router_node(state):
             "duration_ms": duration
         })
 
-        return {"intent": result["intent"], "target_tool": result.get("tool_name")}
+        # Reset state on intent change or tool selection
+        updates = {"intent": result["intent"], "target_tool": result.get("tool_name")}
+        if result["intent"] == "chat":
+            updates["pending_tool"] = None
+            updates["requires_approval"] = False
+            
+        return updates
 
     except Exception as e:
         logger.error(f"Router failed: {e}")
@@ -131,33 +145,17 @@ def harvey_node(state):
         return {"messages": [AIMessage(content=tool_output)]}
 
     # --- MODEL SELECTION STRATEGY ---
+    # 8B for Chat (low cost), 70B for Tool Drafting (high accuracy).
     if intent == "chat":
-        llm = get_router_llm() # 8B Model for Chat
+        llm = get_router_llm() 
         logger.info("[INFO] Harvey Node: Using 8B Model (Chat Mode)")
     else:
-        llm = get_reasoner_llm() # 70B Model for Tools
+        llm = get_reasoner_llm()
         logger.info("[INFO] Harvey Node: Using 70B Model (Tool Mode)")
     
     context = get_state_value(state, "context", {})
     
-    # --- Human-in-the-Loop Check (Existing Logic) ---
-    requires_approval = get_state_value(state, "requires_approval", False)
-    pending_tool = get_state_value(state, "pending_tool", None)
-
-    if requires_approval and pending_tool:
-        last_msg = messages[-1]
-        if isinstance(last_msg, HumanMessage):
-             user_text = last_msg.content.lower().strip()
-             if any(w in user_text for w in CONFIRM):
-                 logger.info("User confirmed sensitive action.")
-                 set_state_value(state, "requires_approval", False)
-                 return {"pending_tool": pending_tool, "requires_approval": False}
-             else:
-                 logger.info("User rejected or digressed.")
-                 set_state_value(state, "requires_approval", False)
-                 set_state_value(state, "pending_tool", None)
-                 return {"messages": [AIMessage(content="Action cancelled. What would you like to do instead?")], 
-                         "pending_tool": None, "requires_approval": False}
+    # Confirmation logic removed per user request. 
 
     current_goal = context.get("current_goal", "None")
     last_active_topic = context.get("last_active_topic", "None")
@@ -167,45 +165,44 @@ def harvey_node(state):
     else:
         tools_str = "\n".join(f"- {t.name}: {t.description}" for t in AVAILABLE_TOOLS)
 
-    # Add User Timezone Context (Hardcoded to IST for now as per user location)
-    # Ideally this comes from user profile.
+    # Add User Timezone Context (IST)
+    ist = pytz.timezone("Asia/Kolkata")
+    now_ist = timezone.now().astimezone(ist)
+    current_date_text = now_ist.strftime("%A, %B %d, %Y, %I:%M %p")
     user_timezone = "IST (UTC+05:30)"
-    
-    current_date = datetime.datetime.now().strftime("%A, %B %d, %Y, %I:%M %p")
+
+    target_tool_hint = ""
+    target_tool = get_state_value(state, "target_tool")
+    if intent == "tool" and target_tool:
+        target_tool_hint = f"\nROUTER HINT: The user specifically wants to use the '{target_tool}' tool. Prioritize this choice if it matches the request."
 
     sys = SYSTEM_PROMPT.format(
         current_goal=current_goal, 
-        current_date=f"{current_date} {user_timezone}",
+        current_date=f"{current_date_text} {user_timezone}",
         last_active_topic=last_active_topic,
         extracted_info=extracted_info,
         tools=tools_str
-    )
+    ) + target_tool_hint
     
     # Add explicit instruction for Chat mode to prevent hallucinations
     if intent == "chat":
         sys += "\n\nMODE: CHAT. You have NO tools. Do not pretend to execute actions. Just answer the user."
 
-    history = messages[-10:]
-    while history and not isinstance(history[0], HumanMessage):
-        history.pop(0)
+    # Pass last 6 messages for better context in tool mode, 4 for chat.
+    history_size = 6 if intent == "tool" else 4
+    history = messages[-history_size:]
 
     msgs = [SystemMessage(content=sys)] + history
 
-    target_tool = get_state_value(state, "target_tool", None)
-    
     start = time.time()
     try:
         logger.debug(f"Harvey executing with Intent: {intent}")
         
         if intent == "tool":
-            # 70B drafts the tool input
             result = llm.bind_tools(AVAILABLE_TOOLS).invoke(msgs)
         else:
-             # Chat mode: 8B model, NO tools bound.
              result = llm.invoke(msgs)
              
-
-
         append_trace(state, {
             "node": "HARVEY",
             "duration_ms": int((time.time() - start) * 1000),
@@ -220,25 +217,7 @@ def harvey_node(state):
         if result.tool_calls:
             tool_call = result.tool_calls[0]
             tool_name = tool_call["name"]
-            tool_args = tool_call["args"]
-
-            # --- SENSITIVE TOOL INTERCEPTION ---
-            if tool_name in SENSITIVE_TOOLS:
-                logger.info(f"Intercepting sensitive tool: {tool_name}")
-                set_state_value(state, "pending_tool", tool_call)
-                set_state_value(state, "requires_approval", True)
-                
-                draft_msg = f"I've prepared the following action:\n\n**Tool**: `{tool_name}`\n"
-                for k, v in tool_args.items():
-                    if k != "user":
-                        draft_msg += f"- **{k}**: {v}\n"
-                
-                draft_msg += "\nDo you want me to proceed? (Type 'Confirm' or 'Yes')"
-                
-                return {"messages": [AIMessage(content=draft_msg)], "pending_tool": tool_call, "requires_approval": True}
-
             logger.info(f"Harvey decided to use tool: {tool_name}")
-            set_state_value(state, "pending_tool", tool_call)
             return {"messages": [result], "pending_tool": tool_call, "requires_approval": False}
 
         return {"messages": [result]}
@@ -283,8 +262,6 @@ def execute_node(state):
     try:
         logger.info(f"Executing tool: {call['name']} with args: {args}")
         
-        # Fix: Remove 'user' from args if the LLM provided it (usually as None)
-        # to avoid "multiple values for keyword argument" error.
         if "user" in args:
             del args["user"]
 
@@ -301,32 +278,26 @@ def execute_node(state):
 
         set_state_value(state, "pending_tool", None)
         logger.info(f"Tool execution successful: {message}")
-        return {"messages": [ToolMessage(tool_call_id=call["id"], content=message)], "pending_tool": None}
+        return {"messages": [ToolMessage(tool_call_id=call["id"], content=message)], "pending_tool": None, "requires_approval": False}
 
     except Exception as e:
         logger.error(f"Tool execution failed: {e}")
         append_trace(state, {"node": "TOOL", "tool": call["name"], "error": str(e)})
         set_state_value(state, "pending_tool", None)
-        return {"messages": [AIMessage(content=f" Tool failed: {e}")], "pending_tool": None}
+        return {"messages": [AIMessage(content=f" Tool failed: {e}")], "pending_tool": None, "requires_approval": False}
 
 
 def summary_node(state):
     messages = get_state_value(state, "messages", [])
-    new_context = summarize(messages)
-
-    # 🔍 Debug log summary
-    logger.debug(f"Updated Context: {new_context}")
-
-    updates = {}
     
-    # Only clear pending_tool if we are NOT waiting for approval
-    # If we are waiting for approval, we need to keep it for the next turn
-    requires_approval = get_state_value(state, "requires_approval", False)
-    if not requires_approval:
-        updates["pending_tool"] = None
-        # Safety net: Ensure approval is False if we are clearing tool
-        updates["requires_approval"] = False
+    # Only summarize every 5 messages to save tokens
+    if len(messages) > 0 and len(messages) % 5 == 0:
+        new_context = summarize(messages)
+        logger.debug(f"Updated Context: {new_context}")
+    else:
+        new_context = None
 
+    updates = {"pending_tool": None, "requires_approval": False}
     if new_context:
         updates["context"] = new_context
     
