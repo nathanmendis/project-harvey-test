@@ -63,8 +63,8 @@ graph TD
     end
     
     subgraph Data Layer
-        Tools -->|DML/SQL| Postgres[(Postgres SQL)]
-        Tools -->|Vector Query| PGV[(PGVector Store)]
+        Tools -->|DML/SQL| Postgres["Postgres SQL"]
+        Tools -->|Vector Query| PGV["PGVector Store"]
         Tools -->|API| Google[Google Calendar/Gmail]
     end
 ```
@@ -95,7 +95,7 @@ graph TD
     subgraph LangGraph_Orchestrator [The AI Graph]
         RedisBus --> RouterNode{Intent Classifier: 8B}
         RouterNode -->|Intent: Chat| ChatNode[Harvey 8B Node]
-        RouterNode -->|Intent: Tool| ReasonerNode[Harvey 17B (Scout)]
+        RouterNode -->|Intent: Tool| ReasonerNode["Harvey 17B (Scout)"]
         
         ReasonerNode --> ToolCall[Draft Tool JSON]
         ToolCall --> ExecNode[Execute Tool Node]
