@@ -12,7 +12,7 @@ class EmailFlowTest(TestCase):
         self.org = Organization.objects.create(name="Test Org")
         self.user = User.objects.create_user(username="testuser", password="password", organization=self.org)
 
-    @patch("core.ai.agentic.graph.nodes.get_llm")
+    @patch("core.ai.agentic.graph.nodes.get_reasoner_llm")
     def test_email_tool_execution(self, mock_get_llm):
         # Setup mock LLM to return a tool call
         mock_llm = MagicMock()
@@ -60,7 +60,7 @@ class EmailFlowTest(TestCase):
         log = EmailLog.objects.first()
         self.assertEqual(log.recipient_email, "nathan@gmail.com")
         self.assertEqual(log.subject, "Test Meeting")
-        self.assertEqual(log.body, "Please attend.")
+        self.assertIn("Please attend.", log.body)
         self.assertEqual(log.organization, self.org)
         
         # 3. Check if the final message indicates success

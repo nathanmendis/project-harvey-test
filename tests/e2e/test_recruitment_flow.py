@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import json
 from core.models.organization import Organization, User
 from core.models.recruitment import JobRole, Candidate, Interview, EmailLog, CandidateJobScore
-from core.ai.rag.tools.recruitment_tools import (
+from core.ai.agentic.tools.recruitment_tools import (
     create_job_description,
     add_candidate_with_resume,
     shortlist_candidates,

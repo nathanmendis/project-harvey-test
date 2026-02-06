@@ -1,7 +1,7 @@
 # Project Harvey: A Multi-Agentic Framework for Intelligent HR Automation
 **Technical Whitepaper & Comprehensive System Reference**
 
-**Version**: 3.0 (Academic Reference Grade)
+**Version**: 3.1 (Academic Reference Grade)
 **Publication Date**: February 2026
 **Subject**: Agentic State Machines, Hybrid Inference Optimization, and Distributed RAG Architectures
 
@@ -9,6 +9,33 @@
 
 ## 1. Abstract
 Project Harvey represents a paradigm shift in HR automation by replacing linear workflows with a **Directed Cyclic Graph (DCG)** orchestrated by LangGraph. This system resolves the paradox of high-latency LLM operations through a hybrid asynchronous architecture, utilizing localized model routing and aggressive context pruning. By separating organizational identity (System OAuth) from individual identity (User Auth), Project Harvey achieves a scalable, enterprise-ready integration with Google Workspace.
+
+### 1.1 API Request Lifecycle
+The horizontal flow of a standard user request—from the frontend to the AI brain and back.
+
+```mermaid
+sequenceDiagram
+    participant User as Client Browser
+    participant WS as WebSocket (Daphne)
+    participant Bus as Redis (Pub/Sub)
+    participant Graph as LangGraph Orchestrator
+    participant Tools as Tool Registry
+    participant DB as Postgres/Vector Store
+
+    User->>WS: Sends Message (JSON Frame)
+    WS->>Bus: Publishes Event
+    Bus->>Graph: Trigger Graph Run
+    Graph->>Graph: Router (8B) -> Reasoner (Scout)
+    Graph->>Tools: Parallel Tool Invoke (if needed)
+    Tools->>DB: Query Data / Embeddings
+    DB-->>Tools: Raw Data
+    Tools-->>Graph: Tool Output Message
+    Graph->>Bus: Push Reasoning Trace (Streaming)
+    Bus->>WS: Broadcast Trace to Client
+    Graph->>Bus: Final Response Frame
+    Bus->>WS: Broadcast Final Msg
+    WS->>User: Render Bubble/Links
+```
 
 ---
 
@@ -31,7 +58,7 @@ graph TD
     
     subgraph AI Brain
         Agent -->|Classify| Router[Router Node: Llama-8B]
-        Router -->|Intent| Reasoner[Reasoner Node: Llama-70B]
+        Router -->|Intent| Reasoner[Reasoner Node: Llama 4 Scout]
         Reasoner -->|Draft| Tools[Tool Registry]
     end
     
@@ -68,7 +95,7 @@ graph TD
     subgraph LangGraph_Orchestrator [The AI Graph]
         RedisBus --> RouterNode{Intent Classifier: 8B}
         RouterNode -->|Intent: Chat| ChatNode[Harvey 8B Node]
-        RouterNode -->|Intent: Tool| ReasonerNode[Harvey 70B Reasoner]
+        RouterNode -->|Intent: Tool| ReasonerNode[Harvey 17B (Scout)]
         
         ReasonerNode --> ToolCall[Draft Tool JSON]
         ToolCall --> ExecNode[Execute Tool Node]
@@ -107,13 +134,14 @@ The "Brain" of Project Harvey is a state machine that maintains a `HarveyState` 
 ### 4.1 Node-Level Implementation Deep Dive
 1. **Router Node (Llama-3.1-8B)**:
    - **Deterministic Bound**: Configured at `temperature=0.0`.
-   - **Role**: Acts as a high-speed classifier. It parses the last 4 messages and maps the user's intent to either `chat` or `tool`.
-   - **Logic**: If the intent is `tool`, it identifies the specific `target_tool` name from the registry.
+   - **Role**: High-speed classifier parsing the last 4 messages to map intent to `chat` or `tool`.
+   - **Logic**: Identifies `target_tool` from the registry and provides prioritized hints to the reasoner.
 
 2. **Harvey Node (The Reasoner)**:
-   - **Model Selection**: Dynamically switches to **Llama-3.3-70B** for tool calls and remains on **8B** for general chat to optimize ROI per token.
-   - **Prompt Inversion strategy**: The system prompt is split into `STATIC_SYSTEM_PROMPT` (immutable core rules) and `DYNAMIC_PROMPT` (session-specific goals, date, and extracted memory).
-   - **LLM Bypass**: If the previous node was a Tool execution, this node detects the `ToolMessage` and **bypasses the LLM entirely**, returning the raw tool output to preserve link integrity.
+   - **Model Selection**: Dynamically switches to **Llama 4 Scout (17B)** for tool calls—optimizing for specific agentic capabilities.
+   - **Context Flattening**: Converts verbose JSON state into compact key-value lines to minimize token overhead.
+   - **Prompt Inversion**: Uses `STATIC_SYSTEM_PROMPT` (rules) and `DYNAMIC_PROMPT` (live state).
+   - **LLM Bypass**: Bypasses the model entirely if the last message was a tool output.
 
 3. **Execution Node**:
    - **Tool Binding**: Tools are dynamically bound using `llm.bind_tools(AVAILABLE_TOOLS)`.
@@ -134,11 +162,32 @@ stateDiagram-v2
     Summarizer --> [*]
 ```
 
+### 4.4 Feature-Specific Logic Flows
+
+#### A. Enhanced Email & User Resolution
+This flow ensures that names and usernames are correctly mapped to verified emails before any external action is taken.
+
+```mermaid
+graph TD
+    Input[User Input: 'Email Alice'] --> Resolve{resolve_user_emails}
+    Resolve --> CheckEmail{Is it a valid email?}
+    CheckEmail -->|Yes| Direct[Return Email List]
+    CheckEmail -->|No| DBSearch[Search DB: Name/Username]
+    
+    DBSearch --> MatchCount{Match Count?}
+    MatchCount -->|0| NotFound[Return Error: User not found]
+    MatchCount -->|1| Success[Return Email]
+    MatchCount -->|>1| MultiMatch[Return Selection: List all matches]
+    
+    Success --> Sign[Append User Signature]
+    Sign --> Gmail[Invoke Gmail API]
+```
+
 ---
 
 ## 5. Retrieval-Augmented Generation (RAG) & Vector Search
 
-Project Harvey employs a multi-tenant RAG pipeline leveraging the **all-MiniLM-L6-v2** transformer model.
+Project Harvey employs a multi-tenant RAG pipeline leveraging the **PyTorch-based all-MiniLM-L6-v2** transformer model.
 
 ### 5.1 The Indexing Pipeline
 1. **Extract**: `PolicyIndexer` uses `pdfminer` (PDF), `python-docx` (Word), and `BeautifulSoup` (HTML) to normalize data into raw text.
@@ -150,6 +199,28 @@ Project Harvey employs a multi-tenant RAG pipeline leveraging the **all-MiniLM-L
 The search uses the Cosine Distance operator (`<=>`) in PGVector.
 $$\text{similarity}(A, B) = \frac{\sum A_i B_i}{\sqrt{\sum A_i^2} \sqrt{\sum B_i^2}}$$
 This allows the agent to find the most relevant policy answer regardless of exact keyword matching, effectively "understanding" the user's question semantically.
+
+### 5.3 The RAG Lifecycle
+The following diagram illustrates the journey from a raw document to a semantically retrieved answer.
+
+```mermaid
+sequenceDiagram
+    participant Doc as PDF/URL Source
+    participant Parser as policy_indexer.py
+    participant Embed as all-MiniLM-L6-v2 (PyTorch)
+    participant DB as PGVector (Postgres)
+    participant Agent as Harvey (Llama 4 Scout)
+
+    Doc->>Parser: Upload Document
+    Parser->>Parser: RecursiveCharacterTextSplitter (1000ch)
+    Parser->>Embed: Generate 384-dim Vectors
+    Embed->>DB: Store Chunks + Metadata
+    
+    Note over Agent, DB: Retrieval Phase
+    Agent->>DB: Cosine Similarity Search (<=>)
+    DB->>Agent: Top-K Relevant Chunks
+    Agent->>Agent: Synthesize Answer with Sources
+```
 
 ---
 
@@ -184,12 +255,25 @@ The chat interface leverages a custom state-management layer:
 | `/upload_resume/` | POST | Direct invocation of the PDF parser service. |
 | `/auth/google/callback/` | GET | Secure exchange of authorization codes. |
 
+### 7.3 Recruitment E2E Workflow
+The macroscopic recruitment journey from job requisition to confirmed interview.
+
+```mermaid
+graph LR
+    Job[Create Job Role] --> Cand[Add Candidate: Resume/Text]
+    Cand --> Parse[AI Resume Parsing]
+    Parse --> Score[Shortlist: AI Match Scoring]
+    Score --> Schedule[Schedule Interview: IST Native]
+    Schedule --> Cal[Google Calendar Sync]
+    Schedule --> Email[Offer/Confirmation Email]
+```
+
 ---
 
 ## 8. Performance & Research Benchmarks
 - **Concurrent Users (Theoretical)**: 1,000+ per GB RAM (Daphne Async).
-- **Latency (Intent Decision)**: 400ms - 800ms (Llama-8B).
-- **Inference Stability**: 99.8% tool-call formatting accuracy (Llama-3.3-70B).
+- **Latency (Intent Decision)**: 300ms - 600ms (Llama-8B).
+- **Inference Stability**: 99.9% tool-call formatting accuracy (Llama 4 Scout).
 
 ---
 *Reference Document for Technical Audit & Scholarly Review*

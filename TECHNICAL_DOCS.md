@@ -1,4 +1,4 @@
-# Technical Documentation: Project Harvey v3.0
+# Technical Documentation: Project Harvey v3.1
 
 ## 1. System Overview
 
@@ -17,8 +17,8 @@ Project Harvey is a state-of-the-art HR automation platform. It uses a **Hybrid 
 ### 2.2 Model Selection Logic
 To optimize for both speed and reasoning depth, we use a tiered model strategy:
 
-- **Router/Chat (Llama-3.1-8B)**: Used for intent classification and general conversation.
-- **Reasoner (Llama 4 Scout - 17B)**: The "Agentic Brain". Specialized 2026-gen model used for complex tool drafting (JSON formatting) and summarization.
+- **Router/Chat (Llama-3.1-8B)**: For intent classification and general conversation.
+- **Reasoner (Llama 4 Scout - 17B)**: The specialized agentic model used for complex tool drafting and reasoning.
 
 ---
 
@@ -50,13 +50,14 @@ The database is divided into logical functional areas:
 
 ## 4. The Agentic Workflow (`core/llm_graph/`)
 
-The graph lifecycle is managed in `nodes.py` and `graph.py`.
+The graph lifecycle is managed within the `core/ai/agentic/graph/nodes/` package.
 
 ### 4.1 LangGraph Nodes
-1. **`router_node`**: Uses Llama-8B at `temp=0` to decide if a tool is needed.
-2. **`harvey_node`**: The core "brain". It formats the prompt (splitting into Static and Dynamic components) and generates responses.
-3. **`execute_node`**: Dynamically fetches functions from the `tool_registry` and invokes them.
-4. **`summary_node`**: Triggers every 8 messages to compress history and prune the message list to 4 items.
+1. **`router.py`**: Intent Classifier (Llama-8B) with prioritized hints.
+2. **`harvey.py`**: Core reasoner with context flattening and LLM bypass logic.
+3. **`execute.py`**: Invokes tools from the registry and handles email drafting.
+4. **`summary.py`**: Compresses history after 8 turns to maintain context efficiency.
+5. **`utils.py`**: Shared helpers including **token usage logging**.
 
 ### 4.2 Prompt Strategy
 We use **Split Prompting**:
@@ -78,9 +79,10 @@ The system uses a centralized registry to bind Python functions to the LLM.
 | `search_knowledge_base` | Semantic search over internal Candidate/Job data. |
 | `search_policies` | Retrieval-Augmented Generation (RAG) over HR documents. |
 
-### 5.2 Google Workspace Integration
-- **OAuth Strategy**: Uses a **System Refresh Token** for backend actions (Email/Calendar) and standard OAuth for user login.
-- **Timezone**: Explicitly localized to `Asia/Kolkata` across all external triggers.
+### 5.2 Google Workspace & Tool Enhancements
+- **Enhanced Resolution**: All tools (Email, Calendar) use shared utilities to resolve names/usernames to emails with multiple-match handling.
+- **OAuth Strategy**: System Refresh Token for backend actions; standard OAuth for user sessions.
+- **Timezone**: Explicit `Asia/Kolkata` (IST) localization.
 
 ---
 
@@ -135,7 +137,7 @@ The system uses a centralized registry to bind Python functions to the LLM.
 ### 8.2 Verification
 - **Unit Tests**: `poetry run pytest`.
 - **Router Audit**: `poetry run pytest tests/test_router_architecture.py`.
-- **Logs**: Monitor `harvey.log` for token usage and IST localization offsets.
+- **Logs**: Monitor `harvey.log` for **real-time token usage** (Prompt/Completion/Total) and IST offsets.
 
 ---
 *Maintained by the Harvey Engineering Team*

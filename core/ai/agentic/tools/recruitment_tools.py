@@ -8,7 +8,7 @@ from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, Can
 from core.models.organization import Organization
 from core.ai.utils.resume_parser import ResumeParser
 from core.ai.utils.candidate_scorer import CandidateScorer
-from .utils import ok, err, get_org
+from .utils import ok, err, get_org, resolve_candidate_emails, is_valid_email
 
 @tool("add_candidate", return_direct=True)
 def add_candidate(name: str, email: str, skills: str, phone: str, source: str = "Chatbot", user=None) -> str:
@@ -120,29 +120,20 @@ def schedule_interview(candidate: str, start_time: str, job_title: str = "Candid
     if not user or not user.pk:
          return err("No logged-in user found to set as interviewer.")
 
-    # 2. Resolve Candidate (Email or Name) -> ID
-    val = candidate.strip()
-    c_obj = None
-    
-    # Try Email
-    if "@" in val:
-        c_obj = Candidate.objects.filter(email__iexact=val, organization=org).first()
-    
-    # Try Name if not found
+    # 2. Resolve Candidate (Email or Name) -> Email
+    emails = resolve_candidate_emails(candidate, org)
+
+    if not emails:
+        return err(f"I couldn't find a candidate matching '{candidate}'. Please ensure they are added first.")
+
+    if len(emails) > 1:
+        return err(f"Multiple candidates found matching '{candidate}': {', '.join(emails)}. Please use their exact email.")
+
+    resolved_email = emails[0]
+    c_obj = Candidate.objects.filter(email=resolved_email, organization=org).first()
+
     if not c_obj:
-        c_objs = Candidate.objects.filter(name__iexact=val, organization=org)
-        if c_objs.count() == 1:
-            c_obj = c_objs.first()
-        elif c_objs.count() > 1:
-            return err(f"Multiple candidates named '{val}'. Please use their email.")
-            
-    if not c_obj:
-        # Fallback: Is it an ID?
-        if val.isdigit():
-             c_obj = Candidate.objects.filter(id=int(val), organization=org).first()
-        
-    if not c_obj:
-        return err(f"I couldn't find a candidate named '{val}'. Please ensure they are added first.")
+        return err(f"Candidate with email '{resolved_email}' not found.")
 
     # 3. Create Interview in DB
     dt = parse_datetime(start_time)
@@ -207,15 +198,26 @@ def send_email(recipient: str, subject: str, body: str, user=None) -> str:
     if not org:
         return err("User is not associated with any organization. Please contact support.")
 
+    # 🔍 Resolve recipient
+    emails = resolve_candidate_emails(recipient, org)
+    
+    if not emails:
+        return err(f"Could not resolve recipient '{recipient}' to a valid candidate email.")
+
+    if len(emails) > 1:
+        return err(f"Multiple candidates found matching '{recipient}': {', '.join(emails)}. Please be more specific.")
+
+    resolved_email = emails[0]
+
     e = EmailLog.objects.create(
         organization=org,
-        recipient_email=recipient,
+        recipient_email=resolved_email,
         subject=subject,
         body=body,
         status="sent",
         sent_time=timezone.now(),
     )
-    return ok(f"I've sent the email to {recipient} regarding '{subject}'.", log_id=e.id)
+    return ok(f"I've sent the email to {resolved_email} regarding '{subject}'.", log_id=e.id)
 
 
 @tool("shortlist_candidates", return_direct=True)

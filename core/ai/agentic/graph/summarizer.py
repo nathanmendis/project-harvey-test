@@ -40,14 +40,13 @@ def summarize(messages, force=False) -> Dict:
 
     parser = JsonOutputParser(pydantic_object=ContextUpdate)
 
-    chain = (
-        ChatPromptTemplate.from_template(SUMMARY_TEMPLATE)
-        | llm
-        | parser
-    )
-
     try:
-        out = chain.invoke({"history": text})
+        # LOG TOKENS
+        from .nodes.utils import log_token_usage
+        response = llm.invoke(SUMMARY_TEMPLATE.format(history=text))
+        log_token_usage(response, "Summarizer (8B)")
+        
+        out = parser.parse(response.content)
         return out
     except Exception as e:
         logger.error(f"Summarization failed: {e}")

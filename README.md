@@ -1,21 +1,22 @@
-# Project Harvey: AI-Powered HR Agent v3.0
+# Project Harvey: AI-Powered HR Agent v3.1
 
 Harvey is a high-performance, agentic HR assistant designed to automate recruitment workflows. It leverages a hybrid multi-model architecture to provide lightning-fast intent detection and complex reasoning for recruitment tasks.
 
 ## ✨ Key Features (Version 3.0)
 
 ### 🤖 Intelligent "Hybrid Brain"
--   **Multi-Model Strategy**: Uses **Llama-3.1-8B** for instant routing and **Llama-3.3-70B** for complex tool drafting and reasoning.
--   **Deterministic Routing**: Intent classification runs at `temperature=0` for perfect reliability.
--   **Advanced Token Optimization**: Implements aggressive **history pruning**—keeping only the last 4 messages after summarization to ensure sub-second response times in long chats.
+-   **Multi-Model Strategy**: Uses **Llama-3.1-8B** for instant routing and **Llama 4 Scout (17B)** for complex tool drafting and agentic reasoning.
+-   **Deterministic Routing**: Intent classification runs at `temperature=0` using the 8B model.
+-   **Advanced Token Optimization**: Implements **context flattening** and aggressive history pruning to maintain sub-second response times.
 
 ### 📅 Recruitment & Calendar Automation
--   **Google Calendar Sync**: The `schedule_interview` tool automatically creates invites on your calendar with the `{Role} Interview` format and returns clickable meeting links.
--   **IST Native**: Full support for **Indian Standard Time (IST)** localization for all scheduling and date-based queries.
+-   **Enhanced Tool Resolution**: Directly resolve names/usernames to emails with support for **multiple match detection**.
+-   **Google Calendar Sync**: The `schedule_interview` tool automatically creates invites on your calendar and returns clickable meeting links.
+-   **IST Native**: Full support for **Indian Standard Time (IST)** localization.
 
 ### 📚 RAG (Retrieval-Augmented Generation)
--   **PGVector Knowledge Base**: Instant semantic search over candidates, job roles, and HR policies using **PostgreSQL + pgvector**.
--   **Policy Assistant**: Upload PDFs or URLs; Harvey indexes them and answers complex policy questions with source attribution.
+-   **PGVector Knowledge Base**: Semantic search using **PostgreSQL + pgvector** and **PyTorch-based all-MiniLM-L6-v2** embeddings.
+-   **Policy Assistant**: Index PDFs or URLs and get answers with source attribution.
 
 ### 🔐 Enterprise-Grade Identity
 -   **Two-Tier OAuth**: Decouples simple user login from system-wide Gmail/Calendar capacities, ensuring the system can "act" reliably via a System Account.
