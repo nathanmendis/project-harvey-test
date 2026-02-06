@@ -57,6 +57,21 @@ class VectorStore:
 
 
 
+    def delete_by_policy_id(self, policy_id):
+        """Deletes all chunks for a specific policy from the vector store."""
+        try:
+            from sqlalchemy import text, create_engine
+            # create a temporary engine to execute the deletion
+            engine = create_engine(self.connection_string)
+            sql = text("DELETE FROM langchain_pg_embedding WHERE cmetadata->>'policy_id' = :policy_id")
+            with engine.connect() as conn:
+                conn.execute(sql, {"policy_id": str(policy_id)})
+                conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting vectors for policy {policy_id}: {e}")
+            return False
+
     def delete_all(self):
         """Clears all vectors in the collection."""
         try:
@@ -73,5 +88,10 @@ class VectorStore:
     def similarity_search(self, query, k=3, **kwargs):
         return self.db.similarity_search(query, k=k, **kwargs)
 
+_vector_store_instance = None
+
 def get_vector_store():
-    return VectorStore()
+    global _vector_store_instance
+    if _vector_store_instance is None:
+        _vector_store_instance = VectorStore()
+    return _vector_store_instance

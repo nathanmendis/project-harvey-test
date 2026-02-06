@@ -94,6 +94,9 @@ def harvey_node(state):
                     "subject": tool_call["args"].get("subject"),
                     "body": result.content.strip(),
                 })
+            
+            # SUPPRESS NARRATION: Clear content to avoid leaking internal thoughts to user
+            result.content = ""
 
             logger.info(f"Harvey decided to use tool: {tool_name}")
             return {"messages": [result], "pending_tool": tool_call, "requires_approval": False}

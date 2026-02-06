@@ -12,8 +12,8 @@ class PolicyIndexer:
     def __init__(self):
         self.vector_store = get_vector_store()
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200
+            chunk_size=400,
+            chunk_overlap=50
         )
 
     def index_policy(self, policy_id):
@@ -28,6 +28,7 @@ class PolicyIndexer:
 
             # Clear existing chunks
             policy.chunks.all().delete()
+            self.vector_store.delete_by_policy_id(policy.id)
 
             chunks = self.text_splitter.split_text(text)
             

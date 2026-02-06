@@ -43,16 +43,18 @@ def router_node(state):
     
     # TOKEN OPTIMIZED PROMPT
     router_prompt = f"""
-    Classify intent: "tool" (actions/info-seeking) or "chat" (greetings/thanks).
+    Classify intent: "tool" (actions/info-seeking/policy) or "chat" (greetings/thanks).
     {parser.get_format_instructions()}
     TOOLS: {tools_desc}
     
     Rules:
     - "send" email/draft -> send_email_tool.
     - Ask about person/staff -> search_knowledge_base.
-    - Ask about policy/rule -> search_policies.
+    - Ask about policy, rule, working hours, attendance, or behavior -> search_policies.
     - "interview" -> schedule_interview.
     - "chat" ONLY for greetings or drafting without sending.
+
+    CRITICAL: Any question about Harvey's policies or how things work at Harvey MUST be "tool" with "search_policies". Do NOT guess or answer from general knowledge.
 
     History:
     {last_msgs_text}

@@ -181,7 +181,7 @@ LOGGING = {
             'style': '{',
         },
         'simple': {
-            'format': '➤ {message}',
+            'format': '-> {message}',
             'style': '{',
         },
     },

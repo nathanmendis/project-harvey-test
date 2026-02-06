@@ -54,4 +54,4 @@ def log_token_usage(response, model_label):
             prompt = usage.get("prompt_tokens", 0)
             completion = usage.get("completion_tokens", 0)
             total = usage.get("total_tokens", 0)
-            logger.info(f"➤ [TOKENS] {model_label} (Prompt: {prompt}, Completion: {completion}, Total: {total})")
+            logger.info(f"-> [TOKENS] {model_label} (Prompt: {prompt}, Completion: {completion}, Total: {total})")
