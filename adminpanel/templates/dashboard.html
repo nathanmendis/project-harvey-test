@@ -1,194 +1,231 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="space-y-10 py-4">
+<div class="space-y-12 animate-fade-in-up">
 
-  <!--  Header / Hero Section -->
-  <div
-    class="glass-card rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center relative overflow-hidden group">
-    <!-- Decorative Glow -->
+  <!-- Header & Stats (Sleek Horizontal) -->
+  <div class="glass-card p-6 md:p-8 rounded-3xl border border-white/5 relative overflow-hidden">
+    <!-- Background Glow -->
+    <div class="absolute -top-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
     <div
-      class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-500">
-    </div>
-
-    <div class="text-center md:text-left relative z-10">
-      <h2 class="text-4xl font-extrabold tracking-tight">
-        Welcome back,
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-          {{ request.user.first_name|default:request.user.username }}
-        </span>
-      </h2>
-      {% if request.user.role == 'org_admin' %}
+      class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10 mb-8 border-b border-white/5 pb-6">
+      <div>
+        <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
+          Dashboard
+        </h2>
+        <div class="flex items-center gap-2 text-sm text-gray-400">
+          <span>Overview for</span>
+          <span class="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded">{{ org_name }}</span>
+        </div>
+      </div>
       <span
-        class="inline-block mt-3 text-[10px] bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm">
-        Organization Admin
+        class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-full font-mono font-bold tracking-wider flex items-center gap-2">
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        SYSTEM OPERATIONAL
       </span>
-      {% endif %}
-      <p class="text-gray-400 mt-4 text-sm max-w-md leading-relaxed">System overview for <span
-          class="text-white font-medium">{{ org_name }}</span>. Monitor your workforce and organizational intelligence
-        below.</p>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="flex flex-wrap justify-center md:justify-end items-center gap-4 mt-8 md:mt-0 relative z-10">
-      <a href="{% url 'chat_view' %}"
-        class="glass-card hover:bg-red-500/10 text-white font-semibold px-6 py-3 rounded-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-2 border-white/5">
-        <i class="fas fa-comments"></i>
-        <span>Launch Admin Chat</span>
-      </a>
-
-
-
-      <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit"
-          class="glass-card hover:bg-red-500/10 text-white font-semibold px-6 py-3 rounded-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-2 border-white/5">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>Logout</span>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!--  Organization Overview Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-    <div class="glass-card p-6 rounded-2xl border-l-4 border-indigo-500 hover:bg-white/5 transition-all duration-300">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-semibold text-gray-400 text-sm uppercase tracking-wider">Total Users</h3>
-        <i class="fas fa-users text-indigo-400/50"></i>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Stat 1 -->
+      <div class="group">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Users</span>
+          <i class="fas fa-users text-indigo-500/50 group-hover:text-indigo-400 transition-colors"></i>
+        </div>
+        <p class="text-3xl font-bold text-white">{{ total_users }}</p>
       </div>
-      <p class="text-4xl font-bold text-white">{{ total_users }}</p>
-      <div class="mt-4 flex items-center gap-2">
-        <span class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-          <span class="block h-full bg-indigo-500 w-full"></span>
-        </span>
-      </div>
-    </div>
 
-    <div class="glass-card p-6 rounded-2xl border-l-4 border-purple-500 hover:bg-white/5 transition-all duration-300">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-semibold text-gray-400 text-sm uppercase tracking-wider">Org Admins</h3>
-        <i class="fas fa-user-shield text-purple-400/50"></i>
+      <!-- Stat 2 -->
+      <div class="group border-l border-white/5 pl-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Admins</span>
+          <i class="fas fa-user-shield text-purple-500/50 group-hover:text-purple-400 transition-colors"></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <p class="text-3xl font-bold text-white">{{ admin_users }}</p>
+          <span class="text-xs text-purple-400">{{ admin_pct }}%</span>
+        </div>
       </div>
-      <p class="text-4xl font-bold text-white">{{ admin_users }}</p>
-      <div class="mt-4 flex items-center gap-2">
-        <span class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-          <span class="block h-full bg-purple-500" style="width: {{ admin_pct }}%"></span>
-        </span>
-      </div>
-    </div>
 
-    <div class="glass-card p-6 rounded-2xl border-l-4 border-pink-500 hover:bg-white/5 transition-all duration-300">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-semibold text-gray-400 text-sm uppercase tracking-wider">Staff Members</h3>
-        <i class="fas fa-user-tie text-pink-400/50"></i>
+      <!-- Stat 3 -->
+      <div class="group border-l border-white/5 pl-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Staff</span>
+          <i class="fas fa-user-tie text-pink-500/50 group-hover:text-pink-400 transition-colors"></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <p class="text-3xl font-bold text-white">{{ staff_users }}</p>
+          <span class="text-xs text-pink-400">{{ staff_pct }}%</span>
+        </div>
       </div>
-      <p class="text-4xl font-bold text-white">{{ staff_users }}</p>
-      <div class="mt-4 flex items-center gap-2">
-        <span class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-          <span class="block h-full bg-pink-500" style="width: {{ staff_pct }}%"></span>
-        </span>
-      </div>
-    </div>
 
-    <div class="glass-card p-6 rounded-2xl border-l-4 border-cyan-500 hover:bg-white/5 transition-all duration-300">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-semibold text-gray-400 text-sm uppercase tracking-wider">Employees</h3>
-        <i class="fas fa-user-tag text-cyan-400/50"></i>
-      </div>
-      <p class="text-4xl font-bold text-white">{{ regular_users }}</p>
-      <div class="mt-4 flex items-center gap-2">
-        <span class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-          <span class="block h-full bg-cyan-500" style="width: {{ regular_pct }}%"></span>
-        </span>
+      <!-- Stat 4 -->
+      <div class="group border-l border-white/5 pl-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Employees</span>
+          <i class="fas fa-user-tag text-cyan-500/50 group-hover:text-cyan-400 transition-colors"></i>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <p class="text-3xl font-bold text-white">{{ regular_users }}</p>
+          <span class="text-xs text-cyan-400">{{ regular_pct }}%</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Management Grid -->
-  <div class="glass-card rounded-3xl p-8 border border-white/10 relative overflow-hidden">
-    <div class="flex items-center gap-3 mb-8">
-      <div
-        class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-        <i class="fas fa-toolbox"></i>
-      </div>
-      <h3 class="text-2xl font-bold">Workspace Management</h3>
+  <!-- SECTIONS (Stacked Horizontally) -->
+
+  <!-- Recruitment Section -->
+  <div>
+    <div class="flex items-center gap-3 mb-6 px-2">
+      <div class="h-8 w-1 rounded-full bg-indigo-500"></div>
+      <h3 class="text-lg font-bold text-white tracking-wide">Recruitment Suite</h3>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      <a href="{% url 'manage_employees' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-indigo-500/50 hover:bg-white/5">
-        <div
-          class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-users"></i>
-        </div>
-        <h4 class="font-bold text-white mb-1">Manage Employees</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Directory, roles and access permissions.</p>
-      </a>
-
-      <a href="{% url 'add_employee' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-purple-500/50 hover:bg-white/5">
-        <div
-          class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <h4 class="font-bold text-white mb-1">Add Employee</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Onboard new members to the portal.</p>
-      </a>
-
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Card -->
       <a href="{% url 'recruitment_dashboard' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-cyan-500/50 hover:bg-white/5">
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-indigo-500/30 hover:-translate-y-1 relative overflow-hidden">
         <div
-          class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-user-tie"></i>
+          class="absolute -right-8 -bottom-8 text-9xl text-indigo-500/5 group-hover:text-indigo-500/10 transition-colors rotate-12">
+          <i class="fas fa-briefcase"></i>
         </div>
-        <h4 class="font-bold text-white mb-1">Recruitment</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Manage candidates, jobs & interviews.</p>
+
+        <div
+          class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-briefcase"></i>
+        </div>
+
+        <div class="relative z-10">
+          <span
+            class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded mb-2 inline-block">CORE</span>
+          <h4 class="text-lg font-bold text-white mb-1">Candidates & Jobs</h4>
+          <p class="text-xs text-gray-500">Manage pipelines and job roles.</p>
+        </div>
       </a>
 
+      <!-- Card -->
       <a href="{% url 'leaves' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-yellow-500/50 hover:bg-white/5">
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-yellow-500/30 hover:-translate-y-1 relative overflow-hidden">
         <div
-          class="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-400 mb-4 group-hover:scale-110 transition-transform">
+          class="absolute -right-8 -bottom-8 text-9xl text-yellow-500/5 group-hover:text-yellow-500/10 transition-colors rotate-12">
           <i class="fas fa-calendar-check"></i>
         </div>
-        <h4 class="font-bold text-white mb-1">Leave Management</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Review and approve leave requests.</p>
-      </a>
-
-      <a href="{% url 'manage_policies' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-pink-500/50 hover:bg-white/5">
         <div
-          class="w-12 h-12 bg-pink-500/10 rounded-xl flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-file-invoice"></i>
+          class="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-calendar-check"></i>
         </div>
-        <h4 class="font-bold text-white mb-1">Manage Policies</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Upload and index internal HR docs.</p>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Leave Management</h4>
+          <p class="text-xs text-gray-500">Approve time-off requests.</p>
+        </div>
       </a>
 
-      <a href="{% url 'org_settings' %}"
-        class="group glass-card px-6 py-6 rounded-2xl text-left transition-all duration-300 border-white/5 hover:border-gray-500/50 hover:bg-white/5">
+      <!-- Card -->
+      <a href="{% url 'interviews' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-blue-500/30 hover:-translate-y-1 relative overflow-hidden">
         <div
-          class="w-12 h-12 bg-gray-500/10 rounded-xl flex items-center justify-center text-gray-400 mb-4 group-hover:scale-110 transition-transform">
+          class="absolute -right-8 -bottom-8 text-9xl text-blue-500/5 group-hover:text-blue-500/10 transition-colors rotate-12">
+          <i class="fas fa-video"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-video"></i>
+        </div>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Interviews</h4>
+          <p class="text-xs text-gray-500">Schedule & manage meetings.</p>
+        </div>
+      </a>
+
+      <!-- Placeholder -->
+      <div
+        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
+        <i class="fas fa-chart-pie text-3xl text-gray-600 mb-3"></i>
+        <h4 class="font-bold text-gray-400 text-sm">Analytics</h4>
+        <p class="text-[10px] text-gray-500">Coming soon</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Organization Section -->
+  <div>
+    <div class="flex items-center gap-3 mb-6 px-2">
+      <div class="h-8 w-1 rounded-full bg-purple-500"></div>
+      <h3 class="text-lg font-bold text-white tracking-wide">Organization</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Card -->
+      <a href="{% url 'manage_employees' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-purple-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-purple-500/5 group-hover:text-purple-500/10 transition-colors rotate-12">
+          <i class="fas fa-users"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Employee Directory</h4>
+          <p class="text-xs text-gray-500">View & manage all staff.</p>
+        </div>
+      </a>
+
+      <!-- Card -->
+      <a href="{% url 'add_employee' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-pink-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-pink-500/5 group-hover:text-pink-500/10 transition-colors rotate-12">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-pink-500/20 flex items-center justify-center text-pink-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Add Employee</h4>
+          <p class="text-xs text-gray-500">Onboard new team members.</p>
+        </div>
+      </a>
+
+      <!-- Card -->
+      <a href="{% url 'manage_policies' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-cyan-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-cyan-500/5 group-hover:text-cyan-500/10 transition-colors rotate-12">
+          <i class="fas fa-book"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Policies & Docs</h4>
+          <p class="text-xs text-gray-500">Knowledge base management.</p>
+        </div>
+      </a>
+
+      <!-- Card -->
+      <a href="{% url 'org_settings' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-gray-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-gray-500/5 group-hover:text-gray-500/10 transition-colors rotate-12">
           <i class="fas fa-cog"></i>
         </div>
-        <h4 class="font-bold text-white mb-1">Settings</h4>
-        <p class="text-xs text-gray-400 leading-relaxed">Organize your profile & Google integration.</p>
+        <div
+          class="w-12 h-12 rounded-2xl bg-gray-500/20 flex items-center justify-center text-gray-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-cog"></i>
+        </div>
+        <div class="relative z-10">
+          <h4 class="text-lg font-bold text-white mb-1">Settings</h4>
+          <p class="text-xs text-gray-500">Configure system options.</p>
+        </div>
       </a>
     </div>
   </div>
 
-  <!--  Status Banner -->
-  <div class="glass-card py-4 px-6 rounded-2xl flex items-center justify-between border-white/5">
-    <div class="flex items-center gap-3">
-      <span class="flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-indigo-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-      </span>
-      <p class="text-sm text-gray-400 font-medium">System status: <span class="text-indigo-400">Operational</span></p>
-    </div>
-    <div class="text-xs text-gray-500 uppercase tracking-widest font-bold">Project Harvey v1.2</div>
-  </div>
 </div>
 {% endblock %}

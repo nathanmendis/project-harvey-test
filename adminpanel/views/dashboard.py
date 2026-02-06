@@ -16,7 +16,8 @@ def admin_dashboard(request):
     regular_users = User.objects.filter(organization=org, is_staff=False).count()
 
     def get_pct(count):
-        return (count / total_users * 100) if total_users > 0 else 0
+        val = (count / total_users * 100) if total_users > 0 else 0
+        return int(round(val))
 
     context = {
         "org_name": org.name if org else "No Organization",
