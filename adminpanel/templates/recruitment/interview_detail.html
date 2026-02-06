@@ -1,0 +1,44 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="py-8 max-w-4xl mx-auto">
+    <div class="mb-6">
+        <a href="{% url 'interviews' %}"
+            class="text-green-400 hover:text-green-300 transition-colors text-sm font-medium">
+            ← Back to Interviews
+        </a>
+    </div>
+
+    <div class="glass-card rounded-2xl p-8 border-white/10">
+        <div class="flex items-start justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white mb-2">Interview Details</h1>
+                <p class="text-green-400 text-sm">{{ interview.candidate.name }}</p>
+            </div>
+            <span class="px-4 py-2 rounded-full text-sm font-bold
+        {% if interview.status == 'scheduled' %}bg-blue-500/20 text-blue-400
+        {% elif interview.status == 'completed' %}bg-green-500/20 text-green-400
+        {% elif interview.status == 'cancelled' %}bg-red-500/20 text-red-400
+        {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                {{ interview.status|title }}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Candidate</h3>
+                <p class="text-white">{{ interview.candidate.name }}</p>
+                <p class="text-gray-400 text-sm">{{ interview.candidate.email }}</p>
+            </div>
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Interviewer</h3>
+                <p class="text-white">{{ interview.interviewer.username }}</p>
+            </div>
+            <div class="md:col-span-2">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Scheduled Time</h3>
+                <p class="text-white">{{ interview.date_time|date:"l, F d, Y - g:i A" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

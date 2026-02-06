@@ -1,0 +1,60 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Interviews</h1>
+        <p class="text-green-400 text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
+    </div>
+
+    {% if interviews %}
+    <div class="glass-card rounded-2xl border-white/10 overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-white/5 border-b border-white/10">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Candidate
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Interviewer
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Date & Time
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for interview in interviews %}
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 text-white font-medium">{{ interview.candidate.name }}</td>
+                    <td class="px-6 py-4 text-gray-300">{{ interview.interviewer.username }}</td>
+                    <td class="px-6 py-4 text-gray-300">{{ interview.date_time|date:"M d, Y - g:i A" }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold
+              {% if interview.status == 'scheduled' %}bg-blue-500/20 text-blue-400
+              {% elif interview.status == 'completed' %}bg-green-500/20 text-green-400
+              {% elif interview.status == 'cancelled' %}bg-red-500/20 text-red-400
+              {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                            {{ interview.status|title }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'interview_detail' interview.id %}"
+                            class="text-green-400 hover:text-green-300 transition-colors text-sm font-medium">
+                            View Details →
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="glass-card rounded-2xl p-12 border-white/10 text-center">
+        <i class="fas fa-calendar-check text-gray-600 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-white mb-2">No Interviews Scheduled</h3>
+        <p class="text-gray-400">Interviews will appear here once scheduled.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

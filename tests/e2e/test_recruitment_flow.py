@@ -10,7 +10,9 @@ from core.ai.agentic.tools.recruitment_tools import (
     add_candidate_with_resume,
     shortlist_candidates,
     schedule_interview,
-    send_email
+    send_email,
+    draft_email,    
+    draft_and_send_email
 )
 
 class RecruitmentFlowTest(TestCase):

@@ -17,3 +17,19 @@ from .policies import (
 )
 from .invites import invite_user, manage_invites, delete_invite
 from .settings import org_settings
+from .recruitment import (
+    recruitment_dashboard,
+    candidates,
+    add_candidate,
+    candidate_detail,
+    jobs,
+    add_job,
+    job_detail,
+    interviews,
+    interview_detail
+)
+from .leaves import (
+    leaves,
+    leave_detail,
+    approve_leave
+)

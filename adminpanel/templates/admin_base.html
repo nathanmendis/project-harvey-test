@@ -103,6 +103,20 @@
               </a>
             </li>
             <li>
+              <a href="{% url 'recruitment_dashboard' %}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {% if 'recruitment' in request.path %}active text-white{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-user-tie mr-3 transition-transform group-hover:scale-110"></i>
+                <span class="font-medium">Recruitment</span>
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'leaves' %}"
+                class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {% if 'leaves' in request.path %}active text-white{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-calendar-check mr-3 transition-transform group-hover:scale-110"></i>
+                <span class="font-medium">Leaves</span>
+              </a>
+            </li>
+            <li>
               <a href="{% url 'manage_policies' %}"
                 class="flex items-center px-4 py-3 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active text-white{% else %}text-gray-400{% endif %}">
                 <i class="fas fa-file-alt mr-3 transition-transform group-hover:scale-110"></i>

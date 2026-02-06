@@ -3,8 +3,9 @@ import os
 from typing import Union
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
+from django.db.models import Q
 from langchain_core.tools import tool
-from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, CandidateJobScore
+from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, CandidateJobScore, LeaveRequest
 from core.models.organization import Organization
 from core.ai.utils.resume_parser import ResumeParser
 from core.ai.utils.candidate_scorer import CandidateScorer
@@ -283,3 +284,195 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
 
     msg = f"I found the following candidates matching the skills: {', '.join(c['name'] for c in matched) or 'None found'}."
     return ok(msg, results=matched)
+
+
+@tool("list_candidates", return_direct=True)
+def list_candidates(name: str = "", email: str = "", status: str = "", limit: int = 10, user=None) -> str:
+    """
+    Lists candidates with optional filters.
+    Use this to search for candidates or see who has applied.
+    """
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization.")
+
+    candidates = Candidate.objects.filter(organization=org)
+
+    if name:
+        candidates = candidates.filter(name__icontains=name)
+    if email:
+        candidates = candidates.filter(email__icontains=email)
+    if status:
+        candidates = candidates.filter(status__iexact=status)
+
+    count = candidates.count()
+    candidates = candidates.order_by("-created_at")[:limit]
+
+    if count == 0:
+        return ok("No candidates found matching your criteria.")
+
+    # NLP-friendly output
+    lines = [f"I found {count} candidate(s) (showing top {len(candidates)}):"]
+    results = []
+    
+    for c in candidates:
+        line = f"• {c.name} ({c.email}) - {c.status}"
+        lines.append(line)
+        results.append({"id": c.id, "name": c.name, "email": c.email, "status": c.status})
+
+    return ok("\n".join(lines), results=results)
+
+
+@tool("get_candidate_detail", return_direct=True)
+def get_candidate_detail(candidate_id: int = None, email: str = None, user=None) -> str:
+    """
+    Retrieves detailed information about a specific candidate.
+    Provide either candidate_id OR email.
+    """
+    org = get_org(user)
+    if not org:
+        return err("User is not associated with any organization.")
+
+    c = None
+    if candidate_id:
+        c = Candidate.objects.filter(organization=org, id=candidate_id).first()
+    elif email:
+        c = Candidate.objects.filter(organization=org, email=email).first()
+
+    if not c:
+        return err("Candidate not found.")
+
+    # Construct detail string
+    skills_str = ", ".join(c.skills) if c.skills else "None listed"
+    
+    detail = [
+        f"Candidate Profile: {c.name}",
+        f" Email: {c.email}",
+        f" Phone: {c.phone or 'N/A'}",
+        f" Status: {c.status}",
+        f" Skills: {skills_str}",
+        f" Source: {c.source}",
+    ]
+
+    # Check for scores/applications
+    scores = CandidateJobScore.objects.filter(candidate=c)
+    if scores.exists():
+        detail.append("\n**Job Applications & Scores:**")
+        for s in scores:
+            detail.append(f"- {s.job_role.title}: Score {s.score}/100")
+            if s.justification:
+                # Truncate justification if too long
+                just = s.justification[:100] + "..." if len(s.justification) > 100 else s.justification
+                detail.append(f"  *Insight: {just}*")
+
+    return ok("\n".join(detail), id=c.id, name=c.name, email=c.email, full_data=str(c.__dict__))
+
+
+@tool("list_job_roles", return_direct=True)
+def list_job_roles(department: str = "", title: str = "", user=None) -> str:
+    """Lists available job roles/openings."""
+    org = get_org(user)
+    if not org:
+        return err("User not in organization.")
+
+    jobs = JobRole.objects.filter(organization=org)
+    
+    if department:
+        jobs = jobs.filter(department__icontains=department)
+    if title:
+        jobs = jobs.filter(title__icontains=title)
+
+    if not jobs.exists():
+        return ok("No job roles found.")
+
+    results = []
+    lines = [f"Here are the job roles for {org.name}:"]
+    
+    for j in jobs:
+        lines.append(f"• **{j.title}** ({j.department})")
+        results.append({"id": j.id, "title": j.title, "department": j.department})
+
+    return ok("\n".join(lines), results=results)
+
+
+@tool("get_job_role_detail", return_direct=True)
+def get_job_role_detail(job_id: int, user=None) -> str:
+    """Gets details for a specific job role."""
+    org = get_org(user)
+    if not org:
+        return err("User not in organization.")
+
+    j = JobRole.objects.filter(organization=org, id=job_id).first()
+    if not j:
+        return err(f"Job role with ID {job_id} not found.")
+
+    detail = [
+        f"Job Role: {j.title}",
+        f"Department: {j.department}",
+        f"Description:\n{j.description}",
+        f"Requirements:\n{j.requirements}"
+    ]
+
+    return ok("\n".join(detail), id=j.id, title=j.title)
+
+
+@tool("list_interviews", return_direct=True)
+def list_interviews(candidate_name: str = "", limit: int = 5, user=None) -> str:
+    """
+    Lists upcoming interviews.
+    """
+    org = get_org(user)
+    if not org:
+        return err("User error.")
+    
+    interviews = Interview.objects.filter(organization=org).select_related('candidate')
+    
+    if candidate_name:
+        interviews = interviews.filter(candidate__name__icontains=candidate_name)
+
+    # Show upcoming first
+    interviews = interviews.filter(date_time__gte=timezone.now()).order_by('date_time')[:limit]
+
+    if not interviews.exists():
+        return ok("No upcoming interviews found.")
+
+    lines = ["**Upcoming Interviews:**"]
+    results = []
+    
+    for i in interviews:
+        local_time = timezone.localtime(i.date_time).strftime("%d %b %Y, %I:%M %p")
+        lines.append(f"• {local_time}: **{i.candidate.name}** (Status: {i.status})")
+        results.append({"id": i.id, "candidate": i.candidate.name, "time": str(i.date_time)})
+
+    return ok("\n".join(lines), results=results)
+
+
+@tool("list_leave_requests", return_direct=True)
+def list_leave_requests(status: str = "pending", user=None) -> str:
+    """
+    Lists leave requests. Default shows pending requests.
+    status options: 'pending', 'approved', 'rejected', 'all'.
+    """
+    org = get_org(user)
+    if not org:
+        return err("User error.")
+
+    leaves = LeaveRequest.objects.filter(organization=org)
+    
+    if status != 'all':
+        leaves = leaves.filter(status__iexact=status)
+        
+    leaves = leaves.order_by('-start_date')
+
+    if not leaves.exists():
+        return ok(f"No {status} leave requests found.")
+
+    lines = [f"Found {leaves.count()} {status} leave request(s):"]
+    results = []
+    
+    for l in leaves:
+        duration = (l.end_date - l.start_date).days + 1
+        lines.append(f"• **{l.employee.name}**: {l.leave_type} for {duration} day(s) ({l.start_date} to {l.end_date}) - {l.reason}")
+        results.append({"id": l.id, "employee": l.employee.name, "status": l.status})
+
+    return ok("\n".join(lines), results=results)

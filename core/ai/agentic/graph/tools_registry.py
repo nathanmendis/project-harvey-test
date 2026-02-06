@@ -2,12 +2,19 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
-from core.ai.agentic.tools.recruitment_tools import (
+from core.ai.agentic.tools.recruitment import (
     add_candidate,
     add_candidate_with_resume,
     schedule_interview,
     create_job_description,
-    shortlist_candidates
+    shortlist_candidates,
+    apply_leave,
+    list_candidates,
+    get_candidate_detail,
+    list_job_roles,
+    get_job_role_detail,
+    list_interviews,
+    list_leave_requests
 )
 from core.ai.rag.tools.search_tool import search_knowledge_base
 from core.ai.rag.tools.policy_search_tool import search_policies
@@ -24,6 +31,13 @@ AVAILABLE_TOOLS = [
     search_policies,
     send_email_tool,
     create_calendar_event_tool,
+    apply_leave,
+    list_candidates,
+    get_candidate_detail,
+    list_job_roles,
+    get_job_role_detail,
+    list_interviews,
+    list_leave_requests
 ]
 
 tool_registry = {t.name: t.func for t in AVAILABLE_TOOLS}

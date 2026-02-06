@@ -72,6 +72,34 @@ class VectorStore:
             print(f"Error deleting vectors for policy {policy_id}: {e}")
             return False
 
+    def delete_by_candidate_id(self, candidate_id):
+        """Deletes all vectors for a specific candidate from the vector store."""
+        try:
+            from sqlalchemy import text, create_engine
+            engine = create_engine(self.connection_string)
+            sql = text("DELETE FROM langchain_pg_embedding WHERE cmetadata->>'candidate_id' = :candidate_id")
+            with engine.connect() as conn:
+                conn.execute(sql, {"candidate_id": str(candidate_id)})
+                conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting vectors for candidate {candidate_id}: {e}")
+            return False
+
+    def delete_by_job_id(self, job_id):
+        """Deletes all vectors for a specific job role from the vector store."""
+        try:
+            from sqlalchemy import text, create_engine
+            engine = create_engine(self.connection_string)
+            sql = text("DELETE FROM langchain_pg_embedding WHERE cmetadata->>'job_id' = :job_id")
+            with engine.connect() as conn:
+                conn.execute(sql, {"job_id": str(job_id)})
+                conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error deleting vectors for job {job_id}: {e}")
+            return False
+
     def delete_all(self):
         """Clears all vectors in the collection."""
         try:

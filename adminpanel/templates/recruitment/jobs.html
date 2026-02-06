@@ -1,0 +1,49 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="py-8">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Job Roles</h1>
+            <p class="text-pink-400 text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
+        </div>
+        <a href="{% url 'add_job' %}"
+            class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-pink-600/20 font-bold transition-all hover:scale-[1.02] flex items-center gap-2">
+            <i class="fas fa-plus"></i> Add Job Role
+        </a>
+    </div>
+
+    {% if jobs %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for job in jobs %}
+        <div class="glass-card rounded-2xl p-6 border-white/10 hover:border-pink-500/30 transition-all">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-white mb-1">{{ job.title }}</h3>
+                    <p class="text-pink-400 text-sm font-medium">{{ job.department }}</p>
+                </div>
+                <div class="h-10 w-10 bg-pink-600/20 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-briefcase text-pink-400"></i>
+                </div>
+            </div>
+            <p class="text-gray-400 text-sm mb-4 line-clamp-2">{{ job.description }}</p>
+            <a href="{% url 'job_detail' job.id %}"
+                class="text-pink-400 hover:text-pink-300 transition-colors text-sm font-medium">
+                View Details →
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-card rounded-2xl p-12 border-white/10 text-center">
+        <i class="fas fa-briefcase text-gray-600 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-white mb-2">No Job Roles Yet</h3>
+        <p class="text-gray-400 mb-6">Create your first job posting to start recruiting.</p>
+        <a href="{% url 'add_job' %}"
+            class="inline-block bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-pink-600/20 font-bold transition-all hover:scale-[1.02]">
+            Create First Job
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

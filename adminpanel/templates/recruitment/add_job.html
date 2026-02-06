@@ -1,0 +1,73 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <div class="glass-card rounded-3xl p-8 border-white/10 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10">
+            <h2 class="text-3xl font-extrabold tracking-tight mb-2 text-white">Add Job Role</h2>
+            <p class="text-pink-400 text-xs font-bold uppercase tracking-widest mb-8">Organization: {{ org.name }}</p>
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">Job
+                        Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.department.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Department</label>
+                    {{ form.department }}
+                    {% if form.department.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.department.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.description.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.requirements.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Requirements</label>
+                    {{ form.requirements }}
+                    {% if form.requirements.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.requirements.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="pt-6 flex gap-4">
+                    <button type="submit"
+                        class="bg-pink-600 hover:bg-pink-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-pink-600/20 font-bold transition-all hover:scale-[1.02]">
+                        Add Job Role
+                    </button>
+                    <a href="{% url 'jobs' %}"
+                        class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-xl shadow-lg font-bold transition-all hover:scale-[1.02]">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

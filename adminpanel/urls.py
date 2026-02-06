@@ -19,6 +19,22 @@ urlpatterns = [
     path("policies/reindex/<uuid:policy_id>/", views.reindex_policy, name="reindex_policy"),
     path("policies/delete/<uuid:policy_id>/", views.delete_policy, name="delete_policy"),
     
+    # Recruitment Management
+    path("recruitment/", views.recruitment_dashboard, name="recruitment_dashboard"),
+    path("recruitment/candidates/", views.candidates, name="candidates"),
+    path("recruitment/candidates/add/", views.add_candidate, name="add_candidate"),
+    path("recruitment/candidates/<int:candidate_id>/", views.candidate_detail, name="candidate_detail"),
+    path("recruitment/jobs/", views.jobs, name="jobs"),
+    path("recruitment/jobs/add/", views.add_job, name="add_job"),
+    path("recruitment/jobs/<int:job_id>/", views.job_detail, name="job_detail"),
+    path("recruitment/interviews/", views.interviews, name="interviews"),
+    path("recruitment/interviews/<int:interview_id>/", views.interview_detail, name="interview_detail"),
+    
+    # Leave Management
+    path("leaves/", views.leaves, name="leaves"),
+    path("leaves/<int:leave_id>/", views.leave_detail, name="leave_detail"),
+    path("leaves/<int:leave_id>/approve/", views.approve_leave, name="approve_leave"),
+    
     # Org Settings
     path("settings/", views.org_settings, name="org_settings"),
 ]

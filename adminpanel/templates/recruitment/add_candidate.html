@@ -1,0 +1,95 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <div class="glass-card rounded-3xl p-8 border-white/10 relative overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
+        <div class="relative z-10">
+            <h2 class="text-3xl font-extrabold tracking-tight mb-2 text-white">Add Candidate</h2>
+            <p class="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8">Organization: {{ org.name }}</p>
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">Full
+                        Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.phone.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.phone.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.resume_file.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Resume File</label>
+                    {{ form.resume_file }}
+                    {% if form.resume_file.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.resume_file.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.source.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Source</label>
+                    {{ form.source }}
+                    {% if form.source.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.source.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.status.id_for_label }}"
+                        class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <p
+                        class="text-red-400 text-xs mt-2 bg-red-900/20 px-3 py-1 rounded inline-block border border-red-500/20">
+                        {{ form.status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="pt-6 flex gap-4">
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-indigo-600/20 font-bold transition-all hover:scale-[1.02]">
+                        Add Candidate
+                    </button>
+                    <a href="{% url 'candidates' %}"
+                        class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-xl shadow-lg font-bold transition-all hover:scale-[1.02]">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -58,7 +58,11 @@ class LeaveRequest(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     leave_type = models.CharField(max_length=50)
-    status = models.CharField(max_length=50)
+    LEAVE_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+    ]
+    status = models.CharField(max_length=50, choices=LEAVE_STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"{self.employee.username} - {self.leave_type} ({self.status})"
