@@ -52,7 +52,36 @@ Harvey.UI = {
         }
     },
 
-    createMessageBubble: (sender, text) => {
+    formatTime: (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    },
+
+    formatDate: (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        return date.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    },
+
+    renderConversationStart: (isoString) => {
+        const existing = document.getElementById('conversation-start-indicator');
+        if (existing) existing.remove();
+
+        const div = document.createElement('div');
+        div.id = 'conversation-start-indicator';
+        div.className = "text-center my-6 flex items-center justify-center gap-4 opacity-75";
+        div.innerHTML = `
+            <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent w-full max-w-xs"></div>
+            <span class="text-xs text-gray-400 font-medium whitespace-nowrap uppercase tracking-wider">
+                Conversation started ${Harvey.UI.formatDate(isoString)}
+            </span>
+            <div class="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent w-full max-w-xs"></div>
+        `;
+        Harvey.DOM.chatBox.prepend(div);
+    },
+
+    createMessageBubble: (sender, text, timestamp) => {
         const container = document.createElement("div");
         container.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up", "mb-4");
 
@@ -68,8 +97,11 @@ Harvey.UI = {
             icon.innerHTML = '<i class="fas fa-robot"></i>';
         }
 
+        const contentWrapper = document.createElement("div");
+        contentWrapper.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'} max-w-2xl`;
+
         const bubble = document.createElement("div");
-        bubble.classList.add("p-4", "rounded-2xl", "max-w-2xl", "leading-relaxed", "text-sm", "shadow-sm");
+        bubble.classList.add("p-4", "rounded-2xl", "leading-relaxed", "text-sm", "shadow-sm", "w-full");
         bubble.classList.add(sender === "user" ? "chat-bubble-user" : "chat-bubble-ai");
         if (sender === "user") bubble.classList.add("text-white");
 
@@ -78,19 +110,40 @@ Harvey.UI = {
         formatted = Harvey.Utils.linkify(formatted);
         bubble.innerHTML = formatted;
 
+        contentWrapper.appendChild(bubble);
+
+        // Timestamp
+        if (timestamp) {
+            const timeDiv = document.createElement("div");
+            timeDiv.className = "text-[10px] text-gray-500 mt-1 px-1 font-medium select-none";
+            timeDiv.innerText = Harvey.UI.formatTime(timestamp);
+            contentWrapper.appendChild(timeDiv);
+        }
+
         container.appendChild(icon);
-        container.appendChild(bubble);
+        container.appendChild(contentWrapper);
         return container;
     },
 
-    appendMessage: (sender, text) => {
-        const bubble = Harvey.UI.createMessageBubble(sender, text);
+    appendMessage: (sender, text, timestamp) => {
+        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp);
         Harvey.DOM.chatBox.appendChild(bubble);
         Harvey.UI.scrollToBottom();
     },
 
-    prependMessage: (sender, text) => {
-        const bubble = Harvey.UI.createMessageBubble(sender, text);
+    prependMessage: (sender, text, timestamp) => {
+        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp);
+
+        // Insert after start indicator if it exists (which is prepended securely)
+        // Actually, prepending works by insertBefore firstChild. 
+        // If we have a start indicator at the top, we should insert AFTER it? 
+        // No, fetchMessages renders Newest -> Oldest loop? 
+        // Wait, fetchMessages: data.messages is Oldest -> Newest (from my read of api.py reversed slice).
+        // fetchMessages prepends in reverse order?
+        // Let's check data.js in the next step.
+        // Standard prepending is fine, we just need to make sure start indicator is always at the TOP.
+        // So we will re-prepend start indicator if needed.
+
         Harvey.DOM.chatBox.insertBefore(bubble, Harvey.DOM.chatBox.firstChild);
     },
 

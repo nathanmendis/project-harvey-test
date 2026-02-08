@@ -38,7 +38,7 @@ Harvey.Main = {
 
         // Optimistic Update
         const displayPrompt = input.value.trim() || (Harvey.State.attachedFiles.length > 0 ? `Sent ${Harvey.State.attachedFiles.length} file(s)...` : "...");
-        Harvey.UI.appendMessage("user", displayPrompt);
+        Harvey.UI.appendMessage("user", displayPrompt, new Date().toISOString());
 
         input.value = "";
         Harvey.State.attachedFiles = [];

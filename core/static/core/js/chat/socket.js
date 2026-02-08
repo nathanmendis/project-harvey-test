@@ -26,7 +26,7 @@ Harvey.Socket = {
             Harvey.UI.showThinkingBubble();
         } else {
             Harvey.UI.removeThinkingBubble();
-            Harvey.UI.appendMessage("ai", responseText);
+            Harvey.UI.appendMessage("ai", responseText, data.timestamp);
         }
     },
 

@@ -87,7 +87,8 @@ def get_conversation_messages(request, conversation_id):
     return JsonResponse({
         "messages": data,
         "has_more": has_more,
-        "title": convo.title
+        "title": convo.title,
+        "created_at": convo.created_at.isoformat()
     })
 
 @csrf_exempt

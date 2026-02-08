@@ -154,12 +154,14 @@ Harvey.Data = {
 
             // Render Messages
             // data.messages is Oldest -> Newest
+            // Render Messages
+            // data.messages is Oldest -> Newest
             const renderAction = () => {
                 data.messages.forEach(msg => {
                     if (offset > 0) {
-                        Harvey.UI.prependMessage(msg.sender, msg.text);
+                        Harvey.UI.prependMessage(msg.sender, msg.text, msg.timestamp);
                     } else {
-                        Harvey.UI.appendMessage(msg.sender, msg.text);
+                        Harvey.UI.appendMessage(msg.sender, msg.text, msg.timestamp);
                     }
                 });
             };
@@ -173,6 +175,12 @@ Harvey.Data = {
 
             Harvey.State.hasMoreHistory = data.has_more;
             Harvey.State.messageOffset = offset + data.messages.length;
+
+            // If we have reached the end of history (no more messages), render start time
+            // Use the created_at from API (which we added)
+            if (!data.has_more && data.created_at) {
+                Harvey.UI.renderConversationStart(data.created_at);
+            }
 
         } catch (e) {
             console.error("Error fetching messages:", e);

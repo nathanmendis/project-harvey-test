@@ -46,5 +46,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "response": llm_response.response,
             "conversation_id": llm_response.conversation_id,
-            "title": llm_response.title
+            "title": llm_response.title,
+            "timestamp": llm_response.timestamp
         }))

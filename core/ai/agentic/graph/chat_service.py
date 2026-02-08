@@ -17,6 +17,7 @@ class LLMResponse(BaseModel):
     response: str
     conversation_id: int
     title: str
+    timestamp: str = ""
 
 
 def _content_to_text(content):
@@ -39,12 +40,13 @@ def _save_chat(convo, user, user_input, ai_output):
         conversation=convo,
         organization=user.organization,
     )
-    Message.objects.create(
+    ai_msg = Message.objects.create(
         sender="ai",
         message_text=ai_output,
         conversation=convo,
         organization=user.organization,
     )
+    return ai_msg
 
 
 def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
@@ -152,12 +154,14 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         run.save()
 
         # Save chat history
-        _save_chat(convo, user, prompt, final_text)
+        # Save chat history
+        ai_msg = _save_chat(convo, user, prompt, final_text)
 
         return LLMResponse(
             response=final_text,
             conversation_id=convo.id,
-            title=convo.title
+            title=convo.title,
+            timestamp=ai_msg.timestamp.isoformat()
         )
 
     except ResourceExhausted:
