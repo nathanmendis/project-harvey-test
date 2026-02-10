@@ -5,30 +5,50 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 ## ✨ Key Features (Version 3.0)
 
 ### 🤖 Intelligent "Hybrid Brain"
--   **Multi-Model Strategy**: Uses **Llama-3.1-8B** for instant routing and **Llama 4 Scout (17B)** for complex tool drafting and agentic reasoning.
--   **Deterministic Routing**: Intent classification runs at `temperature=0` using the 8B model.
--   **Advanced Token Optimization**: Implements **context flattening** and aggressive history pruning to maintain sub-second response times.
+
+- **Multi-Model Strategy**: Uses **Llama-3.1-8B** for instant routing and **Llama 4 Scout (17B)** for complex tool drafting and agentic reasoning.
+- **Deterministic Routing**: Intent classification runs at `temperature=0` using the 8B model.
+- **Advanced Token Optimization**: Implements **context flattening** and aggressive history pruning to maintain sub-second response times.
 
 ### 📅 Recruitment & Calendar Automation
--   **Enhanced Tool Resolution**: Directly resolve names/usernames to emails with support for **multiple match detection**.
--   **Google Calendar Sync**: The `schedule_interview` tool automatically creates invites on your calendar and returns clickable meeting links.
--   **IST Native**: Full support for **Indian Standard Time (IST)** localization.
+
+- **Enhanced Tool Resolution**: Directly resolve names/usernames to emails with support for **multiple match detection**.
+- **Google Calendar Sync**: The `schedule_interview` tool automatically creates invites on your calendar and returns clickable meeting links.
+- **IST Native**: Full support for **Indian Standard Time (IST)** localization.
 
 ### 📚 RAG (Retrieval-Augmented Generation)
--   **PGVector Knowledge Base**: Semantic search using **PostgreSQL + pgvector** and **PyTorch-based all-MiniLM-L6-v2** embeddings.
--   **Policy Assistant**: Index PDFs or URLs and get answers with source attribution.
+
+- **PGVector Knowledge Base**: Semantic search using **PostgreSQL + pgvector** and **PyTorch-based all-MiniLM-L6-v2** embeddings.
+- **Policy Assistant**: Index PDFs or URLs and get answers with source attribution.
 
 ### 🔐 Enterprise-Grade Identity
--   **Two-Tier OAuth**: Decouples simple user login from system-wide Gmail/Calendar capacities, ensuring the system can "act" reliably via a System Account.
--   **Multi-tenant Ready**: Secure data isolation at the ORM level, ensuring every response is scoped to your organization.
+
+- **Two-Tier OAuth**: Decouples simple user login from system-wide Gmail/Calendar capacities, ensuring the system can "act" reliably via a System Account.
+- **Multi-tenant Ready**: Secure data isolation at the ORM level, ensuring every response is scoped to your organization.
 
 ## 🏗️ Technical Stack
 
--   **Backend**: Django 5.1 (ASGI/Daphne)
--   **Agent Framework**: LangGraph (Stateful State Machines)
--   **LLMs**: Groq (Llama-3.x) & Google Gemini (Fallback)
--   **Vector Store**: PGVector (384-dim optimized)
--   **Caching/Bus**: Redis
+- **Backend**: Django 5.1 (ASGI/Daphne)
+- **Agent Framework**: LangGraph (Stateful State Machines)
+- **LLMs**: Groq (Llama-3.x) & Google Gemini (Fallback)
+- **Vector Store**: PGVector (384-dim optimized)
+- **Caching/Bus**: Redis
+
+## 🔗 HR System Integration
+
+Harvey supports integration with existing HRMS platforms (Workday, BambooHR, SAP SuccessFactors, etc.) using a **scheduled batch sync architecture** for optimal performance and data security.
+
+**Key Benefits:**
+
+- ⚡ Sub-second response times (local data copy)
+- 🔒 Data sovereignty and compliance (GDPR-ready)
+- 🛡️ Offline capability (works during HRMS downtime)
+- 💰 Cost-effective (minimal API calls)
+
+**Documentation:**
+
+- [HR Integration Architecture](Documentiation/HR_INTEGRATION.md) - Complete implementation guide
+- [Visual Diagrams](Documentiation/HR_INTEGRATION_DIAGRAMS.md) - Architecture diagrams and workflows
 
 For a deep dive into the system design and agent workflow, see [learn.md](learn.md) or [TECHNICAL_DOCS.md](TECHNICAL_DOCS.md).
 
