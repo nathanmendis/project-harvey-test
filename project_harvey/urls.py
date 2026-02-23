@@ -51,4 +51,5 @@ urlpatterns = [
     path('integrations/', include('integrations.urls')),
     path('api/', include(router.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
+    path('mock-api/', include('mock_hrms.urls')),
 ]

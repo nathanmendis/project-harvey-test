@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'core',
     'adminpanel',
     'integrations',
+    'mock_hrms',
 ]
 
 MIDDLEWARE = [
@@ -91,11 +92,13 @@ WSGI_APPLICATION = 'project_harvey.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'project_harvey'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        #'NAME': os.environ.get('DB_NAME', 'project_harvey'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
         'HOST': os.environ.get('DB_HOST', 'localhost'),
