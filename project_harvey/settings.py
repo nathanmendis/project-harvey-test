@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'core',
     'adminpanel',
     'integrations',
+    'encrypted_model_fields',
 ]
 
 MIDDLEWARE = [
@@ -212,3 +213,16 @@ LOGGING = {
     },
 }
 
+# Key used for database field encryption (e.g. HRMS API Tokens)
+FIELD_ENCRYPTION_KEY = os.environ.get('FIELD_ENCRYPTION_KEY', 'x_U-QpK_xK4v4x8Qh1X2z3A4b5C6d7E8f9G0H1I2j3K=')
+
+# ---- Celery ----------------------------------------------------------------
+# Broker + backend: uses the Docker Redis service when CELERY_BROKER_URL is
+# injected by docker-compose, otherwise falls back to the locally-exposed Redis.
+_REDIS = os.environ.get('CELERY_BROKER_URL', os.environ.get('REDIS_URL', 'redis://localhost:6379/1'))
+CELERY_BROKER_URL = _REDIS
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', _REDIS)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# ---------------------------------------------------------------------------

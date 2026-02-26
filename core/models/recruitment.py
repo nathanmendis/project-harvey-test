@@ -92,14 +92,40 @@ class CalendarEvent(models.Model):
         return f"{self.title} ({self.organization.name})"
 
 
-class HRMSIntegrationConfig(models.Model):
-    organization = models.ForeignKey(
-        Organization, on_delete=models.CASCADE, related_name="hrms_configs"
-    )
-    hrms_type = models.CharField(max_length=50)
-    base_url = models.URLField()
-    auth_token = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=False)
+from encrypted_model_fields.fields import EncryptedCharField 
+
+class HRMSSystemConfig(models.Model):
+    organization = models.OneToOneField("Organization", on_delete=models.CASCADE, related_name="hrms_system_config")
+    hrms_type = models.CharField(max_length=50, default='harvey')
+    is_active = models.BooleanField(default=True)
+    
+    # Encrypted Credentials
+    base_url = models.URLField(help_text="Base URL for the HRMS API")
+    auth_token = EncryptedCharField(max_length=255, help_text="Encrypted API Access Token")
+    
+    # Dynamic Endpoints Map
+    departments_endpoint = models.CharField(max_length=255, default="/api/v1/departments")
+    employees_endpoint = models.CharField(max_length=255, default="/api/v1/employees")
+    jobs_endpoint = models.CharField(max_length=255, default="/api/v1/jobs")
+    candidates_endpoint = models.CharField(max_length=255, default="/api/v1/candidates")
+    interviews_endpoint = models.CharField(max_length=255, default="/api/v1/interviews")
+    onboarding_endpoint = models.CharField(max_length=255, default="/api/v1/onboarding")
+
+    # Security Validation
+    edit_token = models.CharField(max_length=64, null=True, blank=True)
+    edit_token_expires_at = models.DateTimeField(null=True, blank=True)
+
+    def generate_edit_token(self):
+        """Generates a secure 16-character token valid for 24 hours."""
+        from django.utils import timezone
+        import secrets
+        import string
+        
+        characters = string.ascii_letters + string.digits
+        self.edit_token = ''.join(secrets.choice(characters) for _ in range(16))
+        self.edit_token_expires_at = timezone.now() + timezone.timedelta(days=1)
+        self.save()
+        return self.edit_token
 
     def __str__(self):
         return f"{self.hrms_type} Config ({self.organization.name})"

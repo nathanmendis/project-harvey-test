@@ -1,0 +1,294 @@
+{% extends 'admin_base.html' %} {% load static %} {% block content %}
+<div class="space-y-8">
+  <!-- Header -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1
+        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400"
+      >
+        HRMS Integration
+      </h1>
+      <p class="text-gray-400 mt-2">
+        Manage your Human Resource Management System bindings securely.
+      </p>
+    </div>
+
+    {% if is_active %}
+    <div class="flex gap-3">
+      <form method="POST" action="{% url 'hrms_integration' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="trigger_hrms_sync" />
+        <button
+          type="submit"
+          {% if is_sync_disabled %}disabled{% endif %}
+          class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border flex items-center gap-2 {% if is_sync_disabled %} bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed {% else %} bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/25 border-indigo-400/20 {% endif %}"
+        >
+          <i class="fas fa-sync-alt {% if is_sync_running %}animate-spin text-indigo-300{% endif %}"></i>
+          {% if is_sync_running %} Syncing... {% elif is_sync_disabled %} Sync
+          Cooldown ({{ minutes_remaining }}m) {% else %} Sync Now {% endif %}
+        </button>
+      </form>
+
+      {% if is_sync_running %}
+      <form method="POST" action="{% url 'hrms_integration' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="force_stop_sync" />
+        <button
+          type="submit"
+          onclick="return confirm('Force-stop the running sync? Partial data already written will be kept.');"
+          class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border flex items-center gap-2 bg-red-700 hover:bg-red-600 text-white shadow-red-500/25 border-red-500/30"
+        >
+          <i class="fas fa-stop-circle"></i> Force Stop
+        </button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Configuration Card -->
+  <div class="glass-card rounded-2xl p-8 border-l-4 border-l-purple-500">
+    <div class="flex items-center gap-4 mb-6">
+      <div
+        class="h-10 w-10 bg-purple-500/10 rounded-lg flex items-center justify-center border border-purple-500/20"
+      >
+        <i class="fas fa-network-wired text-purple-400"></i>
+      </div>
+      <div>
+        <h2 class="text-xl font-bold text-white">System Route Mapping</h2>
+        <p class="text-sm text-gray-400">
+          Provide your system URLs and token. You must provide a valid internal
+          Edit Token to unlock changes.
+        </p>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url 'hrms_integration' %}" class="space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+        <!-- Removed Blur Overlay -->
+
+        <!-- Base Fields -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-400 mb-2"
+            >HRMS Type</label
+          >
+          <select
+            name="hrms_type"
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-xl px-4 py-3 {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+          >
+            <option
+              value="harvey"
+              {% if config.hrms_type == 'harvey' %}selected{% endif %}
+            >
+              Harvey Mock HRMS
+            </option>
+            <option
+              value="workday"
+              {% if config.hrms_type == 'workday' %}selected{% endif %}
+              disabled
+            >
+              Workday (Coming Soon)
+            </option>
+          </select>
+          {% if is_active and not is_unlocked %}
+          <input type="hidden" name="hrms_type" value="{{ config.hrms_type }}">
+          {% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2"
+            >Base Application URL</label
+          >
+          <input
+            type="url"
+            name="base_url"
+            value="{{ config.base_url|default:'' }}"
+            placeholder="https://api.system.com"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-xl px-4 py-3 placeholder-gray-600 {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2"
+            >Authorization Token (Hidden)</label
+          >
+          <div class="relative">
+            <input
+              type="password"
+              id="auth_token"
+              name="auth_token"
+              value="{% if is_active %}********{% endif %}"
+              placeholder="Enter Secret Token"
+              required
+              {% if is_active and not is_unlocked %}disabled{% endif %}
+              class="w-full rounded-xl px-4 py-3 pr-12 placeholder-gray-600 font-mono tracking-widest {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+            />
+            <button
+              type="button"
+              onclick="toggleAuthToken()"
+              {% if is_active and not is_unlocked %}disabled{% endif %}
+              class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-500"
+            >
+              <i class="fas fa-eye" id="auth_token_icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Endpoint Maps -->
+        <div class="md:col-span-2 mt-4">
+          <h3
+            class="text-sm font-semibold text-gray-300 border-b border-white/10 pb-2 mb-4"
+          >
+            API Endpoint Routes
+          </h3>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Departments Endpoint</label
+          >
+          <input
+            type="text"
+            name="departments_endpoint"
+            value="{{ config.departments_endpoint|default:'/api/v1/departments' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Employees Endpoint</label
+          >
+          <input
+            type="text"
+            name="employees_endpoint"
+            value="{{ config.employees_endpoint|default:'/api/v1/employees' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Jobs Endpoint</label
+          >
+          <input
+            type="text"
+            name="jobs_endpoint"
+            value="{{ config.jobs_endpoint|default:'/api/v1/jobs' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Candidates Endpoint</label
+          >
+          <input
+            type="text"
+            name="candidates_endpoint"
+            value="{{ config.candidates_endpoint|default:'/api/v1/candidates' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Interviews Endpoint</label
+          >
+          <input
+            type="text"
+            name="interviews_endpoint"
+            value="{{ config.interviews_endpoint|default:'/api/v1/interviews' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1"
+            >Onboarding Endpoint</label
+          >
+          <input
+            type="text"
+            name="onboarding_endpoint"
+            value="{{ config.onboarding_endpoint|default:'/api/v1/onboarding' }}"
+            required
+            {% if is_active and not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+          />
+        </div>
+      </div>
+
+      {% if is_active and not is_unlocked %}
+      <!-- Unlock Configuration -->
+      <div class="mt-8 pt-6 border-t border-white/10">
+        <div class="bg-purple-500/5 border border-purple-500/20 rounded-xl p-5 flex flex-col md:flex-row items-center gap-4 justify-between">
+          <div>
+            <h3 class="text-white font-medium flex items-center gap-2">
+              <i class="fas fa-lock text-purple-400"></i> Locked Configuration
+            </h3>
+            <p class="text-xs text-gray-400 mt-1">
+              Provide a valid Edit Token to unlock settings and allow changes.
+            </p>
+          </div>
+          <div class="w-full md:w-1/2 flex items-center gap-2">
+            <input
+              type="text"
+              name="edit_token"
+              placeholder="16-character token"
+              required
+              class="w-full bg-slate-950 border border-purple-500/30 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-purple-500 transition-all text-center font-mono"
+            />
+            <button
+              type="submit"
+              name="action"
+              value="unlock_hrms_config"
+              class="px-6 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-all shadow border border-purple-400/20 whitespace-nowrap"
+            >
+              Unlock
+            </button>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <!-- Save Configuration -->
+      <div class="flex justify-end pt-8">
+        <button
+          type="submit"
+          name="action"
+          value="update_hrms_config"
+          class="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all duration-200 shadow-lg shadow-purple-500/25 border border-purple-400/20 flex items-center gap-2"
+        >
+          <i class="fas fa-save"></i> Save Configuration
+        </button>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleAuthToken() {
+    const input = document.getElementById('auth_token');
+    const icon = document.getElementById('auth_token_icon');
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  }
+</script>
+{% endblock %}

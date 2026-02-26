@@ -33,3 +33,4 @@ from .leaves import (
     leave_detail,
     approve_leave
 )
+from .hrms_settings import hrms_integration

@@ -5,7 +5,7 @@ from django.contrib.auth.hashers import make_password
 from .models import Organization, User, Policy, PolicyChunk
 from .models.recruitment import (
     Candidate, JobRole, Interview, EmailLog, 
-    CalendarEvent, LeaveRequest, CandidateJobScore
+    CalendarEvent, LeaveRequest, CandidateJobScore, HRMSSystemConfig
 )
 from core.ai.rag.policy_indexer import PolicyIndexer
 import threading
@@ -31,12 +31,40 @@ class OrganizationAdmin(admin.ModelAdmin):
     search_fields = ("name", "org_id", "domain")
     inlines = [UserInline]
 
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('<int:org_id>/generate-hrms-token/', self.admin_site.admin_view(self.generate_hrms_token_view), name='core_organization_generate_hrms_token'),
+        ]
+        return custom_urls + urls
+
+    def generate_hrms_token_view(self, request, org_id):
+        from django.shortcuts import get_object_or_404, redirect
+        from .models.recruitment import HRMSSystemConfig
+        org = get_object_or_404(Organization, pk=org_id)
+        config, created = HRMSSystemConfig.objects.get_or_create(organization=org)
+        token = config.generate_edit_token()
+        self.message_user(request, f"Generated new HRMS Edit Token for {org.name}. Token: {token} (Valid for 24h)")
+        return redirect('admin:core_organization_changelist')
+
     def add_org_admin_button(self, obj):
-        """Button to create Org Admins directly from org page."""
+        """Action buttons directly on the org page."""
+        from django.urls import reverse
+        try:
+            token_url = reverse('admin:core_organization_generate_hrms_token', args=[obj.id])
+        except Exception:
+            token_url = "#"
+            
         return format_html(
+            f'<div style="display:flex; gap:8px;">'
             f'<a href="/admin/core/user/add/?organization={obj.id}&role=org_admin" '
-            f'style="background-color:#4f46e5;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;">'
-            f'➕ Add Org Admin</a>'
+            f'style="background-color:#4f46e5;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
+            f' Add Org Admin</a>'
+            f'<a href="{token_url}" '
+            f'style="background-color:#10b981;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
+            f' Gen HRMS Token</a>'
+            f'</div>'
         )
     add_org_admin_button.short_description = "Actions"
 
@@ -151,6 +179,20 @@ class CandidateJobScoreAdmin(admin.ModelAdmin):
     search_fields = ("candidate__name", "job_role__title")
     readonly_fields = ("created_at",)
 
+
+@admin.register(HRMSSystemConfig)
+class HRMSSystemConfigAdmin(admin.ModelAdmin):
+    list_display = ("organization", "hrms_type", "is_active", "edit_token", "edit_token_expires_at")
+    list_filter = ("hrms_type", "is_active")
+    search_fields = ("organization__name", "edit_token")
+    readonly_fields = ("edit_token", "edit_token_expires_at")
+    actions = ["generate_new_edit_token"]
+
+    def generate_new_edit_token(self, request, queryset):
+        for config in queryset:
+            token = config.generate_edit_token()
+        self.message_user(request, f"Generated new edit tokens for {queryset.count()} organization(s).")
+    generate_new_edit_token.short_description = "Generate fresh 24h Edit Token"
 
 # ─────────────────────────────
 # Customize Admin Branding

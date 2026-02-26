@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Project Harvey Admin</title>
 
-  <!-- TailwindCSS -->
   {% tailwind_css %}
 
   <!-- FontAwesome Icons -->
@@ -194,6 +193,13 @@
                   class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                   <i class="fas fa-sliders-h w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
                   <span class="font-medium text-sm">Settings</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'hrms_integration' %}"
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'hrms_integration' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i class="fas fa-network-wired w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
+                  <span class="font-medium text-sm">HRMS Integration</span>
                 </a>
               </li>
             </ul>

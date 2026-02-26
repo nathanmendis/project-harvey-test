@@ -304,21 +304,21 @@ graph TB
         A1[Harvey Request] --> A2[Query HRMS API]
         A2 --> A3[Wait for Response]
         A3 --> A4[Return to User]
-        A5[❌ High Latency<br/>❌ API Dependency<br/>❌ Higher Costs]
+        A5[ High Latency<br/> API Dependency<br/> Higher Costs]
     end
 
     subgraph "Pattern B: Batch Sync ⭐"
         B1[Harvey Request] --> B2[Query Local DB]
         B2 --> B3[Instant Response]
         B4[Background: Celery] -.->|Periodic Sync| B5[Update Local DB]
-        B6[✅ Sub-second Response<br/>✅ Offline Capable<br/>✅ Cost Effective<br/>✅ Data Sovereignty]
+        B6[ Sub-second Response<br/> Offline Capable<br/> Cost Effective<br/> Data Sovereignty]
     end
 
     subgraph "Pattern C: Webhook Sync"
         C1[HRMS Event] --> C2[Webhook to Harvey]
         C2 --> C3[Update Local DB]
         C4[Harvey Request] --> C5[Query Local DB]
-        C6[⚠️ Requires HRMS Support<br/>✅ Near Real-time<br/>⚠️ Complex Setup]
+        C6[ Requires HRMS Support<br/> Near Real-time<br/> Complex Setup]
     end
 
     style B1 fill:#4CAF50,stroke:#2E7D32,color:#fff
@@ -388,16 +388,16 @@ graph TB
 
 ### Performance Comparison
 
-| Metric                 | Pattern A (Real-time) | Pattern B (Batch) ⭐ | Pattern C (Webhook) |
+| Metric                 | Pattern A (Real-time) | Pattern B (Batch)    | Pattern C (Webhook) |
 | ---------------------- | --------------------- | -------------------- | ------------------- |
 | **Query Latency**      | 500-2000ms            | <50ms                | <50ms               |
-| **Offline Capability** | ❌ No                 | ✅ Yes               | ✅ Yes              |
+| **Offline Capability** | No                    | Yes                  | Yes                 |
 | **API Calls/Day**      | 10,000+               | 50-100               | Event-based         |
 | **Data Freshness**     | Real-time             | 30min - 2hr          | Near real-time      |
 | **Setup Complexity**   | Low                   | Medium               | High                |
 | **HRMS Dependency**    | High                  | Low                  | Medium              |
 | **Cost**               | High                  | Low                  | Medium              |
-| **Production Ready**   | ⚠️ Demo Only          | ✅ Recommended       | ⚠️ If Supported     |
+| **Production Ready**   | Demo Only             | Recommended          | If Supported        
 
 ### Security & Compliance
 

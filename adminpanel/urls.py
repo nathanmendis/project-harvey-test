@@ -37,4 +37,5 @@ urlpatterns = [
     
     # Org Settings
     path("settings/", views.org_settings, name="org_settings"),
+    path("settings/hrms/", views.hrms_integration, name="hrms_integration"),
 ]
