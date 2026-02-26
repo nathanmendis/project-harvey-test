@@ -1,0 +1,133 @@
+{% comment %}Partial: Add Endpoint Modal + JS{% endcomment %}
+<div id="add-endpoint-modal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div class="glass-card rounded-2xl border border-white/10 w-full max-w-2xl mx-4 p-8 space-y-6 shadow-2xl">
+        <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-plug text-indigo-400"></i> Add Custom Endpoint
+            </h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form method="POST" action="{% url 'hrms_integration' %}" class="space-y-5">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_endpoint">
+
+            <!-- Step 1 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-300 mb-1">1. API Endpoint Path</label>
+                <input type="text" name="endpoint_url" placeholder="/api/v2/leaves"
+                    class="w-full bg-slate-900/70 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+            </div>
+
+            <!-- Step 2 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-300 mb-1">2. Target Harvey Model</label>
+                <select id="ep-model" name="target_model" onchange="onModelChange()"
+                    class="w-full bg-slate-900/70 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all">
+                    <option value="">— Select a model —</option>
+                    {% for val, label in model_choices %}
+                    <option value="{{ val }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <div id="schema-hint" class="mt-2 hidden text-xs text-gray-500 flex flex-wrap gap-1"></div>
+            </div>
+
+            <!-- Step 3 -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-300 mb-1">
+                    3. Paste Sample JSON Response
+                    <span class="text-gray-500 font-normal">(single record or array)</span>
+                </label>
+                <textarea id="ep-json" name="sample_json" rows="6"
+                    placeholder='{"name": "Riya Patel", "email": "riya@example.com", ...}'
+                    class="w-full bg-slate-900/70 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm placeholder-gray-600 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"></textarea>
+                <div id="validation-result" class="mt-3 p-4 rounded-xl hidden text-xs space-y-1"></div>
+                <button type="button" onclick="validateSample()"
+                    class="mt-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-indigo-300 text-xs font-bold rounded-lg border border-indigo-500/20 transition-all">
+                    <i class="fas fa-check-circle mr-1"></i> Check Compatibility
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-2 border-t border-white/10">
+                <button type="button" onclick="closeModal()"
+                    class="px-5 py-2.5 text-gray-400 hover:text-white text-sm transition-colors">Cancel</button>
+                <button type="submit"
+                    class="px-7 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow border border-indigo-400/20 flex items-center gap-2">
+                    <i class="fas fa-save"></i> Save Endpoint
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const MODEL_SCHEMAS = {{ model_schemas_json| safe }};
+    const CSRF = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    function closeModal() {
+        document.getElementById('add-endpoint-modal').classList.add('hidden');
+        const vr = document.getElementById('validation-result');
+        if (vr) { vr.classList.add('hidden'); }
+        const sh = document.getElementById('schema-hint');
+        if (sh) { sh.classList.add('hidden'); }
+    }
+
+    function onModelChange() {
+        const model = document.getElementById('ep-model').value;
+        const hint = document.getElementById('schema-hint');
+        if (!model || !MODEL_SCHEMAS[model]) { hint.classList.add('hidden'); return; }
+        const schema = MODEL_SCHEMAS[model];
+        const req = schema.required.map(f => `<span class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20">${f}*</span>`).join('');
+        const opt = (schema.optional || []).map(f => `<span class="px-1.5 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">${f}</span>`).join('');
+        hint.innerHTML = `<span class="text-gray-500 mr-1">Required:</span>${req}${opt ? '<span class="text-gray-500 mx-1">Optional:</span>' + opt : ''}`;
+        hint.classList.remove('hidden');
+    }
+
+    async function validateSample() {
+        const model = document.getElementById('ep-model').value;
+        const json = document.getElementById('ep-json').value;
+        const resultEl = document.getElementById('validation-result');
+        if (!model) { alert('Please select a Target Model first.'); return; }
+        if (!json.trim()) { alert('Please paste a sample JSON response first.'); return; }
+
+        const fd = new FormData();
+        fd.append('action', 'validate_endpoint');
+        fd.append('target_model', model);
+        fd.append('sample_json', json);
+        fd.append('csrfmiddlewaretoken', CSRF);
+
+        const res = await fetch(window.location.pathname, { method: 'POST', body: fd });
+        const data = await res.json();
+        resultEl.classList.remove('hidden');
+
+        if (data.error) {
+            resultEl.className = 'mt-3 p-4 rounded-xl text-xs space-y-1 bg-red-500/10 border border-red-500/20 text-red-300';
+            resultEl.innerHTML = `<p class="font-bold"><i class="fas fa-exclamation-circle mr-1"></i> Error</p><p>${data.error}</p>`;
+        } else if (data.valid) {
+            resultEl.className = 'mt-3 p-4 rounded-xl text-xs space-y-1 bg-green-500/10 border border-green-500/20 text-green-300';
+            resultEl.innerHTML = `<p class="font-bold"><i class="fas fa-check-circle mr-1"></i> Compatible</p>
+        <p>Required fields found: <strong>${data.matched.join(', ')}</strong></p>
+        ${data.unknown.length ? '<p>Unknown keys (ignored): ' + data.unknown.join(', ') + '</p>' : ''}`;
+        } else {
+            resultEl.className = 'mt-3 p-4 rounded-xl text-xs space-y-1 bg-red-500/10 border border-red-500/20 text-red-300';
+            resultEl.innerHTML = `<p class="font-bold"><i class="fas fa-times-circle mr-1"></i> Incompatible</p>
+        <p>Missing required fields: <strong>${data.missing.join(', ')}</strong></p>
+        ${data.matched.length ? '<p>Found: ' + data.matched.join(', ') + '</p>' : ''}`;
+        }
+    }
+
+    function toggleAuthToken() {
+        const input = document.getElementById('auth_token');
+        const icon = document.getElementById('auth_token_icon');
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>

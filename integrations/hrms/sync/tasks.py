@@ -1,10 +1,11 @@
 from celery import shared_task
 from django.utils import timezone
 from core.models.organization import Organization, User
-from core.models.recruitment import Candidate, Interview, LeaveRequest
+from core.models.recruitment import Candidate, Interview, LeaveRequest, JobRole, HRMSSystemConfig, HRMSEndpointMapping
 from integrations.hrms.service import HRMSIntegrationService
 from integrations.hrms.sync.tracker import SyncStatusTracker
 import logging
+import httpx
 from asgiref.sync import async_to_sync
 
 logger = logging.getLogger(__name__)
@@ -134,6 +135,18 @@ def sync_organization_data(self, org_id: int):
             
         tracker.complete_sync(sync_id, total_employees + total_candidates + total_interviews)
         logger.info(f"Successfully synced batch for org {org_id} (Emp: {total_employees}, Cand: {total_candidates}, Int: {total_interviews})")
+
+        # ── Dynamic Endpoint Mappings ─────────────────────────────────
+        if _check_stop():
+            return
+        config = HRMSSystemConfig.objects.filter(organization_id=org_id, is_active=True).first()
+        if config:
+            active_mappings = config.endpoint_mappings.filter(is_active=True)
+            for mapping in active_mappings:
+                try:
+                    _sync_dynamic_endpoint(config, mapping, org_id)
+                except Exception as e:
+                    logger.error(f"Dynamic endpoint sync failed [{mapping.endpoint_url}]: {e}")
         
     except Exception as e:
         # Don't mark as failed if we were force-stopped mid-task
@@ -144,3 +157,126 @@ def sync_organization_data(self, org_id: int):
         tracker.fail_sync(sync_id, str(e))
         logger.error(f"Batch sync failed for org {org_id}: {str(e)}")
         raise self.retry(exc=e, countdown=60)
+
+
+def _sync_dynamic_endpoint(config: HRMSSystemConfig, mapping: HRMSEndpointMapping, org_id: int):
+    """Fetch data from a custom mapping endpoint and upsert into the correct Harvey model."""
+    url = f"{config.base_url.rstrip('/')}{mapping.endpoint_url}"
+    headers = {"Authorization": f"Bearer {config.auth_token}"}
+
+    try:
+        response = httpx.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        logger.error(f"Failed to fetch {url}: {e}")
+        return
+
+    # Accept list or paginated { "data": [...] }
+    records = data if isinstance(data, list) else data.get("data", [])
+
+    if not records:
+        logger.info(f"Dynamic endpoint {url} returned no records.")
+        return
+
+    dispatchers = {
+        "Employee":     _upsert_employee,
+        "Candidate":    _upsert_candidate,
+        "LeaveRequest": _upsert_leave_request,
+        "JobRole":      _upsert_job_role,
+        "Interview":    None,   # Interviews need cross-references; skip in dynamic path for now
+    }
+
+    dispatcher = dispatchers.get(mapping.target_model)
+    if dispatcher is None:
+        logger.warning(f"No dynamic dispatcher for model '{mapping.target_model}'.")
+        return
+
+    count = 0
+    for record in records:
+        try:
+            dispatcher(record, org_id)
+            count += 1
+        except Exception as e:
+            logger.warning(f"Skipping record in {mapping.endpoint_url}: {e}")
+
+    logger.info(f"Dynamic endpoint [{mapping.target_model}] {url}: synced {count} records.")
+
+
+def _upsert_employee(record: dict, org_id: int):
+    email = record.get("email")
+    if not email:
+        raise ValueError("Employee record missing 'email' field")
+    User.objects.update_or_create(
+        email=email,
+        organization_id=org_id,
+        defaults={
+            "username": email,
+            "first_name": record.get("first_name", ""),
+            "last_name": record.get("last_name", ""),
+            "name": record.get("name") or f"{record.get('first_name','')} {record.get('last_name','')}".strip(),
+        }
+    )
+
+
+def _upsert_candidate(record: dict, org_id: int):
+    email = record.get("email")
+    if not email:
+        raise ValueError("Candidate record missing 'email' field")
+    Candidate.objects.update_or_create(
+        email=email,
+        organization_id=org_id,
+        defaults={
+            "name": record.get("name") or f"{record.get('first_name','')} {record.get('last_name','')}".strip(),
+            "phone": record.get("phone"),
+            "status": record.get("status", "pending"),
+            "source": record.get("source", "dynamic_sync"),
+            "skills": record.get("skills", []),
+        }
+    )
+
+
+def _upsert_leave_request(record: dict, org_id: int):
+    from dateutil import parser as dateparser
+    employee_id = record.get("employee_id") or record.get("employee_email")
+    if not employee_id:
+        raise ValueError("LeaveRequest record missing 'employee_id' or 'employee_email'")
+
+    employee = User.objects.filter(
+        organization_id=org_id
+    ).filter(
+        id=employee_id if str(employee_id).isdigit() else None
+    ).first() or User.objects.filter(email=employee_id, organization_id=org_id).first()
+
+    if not employee:
+        raise ValueError(f"No employee found for id/email: {employee_id}")
+
+    start = dateparser.parse(record["start_date"]) if record.get("start_date") else None
+    end = dateparser.parse(record["end_date"]) if record.get("end_date") else None
+
+    LeaveRequest.objects.update_or_create(
+        employee=employee,
+        start_date=start,
+        organization_id=org_id,
+        defaults={
+            "end_date": end,
+            "leave_type": record.get("leave_type", "other"),
+            "status": record.get("status", "pending"),
+        }
+    )
+
+
+def _upsert_job_role(record: dict, org_id: int):
+    title = record.get("title")
+    if not title:
+        raise ValueError("JobRole record missing 'title' field")
+    JobRole.objects.update_or_create(
+        title=title,
+        organization_id=org_id,
+        defaults={
+            "department": record.get("department", ""),
+            "description": record.get("description", ""),
+            "requirements": record.get("requirements", ""),
+        }
+    )
+

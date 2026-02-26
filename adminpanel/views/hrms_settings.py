@@ -1,11 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
-from core.models.recruitment import HRMSSystemConfig
+from django.http import JsonResponse
+from core.models.recruitment import HRMSSystemConfig, HRMSEndpointMapping
 from integrations.hrms.sync.tracker import SyncStatusTracker
 from integrations.hrms.sync.tasks import sync_organization_data
+from integrations.hrms.schemas import MODEL_SCHEMAS, validate_sample_json
 from .utils import is_org_admin
+import json
 
 @login_required
 @user_passes_test(is_org_admin)
@@ -112,6 +115,66 @@ def hrms_integration(request):
                     
             return redirect('hrms_integration')
 
+        elif action == "validate_endpoint":
+            # AJAX: validate sample JSON against a target model schema
+            target_model = request.POST.get("target_model", "")
+            sample_json = request.POST.get("sample_json", "")
+            result = validate_sample_json(target_model, sample_json)
+            return JsonResponse(result)
+
+        elif action == "add_endpoint":
+            if not request.session.get('hrms_config_unlocked'):
+                messages.error(request, "Configuration not unlocked. Please unlock before adding endpoints.")
+                return redirect('hrms_integration')
+
+            endpoint_url = request.POST.get("endpoint_url", "").strip()
+            target_model = request.POST.get("target_model", "").strip()
+            sample_json = request.POST.get("sample_json", "").strip()
+
+            if not endpoint_url or not target_model:
+                messages.error(request, "Endpoint URL and Target Model are required.")
+                return redirect('hrms_integration')
+
+            # Validate JSON compatibility if sample provided
+            if sample_json:
+                result = validate_sample_json(target_model, sample_json)
+                if not result.get("valid"):
+                    missing = result.get("missing", [])
+                    messages.error(request, f"Incompatible sample JSON. Missing required fields: {', '.join(missing)}")
+                    return redirect('hrms_integration')
+
+            obj, created = HRMSEndpointMapping.objects.get_or_create(
+                hrms_config=config,
+                endpoint_url=endpoint_url,
+                defaults={
+                    'target_model': target_model,
+                    'sample_json': sample_json or None,
+                    'is_active': True,
+                }
+            )
+            if not created:
+                messages.warning(request, f"An endpoint for '{endpoint_url}' already exists.")
+            else:
+                messages.success(request, f"Endpoint '{endpoint_url}' → {target_model} added successfully.")
+            return redirect('hrms_integration')
+
+        elif action == "delete_endpoint":
+            mapping_id = request.POST.get("mapping_id")
+            mapping = get_object_or_404(HRMSEndpointMapping, id=mapping_id, hrms_config=config)
+            endpoint_url = mapping.endpoint_url
+            mapping.delete()
+            messages.success(request, f"Endpoint '{endpoint_url}' removed.")
+            return redirect('hrms_integration')
+
+        elif action == "toggle_endpoint":
+            mapping_id = request.POST.get("mapping_id")
+            mapping = get_object_or_404(HRMSEndpointMapping, id=mapping_id, hrms_config=config)
+            mapping.is_active = not mapping.is_active
+            mapping.save()
+            state = "enabled" if mapping.is_active else "disabled"
+            messages.success(request, f"Endpoint '{mapping.endpoint_url}' {state}.")
+            return redirect('hrms_integration')
+
     # Status check calculating the sync cooldown badge
     last_sync_time = tracker.get_last_sync_time(org.id, 'batch_all')
     latest_status = tracker.get_latest_sync_status(org.id, 'batch_all')
@@ -128,6 +191,25 @@ def hrms_integration(request):
             minutes_remaining = int((900 - seconds_passed) / 60)
 
     is_unlocked = request.session.get('hrms_config_unlocked', False)
+    endpoint_mappings = config.endpoint_mappings.order_by('-created_at')
+    model_choices = HRMSEndpointMapping.TARGET_MODEL_CHOICES
+    model_schemas_json = json.dumps({k: v for k, v in MODEL_SCHEMAS.items()})
+
+    # Pre-compute HRMS type selection state in Python so the template never needs == comparisons
+    hrms_type_choices = [
+        ('harvey', 'Harvey Mock HRMS', config.hrms_type == 'harvey', False),
+        ('workday', 'Workday (Coming Soon)', config.hrms_type == 'workday', True),
+    ]
+
+    # Legacy endpoint fields fully resolved in Python — no template attr lookups needed
+    legacy_endpoints = [
+        ('departments_endpoint', 'Departments Endpoint', config.departments_endpoint or '/api/v1/departments'),
+        ('employees_endpoint',   'Employees Endpoint',   config.employees_endpoint   or '/api/v1/employees'),
+        ('jobs_endpoint',        'Jobs Endpoint',         config.jobs_endpoint        or '/api/v1/jobs'),
+        ('candidates_endpoint',  'Candidates Endpoint',  config.candidates_endpoint  or '/api/v1/candidates'),
+        ('interviews_endpoint',  'Interviews Endpoint',  config.interviews_endpoint  or '/api/v1/interviews'),
+        ('onboarding_endpoint',  'Onboarding Endpoint',  config.onboarding_endpoint  or '/api/v1/onboarding'),
+    ]
 
     return render(request, 'hrms_integration.html', {
         'config': config,
@@ -135,5 +217,10 @@ def hrms_integration(request):
         'is_sync_running': is_sync_running,
         'is_sync_disabled': is_sync_disabled,
         'minutes_remaining': minutes_remaining,
-        'is_unlocked': is_unlocked
+        'is_unlocked': is_unlocked,
+        'endpoint_mappings': endpoint_mappings,
+        'model_choices': model_choices,
+        'model_schemas_json': model_schemas_json,
+        'hrms_type_choices': hrms_type_choices,
+        'legacy_endpoints': legacy_endpoints,
     })

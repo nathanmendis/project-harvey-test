@@ -129,3 +129,44 @@ class HRMSSystemConfig(models.Model):
 
     def __str__(self):
         return f"{self.hrms_type} Config ({self.organization.name})"
+
+
+class HRMSEndpointMapping(models.Model):
+    """Stores a dynamic mapping from an external API endpoint to an internal Harvey model."""
+
+    TARGET_MODEL_CHOICES = [
+        ('Employee', 'Employee'),
+        ('Candidate', 'Candidate'),
+        ('Interview', 'Interview'),
+        ('LeaveRequest', 'Leave Request'),
+        ('JobRole', 'Job Role'),
+    ]
+
+    hrms_config = models.ForeignKey(
+        HRMSSystemConfig,
+        on_delete=models.CASCADE,
+        related_name='endpoint_mappings'
+    )
+    endpoint_url = models.CharField(
+        max_length=255,
+        help_text="Relative path of the external API, e.g. /api/v2/leaves"
+    )
+    target_model = models.CharField(
+        max_length=50,
+        choices=TARGET_MODEL_CHOICES,
+        help_text="Harvey model to sync the data into"
+    )
+    # Stored sample JSON the user pasted for validation
+    sample_json = models.TextField(
+        null=True, blank=True,
+        help_text="Raw JSON sample response used for compatibility validation"
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('hrms_config', 'endpoint_url')
+
+    def __str__(self):
+        return f"{self.target_model} ← {self.endpoint_url}"
+

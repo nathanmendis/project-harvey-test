@@ -1,0 +1,97 @@
+{% comment %}Partial: Dynamic HRMS Endpoint Mappings Table{% endcomment %}
+<div class="glass-card rounded-2xl p-8 border-l-4 border-l-indigo-500 mt-6">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+            <div
+                class="h-10 w-10 bg-indigo-500/10 rounded-lg flex items-center justify-center border border-indigo-500/20">
+                <i class="fas fa-plug text-indigo-400"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Custom Sync Endpoints</h2>
+                <p class="text-sm text-gray-400">Add any external API route and map it to a Harvey model to sync
+                    automatically.</p>
+            </div>
+        </div>
+        {% if is_unlocked %}
+        <button onclick="document.getElementById('add-endpoint-modal').classList.remove('hidden')"
+            class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all shadow border border-indigo-400/20 flex items-center gap-2">
+            <i class="fas fa-plus"></i> Add Endpoint
+        </button>
+        {% else %}
+        <span class="text-xs text-gray-500 italic">Unlock config to add endpoints</span>
+        {% endif %}
+    </div>
+
+    {% if endpoint_mappings %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-white/5 border-b border-white/10">
+                <tr>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Endpoint
+                        URL</th>
+                    <th class="px-5 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Target
+                        Model</th>
+                    <th class="px-5 py-3 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Status
+                    </th>
+                    <th class="px-5 py-3 text-center text-xs font-bold text-gray-400 uppercase tracking-wider">Added
+                    </th>
+                    <th class="px-5 py-3 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5">
+                {% for mapping in endpoint_mappings %}
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="px-5 py-4 font-mono text-sm text-indigo-300">{{ mapping.endpoint_url }}</td>
+                    <td class="px-5 py-4">
+                        <span
+                            class="px-2 py-1 rounded-md bg-purple-500/10 text-purple-300 text-xs font-semibold border border-purple-500/20">{{
+                            mapping.target_model }}</span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        {% if mapping.is_active %}
+                        <span
+                            class="px-2 py-1 rounded-full text-xs font-bold bg-green-500/15 text-green-400">Active</span>
+                        {% else %}
+                        <span
+                            class="px-2 py-1 rounded-full text-xs font-bold bg-gray-500/15 text-gray-400">Paused</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-5 py-4 text-center text-xs text-gray-500">{{ mapping.created_at|date:"M d, Y" }}</td>
+                    <td class="px-5 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <form method="POST" action="{% url 'hrms_integration' %}" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_endpoint">
+                                <input type="hidden" name="mapping_id" value="{{ mapping.id }}">
+                                <button type="submit"
+                                    class="text-xs text-indigo-400 hover:text-indigo-300 px-2 py-1 rounded border border-indigo-500/20 hover:bg-indigo-500/10 transition-all">
+                                    {% if mapping.is_active %}Pause{% else %}Enable{% endif %}
+                                </button>
+                            </form>
+                            {% if is_unlocked %}
+                            <form method="POST" action="{% url 'hrms_integration' %}" class="inline"
+                                onsubmit="return confirm('Remove this endpoint mapping?')">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_endpoint">
+                                <input type="hidden" name="mapping_id" value="{{ mapping.id }}">
+                                <button type="submit"
+                                    class="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/20 hover:bg-red-500/10 transition-all">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-10 text-gray-500">
+        <i class="fas fa-plug text-4xl mb-3 opacity-20"></i>
+        <p class="text-sm italic">No custom endpoints yet. Unlock and click "Add Endpoint" to get started.</p>
+    </div>
+    {% endif %}
+</div>
