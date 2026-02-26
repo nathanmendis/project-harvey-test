@@ -16,8 +16,10 @@ echo "Waiting for Redis at $REDIS_URL..."
 # Simple check for Redis (parsing URL slightly hard in sh, expecting host in env var if needed, 
 # but for now we skip strict redis check or use python)
 
-echo "App: Running Migrations..."
-python manage.py migrate
+if [ "$1" = "daphne" ] || [ "$#" -eq 0 ]; then
+    echo "App: Running Migrations..."
+    python manage.py migrate
+fi
 
 echo "App: Starting Server..."
 # Execute the passed command or default to daphne

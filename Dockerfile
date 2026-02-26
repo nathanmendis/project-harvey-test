@@ -21,9 +21,11 @@ WORKDIR /app
 # Copy dependency files first
 COPY pyproject.toml poetry.lock /app/
 
-# Disable virtualenv creation to install dependencies globally
+# Disable virtualenv creation to install dependencies globally, then clear the huge pip/poetry caches
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root
+    && poetry install --no-interaction --no-ansi --no-root \
+    && rm -rf ~/.cache/pypoetry \
+    && rm -rf ~/.cache/pip
 
 # Copy project files
 COPY . /app/

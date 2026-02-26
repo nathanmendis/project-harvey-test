@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.utils import timezone
 from datetime import timedelta
 from core.models.organization import User
@@ -116,10 +117,26 @@ def add_employee(request):
 def manage_employees(request):
     """View all employees in the organization."""
     org = request.user.organization
-    employees = User.objects.filter(organization=org, is_superuser=False)
+    query = request.GET.get('q', '').strip()
+    
+    employees = User.objects.filter(organization=org, is_superuser=False).order_by('-date_joined')
+    
+    if query:
+        employees = employees.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(id__icontains=query) |
+            Q(name__icontains=query)
+        )
+        
+    paginator = Paginator(employees, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, "employees/manage.html", {
-        "employees": employees,
+        "employees": page_obj,  # Using page_obj for iteration in template
+        "page_obj": page_obj,
+        "paginator": paginator,
         "org": org
     })
 
@@ -178,23 +195,4 @@ def toggle_admin_role(request, user_id):
     return redirect("manage_employees")
 
 
-@login_required
-@user_passes_test(is_org_admin)
-def search_employee(request):
-    """Search employees by username, email, or ID."""
-    query = request.GET.get("q", "").strip()
-    org = request.user.organization
 
-    if not query:
-        return JsonResponse({"results": []})
-
-    employees = User.objects.filter(
-        organization=org
-    ).filter(
-        Q(username__icontains=query) |
-        Q(email__icontains=query) |
-        Q(id__icontains=query) |
-        Q(name__icontains=query)
-    ).values("id", "name", "username", "email", "role", "has_chat_access")
-
-    return JsonResponse({"results": list(employees)})

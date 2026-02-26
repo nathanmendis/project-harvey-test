@@ -1,7 +1,9 @@
 from core.models import Candidate, JobRole, Interview, EmailLog, CalendarEvent, LeaveRequest, CandidateJobScore
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib import messages
+from django.http import JsonResponse
+from django.db.models import Q
+from django.core.paginator import Paginator
 from adminpanel.forms import CandidateForm, JobForm
 from .utils import is_org_admin
 
@@ -20,11 +22,26 @@ def recruitment_dashboard(request):
 def candidates(request):
     """View to display list of candidates."""
     org = request.user.organization
-    candidates = Candidate.objects.filter(organization=org)
+    query = request.GET.get('q', '').strip()
+    
+    candidates_list = Candidate.objects.filter(organization=org).order_by('-id')
+    
+    if query:
+        candidates_list = candidates_list.filter(
+            Q(name__icontains=query) |
+            Q(email__icontains=query) |
+            Q(phone__icontains=query)
+        )
+        
+    paginator = Paginator(candidates_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     return render(request, 'recruitment/candidates.html', {
         'org': org,
-        'candidates': candidates,
+        'candidates': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
     })
 
 @login_required
@@ -32,11 +49,25 @@ def candidates(request):
 def jobs(request):
     """View to display list of job roles."""
     org = request.user.organization
-    jobs = JobRole.objects.filter(organization=org)
+    query = request.GET.get('q', '').strip()
+    
+    jobs_list = JobRole.objects.filter(organization=org).order_by('-id')
+    
+    if query:
+        jobs_list = jobs_list.filter(
+            Q(title__icontains=query) |
+            Q(status__icontains=query)
+        )
+        
+    paginator = Paginator(jobs_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     return render(request, 'recruitment/jobs.html', {
         'org': org,
-        'jobs': jobs,
+        'jobs': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
     })
 
 @login_required
@@ -44,11 +75,26 @@ def jobs(request):
 def interviews(request):
     """View to display list of interviews."""
     org = request.user.organization
-    interviews = Interview.objects.filter(organization=org)
+    query = request.GET.get('q', '').strip()
+    
+    interviews_list = Interview.objects.filter(organization=org).select_related('candidate', 'interviewer').order_by('-id')
+    
+    if query:
+        interviews_list = interviews_list.filter(
+            Q(candidate__name__icontains=query) |
+            Q(interviewer__name__icontains=query) |
+            Q(status__icontains=query)
+        )
+        
+    paginator = Paginator(interviews_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     return render(request, 'recruitment/interviews.html', {
         'org': org,
-        'interviews': interviews,
+        'interviews': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
     })
 
 
@@ -170,3 +216,23 @@ def add_job(request):
         'org': org,
         'form': form,
     })
+
+@login_required
+@user_passes_test(is_org_admin)
+def search_candidate(request):
+    """Search candidates by name, email, or phone."""
+    query = request.GET.get("q", "").strip()
+    org = request.user.organization
+
+    if not query:
+        return JsonResponse({"results": []})
+
+    candidates = Candidate.objects.filter(
+        organization=org
+    ).filter(
+        Q(name__icontains=query) |
+        Q(email__icontains=query) |
+        Q(phone__icontains=query)
+    ).values("id", "name", "email", "phone", "source", "status")
+
+    return JsonResponse({"results": list(candidates)})

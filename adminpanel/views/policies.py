@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models.policy import Policy
 from core.ai.rag.policy_indexer import PolicyIndexer
+from django.db.models import Q
+from django.core.paginator import Paginator
 import threading
 from .utils import is_org_admin
 
@@ -11,10 +13,24 @@ from .utils import is_org_admin
 def manage_policies(request):
     """View and manage organization policies."""
     org = request.user.organization
-    policies = Policy.objects.filter(created_by__organization=org).order_by('-created_at')
+    query = request.GET.get('q', '').strip()
+    
+    policies_list = Policy.objects.filter(created_by__organization=org).order_by('-created_at')
+    
+    if query:
+        policies_list = policies_list.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query)
+        )
+        
+    paginator = Paginator(policies_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     return render(request, "policies/manage.html", {
-        "policies": policies,
+        "policies": page_obj,
+        "page_obj": page_obj,
+        "paginator": paginator,
         "org": org
     })
 

@@ -76,8 +76,8 @@
           >
           <select
             name="hrms_type"
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-xl px-4 py-3 {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-xl px-4 py-3 {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
           >
             <option
               value="harvey"
@@ -93,7 +93,7 @@
               Workday (Coming Soon)
             </option>
           </select>
-          {% if is_active and not is_unlocked %}
+          {% if not is_unlocked %}
           <input type="hidden" name="hrms_type" value="{{ config.hrms_type }}">
           {% endif %}
         </div>
@@ -108,8 +108,8 @@
             value="{{ config.base_url|default:'' }}"
             placeholder="https://api.system.com"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-xl px-4 py-3 placeholder-gray-600 {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-xl px-4 py-3 placeholder-gray-600 {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -124,13 +124,13 @@
               value="{% if is_active %}********{% endif %}"
               placeholder="Enter Secret Token"
               required
-              {% if is_active and not is_unlocked %}disabled{% endif %}
-              class="w-full rounded-xl px-4 py-3 pr-12 placeholder-gray-600 font-mono tracking-widest {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
+              {% if not is_unlocked %}disabled{% endif %}
+              class="w-full rounded-xl px-4 py-3 pr-12 placeholder-gray-600 font-mono tracking-widest {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-purple-500{% endif %}"
             />
             <button
               type="button"
               onclick="toggleAuthToken()"
-              {% if is_active and not is_unlocked %}disabled{% endif %}
+              {% if not is_unlocked %}disabled{% endif %}
               class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-gray-500"
             >
               <i class="fas fa-eye" id="auth_token_icon"></i>
@@ -156,8 +156,8 @@
             name="departments_endpoint"
             value="{{ config.departments_endpoint|default:'/api/v1/departments' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -169,8 +169,8 @@
             name="employees_endpoint"
             value="{{ config.employees_endpoint|default:'/api/v1/employees' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -182,8 +182,8 @@
             name="jobs_endpoint"
             value="{{ config.jobs_endpoint|default:'/api/v1/jobs' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -195,8 +195,8 @@
             name="candidates_endpoint"
             value="{{ config.candidates_endpoint|default:'/api/v1/candidates' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -208,8 +208,8 @@
             name="interviews_endpoint"
             value="{{ config.interviews_endpoint|default:'/api/v1/interviews' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
         <div>
@@ -221,13 +221,13 @@
             name="onboarding_endpoint"
             value="{{ config.onboarding_endpoint|default:'/api/v1/onboarding' }}"
             required
-            {% if is_active and not is_unlocked %}disabled{% endif %}
-            class="w-full rounded-lg px-4 py-2 text-sm {% if is_active and not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
+            {% if not is_unlocked %}disabled{% endif %}
+            class="w-full rounded-lg px-4 py-2 text-sm {% if not is_unlocked %}bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed{% else %}bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-purple-500{% endif %}"
           />
         </div>
       </div>
 
-      {% if is_active and not is_unlocked %}
+      {% if not is_unlocked %}
       <!-- Unlock Configuration -->
       <div class="mt-8 pt-6 border-t border-white/10">
         <div class="bg-purple-500/5 border border-purple-500/20 rounded-xl p-5 flex flex-col md:flex-row items-center gap-4 justify-between">

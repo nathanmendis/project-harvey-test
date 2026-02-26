@@ -2,7 +2,6 @@
 name = "project_harvey"
 version = "0.1.0"
 description = ""
-# FIX: Use the simple string format for authors
 authors = ["nathanmendis <nathanmendis17@gmail.com>"] 
 readme = "README.md"
 packages = [{include = "project_harvey"}]
@@ -10,6 +9,10 @@ packages = [{include = "project_harvey"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
+
+# Force torch to load from the explicit cpu source
+torch = {version = ">=2.3.0", source = "pytorch"}
+
 django = ">=5.2.7,<6.0.0"
 openai = ">=2.3.0,<3.0.0"
 pydantic = ">=2.12.0,<3.0.0"
@@ -52,9 +55,15 @@ cryptography = "^46.0.4"
 celery = "^5.6.2"
 redis = "^7.2.1"
 django-encrypted-model-fields = "^0.6.5"
+pytz = "^2025.2"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 [dependency-groups]
 dev = []
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"

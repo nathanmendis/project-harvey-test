@@ -24,7 +24,6 @@ services:
       - redis
 
   celery:
-    build: .
     image: nathanmendis/project-harvey:latest
     container_name: project-harvey-celery
     command: celery -A project_harvey worker --loglevel=info --concurrency=2
@@ -45,7 +44,6 @@ services:
       - redis
 
   celery-beat:
-    build: .
     image: nathanmendis/project-harvey:latest
     container_name: project-harvey-celery-beat
     command: celery -A project_harvey beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler

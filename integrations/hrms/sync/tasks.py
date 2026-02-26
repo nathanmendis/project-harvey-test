@@ -49,10 +49,12 @@ def sync_organization_data(self, org_id: int):
         logger.info(f"Syncing employees for org {org_id}")
         employees = async_to_sync(service.get_all_employees)()
         total_employees = 0
+        emp_id_to_email = {}  # Map to resolve mock IDs in interviews
+        
         for emp_data in employees:
-            # Check incremental update timestamp if present
             emp_updated = emp_data.get('updated_at')
             if last_sync and emp_updated and emp_updated < last_sync:
+                emp_id_to_email[emp_data.get('id')] = emp_data['email']
                 continue
                 
             User.objects.update_or_create(
@@ -65,6 +67,7 @@ def sync_organization_data(self, org_id: int):
                     'name': f"{emp_data.get('first_name', '')} {emp_data.get('last_name', '')}".strip()
                 }
             )
+            emp_id_to_email[emp_data.get('id')] = emp_data['email']
             total_employees += 1
 
         if _check_stop():
@@ -74,6 +77,8 @@ def sync_organization_data(self, org_id: int):
         logger.info(f"Syncing candidates for org {org_id}")
         candidates = async_to_sync(service.get_all_candidates)()
         total_candidates = 0
+        cand_id_to_email = {} # Map to resolve mock IDs in interviews
+        
         for cand_data in candidates:
             Candidate.objects.update_or_create(
                 email=cand_data['email'],
@@ -86,6 +91,7 @@ def sync_organization_data(self, org_id: int):
                     'skills': cand_data.get('skills', []),
                 }
             )
+            cand_id_to_email[cand_data.get('id')] = cand_data['email']
             total_candidates += 1
 
         if _check_stop():
@@ -96,19 +102,31 @@ def sync_organization_data(self, org_id: int):
         interviews = async_to_sync(service.get_all_interviews)()
         total_interviews = 0
         for iv_data in interviews:
-            # We would typically map candidate_id and interviewer_id
-            # Assuming mock returns 'candidate_email' and 'interviewer_email' for simplicity
-            cand = Candidate.objects.filter(email=iv_data.get('candidate_email'), organization_id=org_id).first()
-            interviewer = User.objects.filter(email=iv_data.get('interviewer_email'), organization_id=org_id).first()
+            # Map mock candidate_id to email
+            cand_email = cand_id_to_email.get(iv_data.get('candidate_id'))
+            
+            # Map mock interviewer[0] to email
+            interviewers = iv_data.get('interviewers', [])
+            interviewer_email = emp_id_to_email.get(interviewers[0]) if interviewers else None
+
+            cand = Candidate.objects.filter(email=cand_email, organization_id=org_id).first() if cand_email else None
+            interviewer = User.objects.filter(email=interviewer_email, organization_id=org_id).first() if interviewer_email else None
             
             if cand and interviewer:
+                from dateutil import parser
+                date_time = iv_data.get('scheduled_at')
+                if date_time:
+                     date_time = parser.parse(date_time)
+                else:
+                     date_time = timezone.now()
+
                 Interview.objects.update_or_create(
-                    id=iv_data.get('id'), # if we have stable IDs
+                    id=iv_data.get('id').replace('int-', '') if iv_data.get('id') else None,
                     organization_id=org_id,
                     defaults={
                         'candidate': cand,
                         'interviewer': interviewer,
-                        'date_time': timezone.now(), # Needs parsing from iv_data
+                        'date_time': date_time,
                         'status': iv_data.get('status', 'scheduled')
                     }
                 )

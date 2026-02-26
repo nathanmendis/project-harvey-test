@@ -21,6 +21,15 @@ def delete_policy_file(sender, instance, **kwargs):
             except Exception as e:
                 print(f"⚠️ Error deleting file: {e}")
 
+# Global single instance of ModelIndexer
+_indexer_instance = None
+
+def get_indexer():
+    global _indexer_instance
+    if _indexer_instance is None:
+        _indexer_instance = ModelIndexer()
+    return _indexer_instance
+
 @receiver(post_save, sender=Candidate)
 def index_candidate_on_save(sender, instance, created, **kwargs):
     """
@@ -28,8 +37,11 @@ def index_candidate_on_save(sender, instance, created, **kwargs):
     Runs in a background thread to avoid blocking.
     """
     def _index():
-        indexer = ModelIndexer()
-        indexer.index_candidate(instance.id)
+        try:
+            indexer = get_indexer()
+            indexer.index_candidate(instance.id)
+        except Exception as e:
+            print(f"Error indexing candidate in background: {e}")
 
     threading.Thread(target=_index).start()
 
@@ -39,8 +51,11 @@ def index_job_role_on_save(sender, instance, created, **kwargs):
     Triggers indexing when a JobRole is saved.
     """
     def _index():
-        indexer = ModelIndexer()
-        indexer.index_job_role(instance.id)
-        
+        try:
+            indexer = get_indexer()
+            indexer.index_job_role(instance.id)
+        except Exception as e:
+            print(f"Error indexing job role in background: {e}")
+            
     threading.Thread(target=_index).start()
 

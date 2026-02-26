@@ -77,23 +77,37 @@ def hrms_integration(request):
             return redirect('hrms_integration')
 
         elif action == "trigger_hrms_sync":
+            print(f"[DEBUG] trigger_hrms_sync called for organization: {org.id}")
+            print(f"[DEBUG] config.is_active: {config.is_active}")
+            
             if not config.is_active:
+                print("[DEBUG] Aborting: config is inactive.")
                 messages.error(request, "Cannot sync inactive HRMS configuration.")
                 return redirect('hrms_integration')
                 
             last_sync_time = tracker.get_last_sync_time(org.id, 'batch_all')
             latest_status = tracker.get_latest_sync_status(org.id, 'batch_all')
+            print(f"[DEBUG] last_sync_time: {last_sync_time}")
+            print(f"[DEBUG] latest_status: {latest_status}")
+            
             is_running = latest_status and latest_status.get('status') == 'running'
+            print(f"[DEBUG] is_running: {is_running}")
             
             if is_running:
+                print("[DEBUG] Aborting: A synchronization job is already running.")
                 messages.warning(request, "A synchronization job is already running.")
             elif last_sync_time and (timezone.now() - last_sync_time).total_seconds() < 900: # 15 minutes limit
+                time_diff = (timezone.now() - last_sync_time).total_seconds()
+                print(f"[DEBUG] Aborting: 15 minutes limit (Wait time: {time_diff}s)")
                 messages.warning(request, "Please wait 15 minutes between manual syncs.")
             else:
                 try:
-                    sync_organization_data.delay(org.id)
+                    print(f"[DEBUG] Calling sync_organization_data.delay({org.id})")
+                    result = sync_organization_data.delay(org.id)
+                    print(f"[DEBUG] Celery task queued with ID: {result.id}")
                     messages.success(request, "Background HRMS Synchronization successfully queued!")
                 except Exception as e:
+                    print(f"[DEBUG] Failed to queue sync task: {e}")
                     messages.error(request, f"Failed to queue sync task: {e}")
                     
             return redirect('hrms_integration')

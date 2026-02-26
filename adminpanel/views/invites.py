@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.db.models import Q
+from django.core.paginator import Paginator
 from datetime import timedelta
 from core.models.invite import Invite
 from adminpanel.forms import InviteForm
@@ -69,9 +71,25 @@ def manage_invites(request):
         return redirect('admin_dashboard')
         
     org = request.user.organization
-    invites = Invite.objects.filter(organization=org, accepted=False).order_by('-created_at')
+    query = request.GET.get('q', '').strip()
     
-    return render(request, 'invites/manage.html', {'invites': invites})
+    invites_list = Invite.objects.filter(organization=org, accepted=False).order_by('-created_at')
+    
+    if query:
+        invites_list = invites_list.filter(
+            Q(email__icontains=query) |
+            Q(role__icontains=query)
+        )
+        
+    paginator = Paginator(invites_list, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'invites/manage.html', {
+        'invites': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
+    })
 
 @login_required
 def delete_invite(request, invite_id):
