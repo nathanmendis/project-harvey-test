@@ -31,7 +31,7 @@ graph TB
 
     subgraph "Harvey Local Architecture"
         DB[(PostgreSQL Database)]
-        TOOLS[Harvey AI Tools<br/>(schedule_interview, etc)]
+        TOOLS["Harvey AI Tools<br/>(schedule_interview, etc)"]
     end
 
     SCHEDULER -->|Queues Task| TASK
