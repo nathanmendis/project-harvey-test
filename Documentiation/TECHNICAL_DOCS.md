@@ -34,7 +34,7 @@ The database is divided into logical functional areas:
 ### 3.2 Recruitment Engine
 - **Candidate**: Stores profiles, contact info, and parsed JSON metadata.
 - **JobRole**: Stores job descriptions and requirement strings.
-- **Interview**: Links Candidates, Interviewers, and Organizations. Features `date_time` fields localized to **IST**.
+- **Interview**: Links Candidates, Interviewers, and Organizations. Features `date_time` fields dynamically populated using the organization's customized timezone, falling back to Google Calendar defaults when necessary.
 - **CandidateJobScore**: Stores AI-generated match percentages and justifications.
 
 ### 3.3 Knowledge Base (RAG)
@@ -42,7 +42,7 @@ The database is divided into logical functional areas:
 - **PolicyChunk**: Individual text snippets (approx. 1000 chars) stored with their 384-dimensional vector embeddings.
 
 ### 3.4 Conversation Persistence
-- **Conversation**: Session container for a series of messages.
+- **Conversation**: Session container for a series of messages, strictly scoped to an `organization_id` to ensure tenant data isolation.
 - **Message**: Individual speech acts. Content is **AES-256 encrypted** in the database.
 - **GraphRun**: Logs for individual agent execution trails, including timing metrics and node traces.
 
@@ -82,7 +82,7 @@ The system uses a centralized registry to bind Python functions to the LLM.
 ### 5.2 Google Workspace & Tool Enhancements
 - **Enhanced Resolution**: All tools (Email, Calendar) use shared utilities to resolve names/usernames to emails with multiple-match handling.
 - **OAuth Strategy**: System Refresh Token for backend actions; standard OAuth for user sessions.
-- **Timezone**: Explicit `Asia/Kolkata` (IST) localization.
+- **Timezone**: Dynamic timezone resolution via the `Organization` model, ensuring tools like `schedule_interview` create precise calendar events regardless of locale.
 
 ---
 

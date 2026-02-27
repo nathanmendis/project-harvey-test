@@ -1,10 +1,10 @@
 # HR Integration Architecture - Visual Diagrams
 
-This document contains detailed visual diagrams for the HR system integration architecture, with a focus on **Pattern B: Scheduled Batch Sync** - the recommended production approach.
+This document contains detailed visual diagrams for the HR system integration architecture, focusing on the **Scheduled Batch Sync** approach.
 
 ---
 
-## Pattern B: Scheduled Batch Sync Architecture
+## Scheduled Batch Sync Architecture
 
 ### High-Level Architecture
 
@@ -229,7 +229,7 @@ graph LR
 
 ```mermaid
 gantt
-    title HR Data Sync Schedule (Pattern B)
+    title HR Data Sync Schedule
     dateFormat HH:mm
     axisFormat %H:%M
 
@@ -294,38 +294,7 @@ graph TD
     style RETRY fill:#FF9800,stroke:#E65100,color:#fff
 ```
 
----
 
-## Pattern Comparison
-
-```mermaid
-graph TB
-    subgraph "Pattern A: Real-time Sync"
-        A1[Harvey Request] --> A2[Query HRMS API]
-        A2 --> A3[Wait for Response]
-        A3 --> A4[Return to User]
-        A5[ High Latency<br/> API Dependency<br/> Higher Costs]
-    end
-
-    subgraph "Pattern B: Batch Sync ⭐"
-        B1[Harvey Request] --> B2[Query Local DB]
-        B2 --> B3[Instant Response]
-        B4[Background: Celery] -.->|Periodic Sync| B5[Update Local DB]
-        B6[ Sub-second Response<br/> Offline Capable<br/> Cost Effective<br/> Data Sovereignty]
-    end
-
-    subgraph "Pattern C: Webhook Sync"
-        C1[HRMS Event] --> C2[Webhook to Harvey]
-        C2 --> C3[Update Local DB]
-        C4[Harvey Request] --> C5[Query Local DB]
-        C6[ Requires HRMS Support<br/> Near Real-time<br/> Complex Setup]
-    end
-
-    style B1 fill:#4CAF50,stroke:#2E7D32,color:#fff
-    style B2 fill:#4CAF50,stroke:#2E7D32,color:#fff
-    style B3 fill:#4CAF50,stroke:#2E7D32,color:#fff
-    style B6 fill:#E8F5E9,stroke:#4CAF50,color:#000
-```
 
 ---
 
@@ -384,26 +353,24 @@ graph TB
 
 ---
 
-## Key Benefits of Pattern B
+## Key Benefits of Scheduled Batch Sync
 
 ### Performance Comparison
 
-| Metric                 | Pattern A (Real-time) | Pattern B (Batch)    | Pattern C (Webhook) |
-| ---------------------- | --------------------- | -------------------- | ------------------- |
-| **Query Latency**      | 500-2000ms            | <50ms                | <50ms               |
-| **Offline Capability** | No                    | Yes                  | Yes                 |
-| **API Calls/Day**      | 10,000+               | 50-100               | Event-based         |
-| **Data Freshness**     | Real-time             | 30min - 2hr          | Near real-time      |
-| **Setup Complexity**   | Low                   | Medium               | High                |
-| **HRMS Dependency**    | High                  | Low                  | Medium              |
-| **Cost**               | High                  | Low                  | Medium              |
-| **Production Ready**   | Demo Only             | Recommended          | If Supported        
+| Metric                 | Batch Sync Profile |
+| ---------------------- | ------------------ |
+| **Query Latency**      | <50ms              |
+| **Offline Capability** | Yes                |
+| **API Calls/Day**      | Optimized Batching |
+| **Data Freshness**     | 30min - 2hr        |
+| **HRMS Dependency**    | Low                |
+| **Cost**               | Low                |
 
 ### Security & Compliance
 
 ```mermaid
 mindmap
-  root((Pattern B<br/>Benefits))
+  root((Batch Sync<br/>Benefits))
     Data Sovereignty
       Full control over data
       Local storage

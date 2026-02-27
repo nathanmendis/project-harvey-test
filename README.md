@@ -14,7 +14,7 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 
 - **Enhanced Tool Resolution**: Directly resolve names/usernames to emails with support for **multiple match detection**.
 - **Google Calendar Sync**: The `schedule_interview` tool automatically creates invites on your calendar and returns clickable meeting links.
-- **IST Native**: Full support for **Indian Standard Time (IST)** localization.
+- **Dynamic Organization Timezones**: Full support for customizable timezones per organization, ensuring accurate and precise interview scheduling regardless of geographic location. Fallbacks to Google Calendar default timezones are included for robustness.
 
 ### 📚 RAG (Retrieval-Augmented Generation)
 
@@ -25,6 +25,7 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 
 - **Two-Tier OAuth**: Decouples simple user login from system-wide Gmail/Calendar capacities, ensuring the system can "act" reliably via a System Account.
 - **Multi-tenant Ready**: Secure data isolation at the ORM level, ensuring every response is scoped to your organization.
+- **Strict Database Integrity**: Guaranteed organization-level scoping (`organization_id`) for Invites, Conversations, and HRMS System Configurations, preventing data leakage and ensuring robust tenant routing.
 
 ## 🏗️ Technical Stack
 
@@ -36,7 +37,7 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 
 ## 🔗 HR System Integration
 
-Harvey supports integration with existing HRMS platforms (Workday, BambooHR, SAP SuccessFactors, etc.) using a **scheduled batch sync architecture** for optimal performance and data security.
+Harvey supports integration with existing HRMS platforms (Workday, BambooHR, SAP SuccessFactors, etc.) using a **scheduled batch sync architecture** for optimal performance and data security. The built-in HRMS configuration dashboard allows administrators to manage sync keys, set up templates, and review status per organization.
 
 **Key Benefits:**
 
