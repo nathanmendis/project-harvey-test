@@ -2,84 +2,88 @@
 
 {% block content %}
 <div class="py-8">
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <div>
             <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Candidates</h1>
             <p class="text-harvey-primary text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
         </div>
         <a href="{% url 'add_candidate' %}"
-            class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02] flex items-center gap-2">
+            class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02] flex items-center gap-2 w-full sm:w-auto justify-center">
             <i class="fas fa-plus"></i> Add Candidate
         </a>
     </div>
 </div>
 
 <!-- 🔍 Search Bar -->
-<form method="GET" action="{% url 'candidates' %}" class="glass-card p-6 rounded-2xl border-white/5 mb-8">
-    <div class="relative max-w-2xl flex gap-4">
+<form method="GET" action="{% url 'candidates' %}" class="glass-card p-4 sm:p-6 rounded-2xl border-white/5 mb-8">
+    <div class="relative max-w-2xl flex flex-col sm:flex-row gap-4">
         <div class="relative flex-grow">
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
             <input id="candidate-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
-                placeholder="Search by name, email, or phone..."
+                placeholder="Search candidates..."
                 class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-primary focus:outline-none transition-all" />
         </div>
-        <button type="submit"
-            class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02]">
-            Search
-        </button>
-        {% if request.GET.q %}
-        <a href="{% url 'candidates' %}"
-            class="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center">
-            Clear
-        </a>
-        {% endif %}
+        <div class="flex gap-2 sm:gap-4 w-full sm:w-auto">
+            <button type="submit"
+                class="flex-1 sm:flex-none bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02] text-center">
+                Search
+            </button>
+            {% if request.GET.q %}
+            <a href="{% url 'candidates' %}"
+                class="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center">
+                Clear
+            </a>
+            {% endif %}
+        </div>
     </div>
 </form>
 
 {% if candidates %}
 <div class="glass-card rounded-2xl border-white/10 overflow-hidden">
-    <table class="w-full">
-        <thead class="bg-white/5 border-b border-white/10">
-            <tr>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Name</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Email</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Phone</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Source</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
-                </th>
-            </tr>
-        </thead>
-        <tbody id="candidate-table-body" class="divide-y divide-white/5">
-            {% for candidate in candidates %}
-            <tr class="hover:bg-white/5 transition-colors">
-                <td class="px-6 py-4 text-white font-medium">{{ candidate.name }}</td>
-                <td class="px-6 py-4 text-gray-300">{{ candidate.email }}</td>
-                <td class="px-6 py-4 text-gray-300">{{ candidate.phone|default:"—" }}</td>
-                <td class="px-6 py-4 text-gray-300">{{ candidate.source }}</td>
-                <td class="px-6 py-4">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold
-              {% if candidate.status == 'pending' %}bg-yellow-500/20 text-yellow-400
-              {% elif candidate.status == 'approved' %}bg-green-500/20 text-green-400
-              {% elif candidate.status == 'rejected' %}bg-red-500/20 text-red-400
-              {% else %}bg-gray-500/20 text-gray-400{% endif %}">
-                        {{ candidate.status|title }}
-                    </span>
-                </td>
-                <td class="px-6 py-4">
-                    <a href="{% url 'candidate_detail' candidate.id %}"
-                        class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium">
-                        View Details →
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center py-12 text-gray-500 italic">No matching candidates found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full min-w-[800px]">
+            <thead class="bg-white/5 border-b border-white/10">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Phone</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Source</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="candidate-table-body" class="divide-y divide-white/5">
+                {% for candidate in candidates %}
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 text-white font-medium">{{ candidate.name }}</td>
+                    <td class="px-6 py-4 text-gray-300">{{ candidate.email }}</td>
+                    <td class="px-6 py-4 text-gray-300">{{ candidate.phone|default:"—" }}</td>
+                    <td class="px-6 py-4 text-gray-300">{{ candidate.source }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold
+                  {% if candidate.status == 'pending' %}bg-yellow-500/20 text-yellow-400
+                  {% elif candidate.status == 'approved' %}bg-green-500/20 text-green-400
+                  {% elif candidate.status == 'rejected' %}bg-red-500/20 text-red-400
+                  {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                            {{ candidate.status|title }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'candidate_detail' candidate.id %}"
+                            class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium whitespace-nowrap">
+                            View Details →
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-12 text-gray-500 italic">No matching candidates found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- Paginator Include -->
     <div class="px-6 pb-6 mt-4">

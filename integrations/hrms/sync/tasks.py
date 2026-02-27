@@ -19,7 +19,7 @@ def sync_all_data(self):
     tracker = SyncStatusTracker()
     
     # Process each organization sequentially to avoid rate-limiting the mock API
-    for org in Organization.objects.filter(hrms_configs__is_active=True).distinct():
+    for org in Organization.objects.filter(hrms_system_config__is_active=True).distinct():
         try:
             sync_organization_data.delay(org.id)
         except Exception as e:

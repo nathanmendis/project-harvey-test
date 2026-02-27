@@ -2,36 +2,38 @@
 
 {% block content %}
 <div class="py-8">
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-8">
         <div>
             <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Job Roles</h1>
             <p class="text-harvey-accent text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
         </div>
         <a href="{% url 'add_job' %}"
-            class="bg-harvey-accent hover:bg-harvey-primary text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-accent/20 font-bold transition-all hover:scale-[1.02] flex items-center gap-2">
+            class="bg-harvey-accent hover:bg-harvey-primary text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-accent/20 font-bold transition-all hover:scale-[1.02] flex items-center gap-2 w-full sm:w-auto justify-center">
             <i class="fas fa-plus"></i> Add Job Role
         </a>
     </div>
 
     <!-- 🔍 Search Bar -->
-    <form method="GET" action="{% url 'jobs' %}" class="glass-card p-6 rounded-2xl border-white/5 mb-8">
-        <div class="relative max-w-2xl flex gap-4">
+    <form method="GET" action="{% url 'jobs' %}" class="glass-card p-4 sm:p-6 rounded-2xl border-white/5 mb-8">
+        <div class="relative max-w-2xl flex flex-col sm:flex-row gap-4">
             <div class="relative flex-grow">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
                 <input id="job-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
                     placeholder="Search by job title or status..."
                     class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-accent focus:outline-none transition-all" />
             </div>
-            <button type="submit"
-                class="bg-harvey-accent hover:bg-harvey-primary text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-accent/20 font-bold transition-all hover:scale-[1.02]">
-                Search
-            </button>
-            {% if request.GET.q %}
-            <a href="{% url 'jobs' %}"
-                class="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center">
-                Clear
-            </a>
-            {% endif %}
+            <div class="flex gap-2 sm:gap-4 w-full sm:w-auto">
+                <button type="submit"
+                    class="flex-1 sm:flex-none bg-harvey-accent hover:bg-harvey-primary text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-accent/20 font-bold transition-all hover:scale-[1.02] text-center">
+                    Search
+                </button>
+                {% if request.GET.q %}
+                <a href="{% url 'jobs' %}"
+                    class="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center">
+                    Clear
+                </a>
+                {% endif %}
+            </div>
         </div>
     </form>
 

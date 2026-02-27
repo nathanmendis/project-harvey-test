@@ -8,72 +8,81 @@
     </div>
 
     <!-- 🔍 Search Bar -->
-    <form method="GET" action="{% url 'interviews' %}" class="glass-card p-6 rounded-2xl border-white/5 mb-8">
-        <div class="relative max-w-2xl flex gap-4">
+    <form method="GET" action="{% url 'interviews' %}" class="glass-card p-4 sm:p-6 rounded-2xl border-white/5 mb-8">
+        <div class="relative max-w-2xl flex flex-col sm:flex-row gap-4">
             <div class="relative flex-grow">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
                 <input id="interview-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
-                    placeholder="Search by candidate name, interviewer, or status..."
+                    placeholder="Search by candidate, interviewer, or status..."
                     class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-primary focus:outline-none transition-all" />
             </div>
-            <button type="submit"
-                class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02]">
-                Search
-            </button>
-            {% if request.GET.q %}
-            <a href="{% url 'interviews' %}"
-                class="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center">
-                Clear
-            </a>
-            {% endif %}
+            <div class="flex gap-2 sm:gap-4 w-full sm:w-auto">
+                <button type="submit"
+                    class="flex-1 sm:flex-none bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02] text-center">
+                    Search
+                </button>
+                {% if request.GET.q %}
+                <a href="{% url 'interviews' %}"
+                    class="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-3 rounded-xl transition-all hover:scale-[1.02] flex items-center justify-center">
+                    Clear
+                </a>
+                {% endif %}
+            </div>
         </div>
     </form>
 
     {% if interviews %}
     <div class="glass-card rounded-2xl border-white/10 overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-white/5 border-b border-white/10">
-                <tr>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Candidate
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Interviewer
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Date & Time
-                    </th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-white/5">
-                {% for interview in interviews %}
-                <tr class="hover:bg-white/5 transition-colors">
-                    <td class="px-6 py-4 text-white font-medium">{{ interview.candidate.name }}</td>
-                    <td class="px-6 py-4 text-gray-300">{{ interview.interviewer.username }}</td>
-                    <td class="px-6 py-4 text-gray-300">{{ interview.date_time|date:"M d, Y - g:i A" }}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-bold
-              {% if interview.status == 'scheduled' %}bg-blue-500/20 text-blue-400
-              {% elif interview.status == 'completed' %}bg-green-500/20 text-green-400
-              {% elif interview.status == 'cancelled' %}bg-red-500/20 text-red-400
-              {% else %}bg-gray-500/20 text-gray-400{% endif %}">
-                            {{ interview.status|title }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <a href="{% url 'interview_detail' interview.id %}"
-                            class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium">
-                            View Details →
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center py-12 text-gray-500 italic">No matching interviews found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full min-w-[700px]">
+                <thead class="bg-white/5 border-b border-white/10">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            Candidate
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
+                            Interviewer
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Date &
+                            Time
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for interview in interviews %}
+                    <tr class="hover:bg-white/5 transition-colors">
+                        <td class="px-6 py-4 text-white font-medium">{{ interview.candidate.name }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ interview.interviewer.username }}</td>
+                        <td class="px-6 py-4 text-gray-300">{{ interview.date_time|date:"M d, Y - g:i A" }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold
+                  {% if interview.status == 'scheduled' %}bg-blue-500/20 text-blue-400
+                  {% elif interview.status == 'completed' %}bg-green-500/20 text-green-400
+                  {% elif interview.status == 'cancelled' %}bg-red-500/20 text-red-400
+                  {% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                                {{ interview.status|title }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="{% url 'interview_detail' interview.id %}"
+                                class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium whitespace-nowrap">
+                                View Details →
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-12 text-gray-500 italic">No matching interviews found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <!-- Paginator Include -->
         <div class="px-6 pb-6 mt-4">
