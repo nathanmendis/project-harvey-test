@@ -42,11 +42,11 @@ class ModelIndexer:
             # Add to vector store (we add a SINGLE document for the candidate for now)
             # In a real system we might split resume text if it's huge
             self.vector_store.add_documents([text_content.strip()], [metadata])
-            print(f"✅ Indexed Candidate: {candidate.name}")
+            print(f" Indexed Candidate: {candidate.name}")
             return True
 
         except Exception as e:
-            print(f"❌ Error indexing candidate {candidate_id}: {e}")
+            print(f" Error indexing candidate {candidate_id}: {e}")
             return False
 
     def index_job_role(self, job_id):
@@ -72,8 +72,8 @@ class ModelIndexer:
             }
 
             self.vector_store.add_documents([text_content.strip()], [metadata])
-            print(f"✅ Indexed Job Role: {job.title}")
+            print(f" Indexed Job Role: {job.title}")
             return True
         except Exception as e:
-            print(f"❌ Error indexing job {job_id}: {e}")
+            print(f" Error indexing job {job_id}: {e}")
             return False

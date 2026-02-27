@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
 from django.contrib.auth.hashers import make_password
-from .models import Organization, User, Policy, PolicyChunk
+from .models import Organization, User, Policy, PolicyChunk, AppLog
 from .models.recruitment import (
     Candidate, JobRole, Interview, EmailLog, 
     CalendarEvent, LeaveRequest, CandidateJobScore, HRMSSystemConfig
@@ -123,36 +123,6 @@ class UserAdmin(BaseUserAdmin):
 # ─────────────────────────────
 # Recruitment Models Admin
 # ─────────────────────────────
-@admin.register(Candidate)
-class CandidateAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "organization", "status", "source")
-    list_filter = ("status", "organization", "source")
-    search_fields = ("name", "email", "skills")
-    readonly_fields = ("parsed_data",)
-
-
-@admin.register(JobRole)
-class JobRoleAdmin(admin.ModelAdmin):
-    list_display = ("title", "department", "organization")
-    list_filter = ("department", "organization")
-    search_fields = ("title", "description", "requirements")
-
-
-@admin.register(Interview)
-class InterviewAdmin(admin.ModelAdmin):
-    list_display = ("candidate", "interviewer", "date_time", "status", "organization")
-    list_filter = ("status", "organization", "date_time")
-    search_fields = ("candidate__name", "interviewer__username")
-    date_hierarchy = "date_time"
-
-
-@admin.register(EmailLog)
-class EmailLogAdmin(admin.ModelAdmin):
-    list_display = ("recipient_email", "subject", "sent_time", "status", "organization")
-    list_filter = ("status", "organization", "sent_time")
-    search_fields = ("recipient_email", "subject", "body")
-    date_hierarchy = "sent_time"
-    readonly_fields = ("sent_time",)
 
 
 @admin.register(CalendarEvent)
@@ -164,20 +134,7 @@ class CalendarEventAdmin(admin.ModelAdmin):
     filter_horizontal = ("participants",)
 
 
-@admin.register(LeaveRequest)
-class LeaveRequestAdmin(admin.ModelAdmin):
-    list_display = ("employee", "leave_type", "start_date", "end_date", "status", "organization")
-    list_filter = ("status", "leave_type", "organization")
-    search_fields = ("employee__username", "employee__name")
-    date_hierarchy = "start_date"
 
-
-@admin.register(CandidateJobScore)
-class CandidateJobScoreAdmin(admin.ModelAdmin):
-    list_display = ("candidate", "job_role", "score", "created_at")
-    list_filter = ("job_role", "created_at")
-    search_fields = ("candidate__name", "job_role__title")
-    readonly_fields = ("created_at",)
 
 
 @admin.register(HRMSSystemConfig)
@@ -195,9 +152,54 @@ class HRMSSystemConfigAdmin(admin.ModelAdmin):
     generate_new_edit_token.short_description = "Generate fresh 24h Edit Token"
 
 # ─────────────────────────────
+# App Log Admin (read-only viewer)
+# ─────────────────────────────
+LEVEL_COLOURS = {
+    "DEBUG":    "#6b7280",
+    "INFO":     "#3b82f6",
+    "WARNING":  "#f59e0b",
+    "ERROR":    "#ef4444",
+    "CRITICAL": "#7c3aed",
+}
+
+@admin.register(AppLog)
+class AppLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "coloured_level", "logger_name", "short_message", "module", "task_id")
+    list_filter = ("level", "logger_name")
+    search_fields = ("message", "module", "func_name", "task_id", "exc_text")
+    date_hierarchy = "created_at"
+    readonly_fields = (
+        "created_at", "level", "logger_name", "message",
+        "module", "func_name", "line_no", "task_id", "exc_text",
+    )
+    list_per_page = 100
+    ordering = ("-created_at",)
+
+    # Disable add / change — logs are read-only
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def coloured_level(self, obj):
+        colour = LEVEL_COLOURS.get(obj.level, "#6b7280")
+        return format_html(
+            '<span style="color:{};font-weight:bold;">{}</span>',
+            colour,
+            obj.level,
+        )
+    coloured_level.short_description = "Level"
+    coloured_level.admin_order_field = "level"
+
+    def short_message(self, obj):
+        return obj.message[:120] + ("…" if len(obj.message) > 120 else "")
+    short_message.short_description = "Message"
+
+
+# ─────────────────────────────
 # Customize Admin Branding
 # ─────────────────────────────
 admin.site.site_header = "Harvey Admin Panel"
 admin.site.index_title = "Harvey Administration"
 admin.site.site_title = "Harvey Admin"
-

@@ -44,7 +44,7 @@
         </div>
         <div class="flex items-baseline gap-2">
           <p class="text-3xl font-bold text-white">{{ admin_users }}</p>
-          
+
         </div>
       </div>
 
@@ -56,7 +56,7 @@
         </div>
         <div class="flex items-baseline gap-2">
           <p class="text-3xl font-bold text-white">{{ staff_users }}</p>
-          
+
         </div>
       </div>
 
@@ -68,7 +68,7 @@
         </div>
         <div class="flex items-baseline gap-2">
           <p class="text-3xl font-bold text-white">{{ regular_users }}</p>
-         
+
         </div>
       </div>
     </div>
@@ -224,6 +224,70 @@
           <p class="text-xs text-gray-500">Configure system options.</p>
         </div>
       </a>
+    </div>
+  </div>
+
+  <!-- System & AI Section -->
+  <div>
+    <div class="flex items-center gap-3 mb-6 px-2">
+      <div class="h-8 w-1 rounded-full bg-violet-500"></div>
+      <h3 class="text-lg font-bold text-white tracking-wide">System &amp; AI</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- HRMS Integration -->
+      <a href="{% url 'hrms_integration' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-orange-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-orange-500/5 group-hover:text-orange-500/10 transition-colors rotate-12">
+          <i class="fas fa-network-wired"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-network-wired"></i>
+        </div>
+        <div class="relative z-10">
+          <span
+            class="text-[10px] font-bold text-orange-400 bg-orange-500/10 px-2 py-1 rounded mb-2 inline-block">INTEGRATION</span>
+          <h4 class="text-lg font-bold text-white mb-1">HRMS Integration</h4>
+          <p class="text-xs text-gray-500">Connect &amp; sync external HR systems.</p>
+        </div>
+      </a>
+
+      <!-- RAG Management -->
+      <a href="{% url 'rag_dashboard' %}"
+        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-violet-500/30 hover:-translate-y-1 relative overflow-hidden">
+        <div
+          class="absolute -right-8 -bottom-8 text-9xl text-violet-500/5 group-hover:text-violet-500/10 transition-colors rotate-12">
+          <i class="fas fa-database"></i>
+        </div>
+        <div
+          class="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center text-violet-400 text-xl group-hover:scale-110 transition-transform">
+          <i class="fas fa-database"></i>
+        </div>
+        <div class="relative z-10">
+          <span class="text-[10px] font-bold text-violet-400 bg-violet-500/10 px-2 py-1 rounded mb-2 inline-block">RAG /
+            AI</span>
+          <h4 class="text-lg font-bold text-white mb-1">RAG Management</h4>
+          <p class="text-xs text-gray-500">Reindex the AI knowledge base.</p>
+        </div>
+      </a>
+
+      <!-- Placeholder -->
+      <div
+        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
+        <i class="fas fa-plug text-3xl text-gray-600 mb-3"></i>
+        <h4 class="font-bold text-gray-400 text-sm">Integrations</h4>
+        <p class="text-[10px] text-gray-500">Coming soon</p>
+      </div>
+
+      <!-- Placeholder -->
+      <div
+        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
+        <i class="fas fa-shield-alt text-3xl text-gray-600 mb-3"></i>
+        <h4 class="font-bold text-gray-400 text-sm">Audit Logs</h4>
+        <p class="text-[10px] text-gray-500">Coming soon</p>
+      </div>
     </div>
   </div>
 

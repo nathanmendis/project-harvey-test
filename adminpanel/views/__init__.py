@@ -33,3 +33,10 @@ from .leaves import (
     approve_leave
 )
 from .hrms_settings import hrms_integration
+from .rag_management import (
+    rag_dashboard,
+    reindex_all_policies,
+    reindex_all_candidates,
+    reindex_all_jobs,
+    reindex_everything,
+)

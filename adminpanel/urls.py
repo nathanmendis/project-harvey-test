@@ -37,4 +37,11 @@ urlpatterns = [
     # Org Settings
     path("settings/", views.org_settings, name="org_settings"),
     path("settings/hrms/", views.hrms_integration, name="hrms_integration"),
+
+    # RAG Pipeline Management
+    path("rag/", views.rag_dashboard, name="rag_dashboard"),
+    path("rag/reindex/policies/", views.reindex_all_policies, name="reindex_all_policies"),
+    path("rag/reindex/candidates/", views.reindex_all_candidates, name="reindex_all_candidates"),
+    path("rag/reindex/jobs/", views.reindex_all_jobs, name="reindex_all_jobs"),
+    path("rag/reindex/all/", views.reindex_everything, name="reindex_everything"),
 ]

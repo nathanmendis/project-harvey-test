@@ -7,4 +7,5 @@ from .recruitment import (
 )
 from .policy import Policy, PolicyChunk
 from .invite import Invite
+from .app_log import AppLog
 

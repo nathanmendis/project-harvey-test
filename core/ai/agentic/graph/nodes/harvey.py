@@ -27,7 +27,7 @@ def harvey_node(state):
 
     context = get_state_value(state, "context", {})
     current_goal = context.get("current_goal", "None")
-    last_active_topic = context.get("last_active_topic", "None")
+    last_active_topic = context.get("last_active_topic", "None") 
     
     # TOKEN OPTIMIZED: Flattened extracted_info
     info_dict = context.get("extracted_info", {})

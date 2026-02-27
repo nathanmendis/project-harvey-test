@@ -99,17 +99,25 @@ def search_policies(query: str, user=None) -> str:
         if meaningful_nums: return True
         return len(nums) > 10 # High density of small numbers usually means a table or list
     
+    import re
     quantitative_keywords = ["how many", "how much", "how often", "days", "hours", "count", "period"]
     if any(k in query.lower() for k in quantitative_keywords):
-        # Need to import re for has_meaningful_numbers
-        import re
         # Combine all page content for a comprehensive check
         context_text = " ".join([d.page_content for d in final_docs])
         if not has_meaningful_numbers(context_text):
             logger.info("Answerability Gate: No meaningful digits found for quantitative query. Short-circuiting.")
             return json.dumps({"ok": True, "message": "The policy mentions the relevant section but does not specify the exact number, duration, or frequency for this request."})
 
-    formatted_results = [f"Source: {d.metadata.get('title', 'Unknown')}\nExcerpt: {' '.join(d.page_content.split())}" for d in final_docs]
+    # De-duplicate chunks to prevent the same text repeating over and over
+    seen_contents = set()
+    unique_docs = []
+    for d in final_docs:
+        content_hash = hash(d.page_content.strip())
+        if content_hash not in seen_contents:
+            seen_contents.add(content_hash)
+            unique_docs.append(d)
+
+    formatted_results = [f"Source: {d.metadata.get('title', 'Unknown')}\nExcerpt: {' '.join(d.page_content.split())}" for d in unique_docs]
     context = "\n\n".join(formatted_results)
 
     # 5. Professional LLM Rephrasing
@@ -135,7 +143,6 @@ STRICT RULES:
         answer = response.content
         
         # 6. Post-Answer Numeric Auto-Grader
-        import re
         nums_answer = re.findall(r"\d+", answer)
         if nums_answer:
             nums_context = re.findall(r"\d+", context)

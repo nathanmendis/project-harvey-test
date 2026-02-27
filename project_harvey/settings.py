@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'adminpanel',
     'integrations',
     'encrypted_model_fields',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -198,10 +199,15 @@ LOGGING = {
             'filename': BASE_DIR / 'logs/harvey.log',
             'formatter': 'verbose',
         },
+        'db': {
+            'level': 'DEBUG',
+            'class': 'core.logging.DBLogHandler',
+            'formatter': 'simple',
+        },
     },
     'loggers': {
-        'harvey': {  # Custom logger for our app
-            'handlers': ['console', 'file'],
+        'harvey': {
+            'handlers': ['console', 'file', 'db'],
             'level': 'DEBUG',
             'propagate': False,
         },
@@ -225,4 +231,7 @@ CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', _REDIS)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+# Use django_celery_beat's DB-backed scheduler so schedules can be
+# managed via Django admin at runtime without code changes.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # ---------------------------------------------------------------------------

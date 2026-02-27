@@ -184,6 +184,20 @@
             </ul>
           </div>
 
+          <!-- RAG / AI -->
+          <div>
+            <h3 class="px-4 text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-2">RAG / AI</h3>
+            <ul class="space-y-1">
+              <li>
+                <a href="{% url 'rag_dashboard' %}"
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'rag' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i class="fas fa-database w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
+                  <span class="font-medium text-sm">RAG Management</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
           <!-- Settings -->
           <div>
             <h3 class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">System</h3>

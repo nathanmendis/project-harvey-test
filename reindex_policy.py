@@ -24,9 +24,9 @@ def reindex():
     print("Starting re-indexing with micro-chunks...")
     success = indexer.index_policy(policy.id)
     if success:
-        print("✅ Re-indexing complete.")
+        print(" Re-indexing complete.")
     else:
-        print("❌ Re-indexing failed.")
+        print(" Re-indexing failed.")
 
 if __name__ == "__main__":
     reindex()

@@ -18,6 +18,10 @@ app.conf.beat_schedule = {
         'task': 'integrations.hrms.sync.tasks.sync_all_data',
         'schedule': crontab(minute=0, hour='*/3'),  # Exactly every 3 hours
     },
+    'rag-index-candidates-and-jobs-every-2-hours': {
+        'task': 'core.tasks.index_candidates_and_jobs',
+        'schedule': crontab(minute=0, hour='*/2'),  # Every 2 hours
+    },
 }
 
 app.conf.timezone = 'Asia/Kolkata'
