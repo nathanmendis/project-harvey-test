@@ -1,423 +1,110 @@
-<!-- Features Grid: Compact Synchronized Scroll Timeline -->
-<section id="features" class="bg-gray-950 py-16 px-6 border-t border-gray-800 relative overflow-hidden md:py-20">
+<!-- Features Grid: High-Density Glass Cards -->
+<section id="features" class="bg-gray-950 py-16 px-6 border-t border-gray-800 relative z-10 md:py-20">
 
     <!-- Background decorative grid -->
     <div
         class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 brightness-100 contrast-150 pointer-events-none">
     </div>
 
-    <div class="max-w-5xl mx-auto relative z-10">
-        <div class="text-center mb-12 md:mb-16">
+    <!-- Glows -->
+    <div
+        class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
+    </div>
+    <div
+        class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+        <div class="text-center mb-16 md:mb-20">
             <h2
                 class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white to-indigo-300 mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
-                Why Harvey?
+                Enterprise Capabilities
             </h2>
-            <p class="text-gray-300 max-w-2xl mx-auto text-base md:text-lg font-light leading-relaxed">
-                "Where <span class="text-white font-medium">human ambition</span> meets <span
-                    class="text-indigo-400 font-medium">machine precision</span>."
+            <p class="text-gray-400 max-w-3xl mx-auto text-base md:text-lg font-light leading-relaxed">
+                A technical showcase of modern web architecture and applied AI.
             </p>
         </div>
 
-        <div class="relative" id="timeline-container">
-            <!-- Base Gray Line (Stops at the last item) -->
-            <!-- Mobile: left-4 (1rem = 16px). Desktop: left-1/2 -->
-            <div
-                class="absolute left-4 md:left-1/2 top-0 bottom-12 w-0.5 bg-gray-800 rounded-full -translate-x-1/2 md:transform">
+        <!-- Responsive 2x2 Grid using Refactored Components -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+            {% for cat in feature_categories %}
+            {% cycle "#6366f1" "#a855f7" "#10b981" "#f43f5e" as cat_color silent %}
+            {% cycle "99,102,241" "168,85,247" "16,185,129" "244,63,94" as cat_rgb silent %}
+
+            <div class="feature-category opacity-0 blur-md translate-y-12 transition-all duration-700 glass-card p-6 lg:p-10 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl relative overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col"
+                style="--cat-color: {{ cat_color }}; --cat-rgb: {{ cat_rgb }};">
+
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
+                        style="background: rgba({{ cat_rgb }}, 0.2); color: {{ cat_color }};">
+                        <i class="fas {{ cat.icon }} text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">{{ cat.title|safe }}</h3>
+                        <p class="text-sm text-gray-400">{{ cat.subtitle }}</p>
+                    </div>
+                </div>
+
+                <ul class="space-y-6 relative z-10 flex-1">
+                    {% for item in cat.items %}
+                    <li class="feature-item opacity-0 translate-y-4 transition-all duration-500 flex gap-4">
+                        <div class="mt-1 text-sm" style="color: {{ cat_color }};">
+                            <i class="fas {{ item.icon }}"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-semibold text-sm">{{ item.title }}</h4>
+                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">{{ item.description }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Background glow -->
+                <div class="absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-[80px] group-hover:opacity-100 transition-opacity duration-700 pointer-events-none opacity-50"
+                    style="background: rgba({{ cat_rgb }}, 0.15);"></div>
             </div>
-
-            <!-- Animated Active Line (Fills on scroll) -->
-            <div id="timeline-line"
-                class="absolute left-4 md:left-1/2 top-0 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-cyan-500 shadow-[0_0_15px_rgba(99,102,241,0.6)] rounded-full -translate-x-1/2 md:transform h-0 transition-[height] duration-75 ease-linear will-change-[height]">
-            </div>
-
-            <div class="space-y-10 pb-8">
-
-                <!-- Feature 1: Left -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] group-hover:border-indigo-500/30 transition-all duration-300">
-
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-indigo-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-indigo-300 transition-colors">
-                                Secure Entry</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Identity management and
-                                access control node.</p>
-                            <div
-                                class="inline-flex md:ml-auto items-center gap-2 text-indigo-400 text-xs font-semibold bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/10 w-fit">
-                                <i class="fas fa-lock"></i> Auth
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
-                </div>
-
-                <!-- Feature 2: Right -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div class="w-full md:w-[45%] order-3 md:order-1"></div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-12 order-2 md:order-3 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group-hover:border-blue-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-blue-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-300 transition-colors">
-                                Neural Core</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">LLM processing engine for
-                                natural language.</p>
-                            <div
-                                class="inline-flex items-center gap-2 text-blue-400 text-xs font-semibold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/10 w-fit">
-                                <i class="fas fa-brain"></i> AI Chatbot
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 3: Left -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] group-hover:border-purple-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-purple-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
-                                Knowledge Base</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Vector search retrieval for
-                                company policies.</p>
-                            <div
-                                class="inline-flex md:ml-auto items-center gap-2 text-purple-400 text-xs font-semibold bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/10 w-fit">
-                                <i class="fas fa-search"></i> RAG Engine
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
-                </div>
-
-                <!-- Feature 4: Right -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div class="w-full md:w-[45%] order-3 md:order-1"></div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-12 order-2 md:order-3 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] group-hover:border-pink-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-pink-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-pink-300 transition-colors">
-                                Memory Stream</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Context retention for
-                                continuous dialogue.</p>
-                            <div
-                                class="inline-flex items-center gap-2 text-pink-400 text-xs font-semibold bg-pink-500/10 px-3 py-1 rounded-full border border-pink-500/10 w-fit">
-                                <i class="fas fa-history"></i> Context
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 5: Left -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] group-hover:border-green-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-green-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-green-300 transition-colors">
-                                Job Ops</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Tools for managing the
-                                recruitment lifecycle.</p>
-                            <div
-                                class="inline-flex md:ml-auto items-center gap-2 text-green-400 text-xs font-semibold bg-green-500/10 px-3 py-1 rounded-full border border-green-500/10 w-fit">
-                                <i class="fas fa-briefcase"></i> Jobs
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
-                </div>
-
-                <!-- Feature 6: Right -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div class="w-full md:w-[45%] order-3 md:order-1"></div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-12 order-2 md:order-3 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] group-hover:border-red-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-red-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-red-300 transition-colors">
-                                Intent Router</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Automated classification of
-                                user requests.</p>
-                            <div
-                                class="inline-flex items-center gap-2 text-red-400 text-xs font-semibold bg-red-500/10 px-3 py-1 rounded-full border border-red-500/10 w-fit">
-                                <i class="fas fa-random"></i> Routing
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 7: Left (New) -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(251,146,60,0.15)] group-hover:border-orange-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-orange-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-orange-300 transition-colors">
-                                Secure OAuth</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Enterprise-grade Google
-                                Identity integration.</p>
-                            <div
-                                class="inline-flex md:ml-auto items-center gap-2 text-orange-400 text-xs font-semibold bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/10 w-fit">
-                                <i class="fab fa-google"></i> Identity
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
-                </div>
-
-                <!-- Feature 8: Right (Email Automation) -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div class="w-full md:w-[45%] order-3 md:order-1"></div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-12 order-2 md:order-3 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(14,165,233,0.15)] group-hover:border-sky-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-sky-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-sky-300 transition-colors">
-                                Email Automation</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Intelligent email delivery
-                                via Gmail API integration.</p>
-                            <div
-                                class="inline-flex items-center gap-2 text-sky-400 text-xs font-semibold bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/10 w-fit">
-                                <i class="fas fa-envelope"></i> Gmail
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feature 9: Left (Calendar Integration) -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-0 md:pr-12 md:text-right order-2 md:order-1 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(250,204,21,0.15)] group-hover:border-yellow-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-yellow-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-
-                            <h3 class="text-lg font-bold text-white mb-2 group-hover:text-yellow-300 transition-colors">
-                                Calendar Sync</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Automated event scheduling
-                                with Google Calendar.</p>
-                            <div
-                                class="inline-flex md:ml-auto items-center gap-2 text-yellow-400 text-xs font-semibold bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/10 w-fit">
-                                <i class="fas fa-calendar-alt"></i> Scheduling
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-                    <div class="w-full md:w-[45%] order-3 md:order-3"></div>
-                </div>
-
-                <!-- Feature 10: Right (Data Encryption) -->
-                <div class="relative flex flex-col md:flex-row items-center md:justify-between group timeline-item">
-                    <div class="w-full md:w-[45%] order-3 md:order-1"></div>
-                    <div
-                        class="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 hidden md:block transition-all duration-500 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)]">
-                    </div>
-
-                    <div
-                        class="w-full md:w-[45%] pl-12 md:pl-12 order-2 md:order-3 card-wrapper transition-all duration-500 will-change-[opacity,filter,transform]">
-                        <div
-                            class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl relative hover:bg-white/10 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] group-hover:border-emerald-500/30 transition-all duration-300">
-                            <div
-                                class="md:hidden absolute top-1/2 -translate-y-1/2 -left-[40px] w-4 h-4 bg-gray-900 rounded-full border-2 border-emerald-500 z-20 node-mobile transition-colors duration-500">
-                            </div>
-                            <h3
-                                class="text-lg font-bold text-white mb-2 group-hover:text-emerald-300 transition-colors">
-                                Encrypted Storage</h3>
-                            <p class="text-gray-400 text-sm mb-3 group-hover:text-gray-300">Database-level encryption
-                                for all stored messages.</p>
-                            <div
-                                class="inline-flex items-center gap-2 text-emerald-400 text-xs font-semibold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/10 w-fit">
-                                <i class="fas fa-shield-alt"></i> Security
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Endpoint (Admin) -->
-                <div class="relative flex flex-col items-center justify-center pt-8 timeline-item" id="admin-node">
-                    <!-- Stop line here -->
-                    <div
-                        class="absolute left-4 md:left-1/2 top-10 -translate-x-1/2 w-4 h-4 bg-gray-900 rounded-full border-2 border-gray-700 z-10 node-desktop shadow-[0_0_0_4px_rgba(15,23,42,1)] transition-all duration-500">
-                    </div>
-
-                    <div
-                        class="glass-card h-[200px] flex flex-col justify-center p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl text-center max-w-sm w-full mx-auto relative hover:scale-105 transition-all duration-500 shadow-2xl shadow-cyan-900/20 card-wrapper mt-4">
-                        <h3 class="text-xl font-bold text-white mb-2">Admin Control</h3>
-                        <p class="text-gray-400 text-sm mb-4">Full system configuration center.</p>
-                        <div class="flex justify-center gap-2">
-                            <span
-                                class="text-[10px] font-mono text-cyan-400 bg-cyan-950/30 px-2 py-1 rounded border border-cyan-500/20">DASHBOARD</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            {% endfor %}
         </div>
     </div>
 
+    <style>
+        .feature-category:hover {
+            border-color: rgba(var(--cat-rgb), 0.3) !important;
+            box-shadow: 0 0 40px rgba(var(--cat-rgb), 0.1);
+        }
+    </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('timeline-container');
-            const line = document.getElementById('timeline-line');
-            const adminNode = document.getElementById('admin-node');
-            const items = document.querySelectorAll('.timeline-item');
+            const featuresSection = document.getElementById('features');
+            const categories = document.querySelectorAll('.feature-category');
+            let animationTriggered = false;
 
-            // Colors for connection dots
-            const nodeColors = [
-                '#6366f1', // Indigo - Secure Entry
-                '#3b82f6', // Blue - Neural Core
-                '#a855f7', // Purple - Knowledge Base
-                '#ec4899', // Pink - Memory Stream
-                '#22c55e', // Green - Job Ops
-                '#ef4444', // Red - Intent Router
-                '#fb923c', // Orange - Secure OAuth
-                '#0ea5e9', // Sky - Email Automation
-                '#facc15', // Yellow - Calendar Sync
-                '#10b981', // Emerald - Data Encryption
-                '#06b6d4'  // Cyan - Admin Control
-            ];
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animationTriggered) {
+                        animationTriggered = true;
 
-            function handleScroll() {
-                const rect = container.getBoundingClientRect();
-                const windowHeight = window.innerHeight;
+                        // Sequentially fade in category cards
+                        categories.forEach((card, cardIndex) => {
+                            setTimeout(() => {
+                                // Fade in card
+                                card.classList.remove('opacity-0', 'blur-md', 'translate-y-12');
 
-                // Logic to calculate progress
-                // Start: When container top is at (windowHeight / 2)
-                // End: When bottom of active content is reached
-                // But we want the line to fill based on scroll position relative to container
+                                // Find items inside this card and fade them in sequentially
+                                const items = card.querySelectorAll('.feature-item');
+                                items.forEach((item, itemIndex) => {
+                                    setTimeout(() => {
+                                        item.classList.remove('opacity-0', 'translate-y-4');
+                                    }, 200 + (itemIndex * 150)); // Stagger list items inside card
+                                });
 
-                // The 'active' point of the screen is roughly 60% down
-                const triggerPoint = windowHeight * 0.6;
-                const containerTop = rect.top;
-
-                // How far has the trigger point moved into the container?
-                let scrollDistance = triggerPoint - containerTop;
-
-                // Clamp line height: 0 to Max (Center of admin node)
-                // Updated to 48px offset for bottom-12
-                const maxLineHeight = container.clientHeight - 48;
-
-                let lineHeight = Math.max(0, Math.min(maxLineHeight, scrollDistance));
-                line.style.height = `${lineHeight}px`;
-
-                // Now check each item state based on lineHeight
-                items.forEach((item, index) => {
-                    const cardWrapper = item.querySelector('.card-wrapper');
-                    const desktopNode = item.querySelector('.node-desktop');
-                    const mobileNode = item.querySelector('.node-mobile');
-
-                    // Get item's position relative to container top
-                    // Since container is relative, we can use offsetTop logic or rect logic
-                    const itemRect = item.getBoundingClientRect();
-                    const itemRelativeTop = itemRect.top - rect.top;
-
-                    // If the glowing line has passed this item's center/top
-                    // Let's say if line height > itemRelativeTop + 50
-                    const itemActiveThreshold = itemRelativeTop + 50;
-
-                    const isActive = lineHeight > itemActiveThreshold;
-                    const color = nodeColors[index] || '#ffffff';
-
-                    if (isActive) {
-                        // Active State
-                        if (cardWrapper) {
-                            cardWrapper.style.opacity = '1';
-                            cardWrapper.style.filter = 'blur(0px)';
-                            cardWrapper.style.transform = 'translateY(0) scale(1)';
-                        }
-                        if (desktopNode) {
-                            desktopNode.style.backgroundColor = color;
-                            desktopNode.style.borderColor = color;
-                            desktopNode.style.boxShadow = `0 0 15px ${color}`;
-                        }
-                        if (mobileNode) {
-                            mobileNode.style.backgroundColor = color;
-                            mobileNode.style.borderColor = color;
-                            mobileNode.style.boxShadow = `0 0 10px ${color}`;
-                        }
-                    } else {
-                        // Inactive State (Blurred & Dimmed)
-                        if (cardWrapper) {
-                            cardWrapper.style.opacity = '0.1'; // Very faint
-                            cardWrapper.style.filter = 'blur(4px)'; // Blurred
-                            cardWrapper.style.transform = 'translateY(10px) scale(0.98)';
-                        }
-                        if (desktopNode) {
-                            desktopNode.style.backgroundColor = '#111827'; // Gray-900
-                            desktopNode.style.borderColor = '#374151'; // Gray-700
-                            desktopNode.style.boxShadow = 'none';
-                        }
-                        if (mobileNode) {
-                            mobileNode.style.backgroundColor = '#111827';
-                            mobileNode.style.borderColor = '#374151';
-                            mobileNode.style.boxShadow = 'none';
-                        }
+                            }, cardIndex * 250); // Stagger cards themselves
+                        });
                     }
                 });
-            }
+            }, { threshold: 0.1 });
 
-            window.addEventListener('scroll', handleScroll, { passive: true });
-            // Initial check
-            handleScroll();
+            observer.observe(featuresSection);
         });
     </script>
 </section>

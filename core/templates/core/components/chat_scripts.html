@@ -14,6 +14,75 @@
     }
 </script>
 
+<!-- Markdown Library for Chat Formatting -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+    /* Restore basic HTML styles stripped by Tailwind for markdown rendering */
+    .prose-chat p {
+        margin-bottom: 0.75em;
+    }
+
+    .prose-chat p:last-child {
+        margin-bottom: 0;
+    }
+
+    .prose-chat strong {
+        font-weight: 700;
+        color: inherit;
+    }
+
+    .prose-chat em {
+        font-style: italic;
+    }
+
+    .prose-chat ul {
+        list-style-type: disc;
+        padding-left: 1.5em;
+        margin-bottom: 0.75em;
+    }
+
+    .prose-chat ol {
+        list-style-type: decimal;
+        padding-left: 1.5em;
+        margin-bottom: 0.75em;
+    }
+
+    .prose-chat li {
+        margin-bottom: 0.25em;
+    }
+
+    .prose-chat a {
+        color: #818cf8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .prose-chat a:hover {
+        color: #6366f1;
+    }
+
+    .prose-chat code {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: monospace;
+        font-size: 0.875em;
+    }
+
+    .prose-chat pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin-bottom: 0.75em;
+    }
+
+    .prose-chat pre code {
+        background: transparent;
+        padding: 0;
+    }
+</style>
+
 <!-- 2. Modules -->
 <script src="{% static 'core/js/chat/utils.js' %}?v={% now 'U' %}7"></script>
 <script src="{% static 'core/js/chat/ui.js' %}?v={% now 'U' %}7"></script>

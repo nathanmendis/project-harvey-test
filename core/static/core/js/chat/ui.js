@@ -101,13 +101,20 @@ Harvey.UI = {
         contentWrapper.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'} max-w-2xl`;
 
         const bubble = document.createElement("div");
-        bubble.classList.add("p-4", "rounded-2xl", "leading-relaxed", "text-sm", "shadow-sm", "w-full");
+        bubble.classList.add("p-4", "rounded-2xl", "leading-relaxed", "text-sm", "shadow-sm", "w-full", "prose-chat");
         bubble.classList.add(sender === "user" ? "chat-bubble-user" : "chat-bubble-ai");
         if (sender === "user") bubble.classList.add("text-white");
 
         // Format Content
-        let formatted = text.replace(/\n/g, '<br>');
-        formatted = Harvey.Utils.linkify(formatted);
+        let formatted = text;
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({ breaks: true, gfm: true });
+            formatted = marked.parse(text);
+        } else {
+            formatted = text.replace(/\n/g, '<br>');
+            formatted = Harvey.Utils.linkify(formatted);
+        }
+
         bubble.innerHTML = formatted;
 
         contentWrapper.appendChild(bubble);
