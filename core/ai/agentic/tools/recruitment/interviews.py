@@ -2,16 +2,19 @@ from langchain_core.tools import tool
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from core.models.recruitment import Candidate, Interview
-from core.ai.agentic.tools.utils import ok, err, get_org, resolve_candidate_emails
+from core.ai.agentic.tools.utils import ok, err, get_org, resolve_candidate_emails, resolve_natural_time
+import logging
+
+logger = logging.getLogger("harvey")
 
 @tool("schedule_interview", return_direct=True)
 def schedule_interview(candidate: str, start_time: str, job_title: str = "Candidate", duration_minutes: int = 30, user=None) -> str:
     """
-    Schedules an interview with a candidate for the current user.
-    ONLY use this tool if the user explicitly mentions the word 'interview'. 
-    For generic meetings or scheduling, use create_calendar_event_tool.
+    Schedules a candidate interview for the current user.
+    ONLY pick this tool if the user explicitly uses the word 'interview'.
+    For meetings, invites, or generic calendar events, use create_calendar_event_tool.
     candidate: The Name or Email of the candidate.
-    start_time: ISO 8601 datetime string (e.g., '2023-10-27T10:00:00').
+    start_time: Natural language time (e.g., 'monday 3pm', 'tomorrow at 10am').
     job_title: The designation/role for the interview (e.g., 'Software Engineer').
     """
     # 1. Validation
@@ -37,16 +40,13 @@ def schedule_interview(candidate: str, start_time: str, job_title: str = "Candid
     if not c_obj:
         return err(f"Candidate with email '{resolved_email}' not found.")
 
-    # 3. Create Interview in DB
-    dt = parse_datetime(start_time)
+    # 3. Resolve Time using Python
+    from core.ai.agentic.tools.utils import get_user_timezone
+    tz = get_user_timezone(user, org)
+
+    dt = resolve_natural_time(start_time, user_tz=tz)
     if not dt:
-        return err("Invalid date format. Please use ISO 8601.")
-    
-    # Localize naive datetime to IST if no timezone specified
-    if dt.tzinfo is None:
-        import pytz
-        ist = pytz.timezone("Asia/Kolkata")
-        dt = ist.localize(dt)
+        return err(f"I couldn't understand the interview time '{start_time}'. Please try something like 'monday 3pm'.")
 
     try:
         i = Interview.objects.create(
@@ -60,30 +60,33 @@ def schedule_interview(candidate: str, start_time: str, job_title: str = "Candid
         # 4. Create Google Calendar Invite
         calendar_link = ""
         try:
-            from integrations.google.calendar import CalendarService
+            from core.ai.agentic.tools.utils import create_calendar_event_helper
             import datetime
-            service = CalendarService(user=user)
             
             end_dt = dt + datetime.timedelta(minutes=duration_minutes)
             
             event_title = f"{job_title} Interview"
-            attendees = [c_obj.email]
+            attendees_list = [c_obj.email]
             if user.email:
-                attendees.append(user.email)
-                
-            event_result = service.create_event(
+                attendees_list.append(user.email)
+            
+            description = f"Interview for {job_title} role with {c_obj.name}."
+            
+            event_result, final_tz = create_calendar_event_helper(
                 title=event_title,
-                start_time=dt.isoformat(),
-                end_time=end_dt.isoformat(),
-                attendees=",".join(attendees),
-                description=f"Interview for {job_title} role with {c_obj.name}."
+                start_dt=dt,
+                end_dt=end_dt,
+                attendees_list=attendees_list,
+                description=description,
+                user=user,
+                tz=tz
             )
+            
             calendar_link = event_result.get('htmlLink', '')
         except Exception as cal_err:
-            print(f"⚠️ Calendar Invite failed: {cal_err}")
-            # We don't fail the whole tool if just calendar fails, but we log it.
+            logger.error(f"Calendar Invite failed: {cal_err}")
 
-        msg = f"I have confirmed that the {job_title} interview with {c_obj.name} is scheduled."
+        msg = f"I have confirmed that the {job_title} interview with {c_obj.name} is scheduled for {dt.strftime('%A, %B %d at %I:%M %p')}."
         if calendar_link:
             msg += f" Google Calendar Link: {calendar_link}"
         

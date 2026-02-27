@@ -7,7 +7,7 @@ def create_job_description(title: str, description: str, requirements: str, depa
     """Creates a job posting / role for hiring."""
     org = get_org(user)
     if not org:
-        return err("User is not associated with any organization. Please contact support.")
+        return err("User not associated with organization.")
 
     j = JobRole.objects.create(
         organization=org,
@@ -58,10 +58,10 @@ def get_job_role_detail(job_id: int, user=None) -> str:
         return err(f"Job role with ID {job_id} not found.")
 
     detail = [
-        f"**Job Role: {j.title}**",
-        f"🏢 Department: {j.department}",
-        f"\n**Description**:\n{j.description}",
-        f"\n**Requirements**:\n{j.requirements}"
+        f"Job Role: {j.title}",
+        f"Department: {j.department}",
+        f"Description:\n{j.description}",
+        f"Requirements:\n{j.requirements}"
     ]
 
     return ok("\n".join(detail), id=j.id, title=j.title)

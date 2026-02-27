@@ -18,40 +18,39 @@
     }
 
     .hero-pattern {
-      background-color: #0f172a;
+      background-color: var(--color-harvey-bg);
       background-image:
-        radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-        radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-        radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.05) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(31, 41, 55, 0.5) 0, transparent 50%);
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(31, 41, 55, 0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
     }
 
-    /* Sidebar matches Chat Page style */
+    /* Sidebar - Professional & Minimalist */
     .sidebar {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(15px);
-      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      background: #0f172a;
+      /* Solid dark for more professional feel */
+      border-right: 1px solid rgba(255, 255, 255, 0.03);
     }
 
     .sidebar a.active {
-      background: rgba(79, 70, 229, 0.15);
-      color: #818cf8;
-      border-right: 4px solid #4f46e5;
+      background: rgba(6, 182, 212, 0.08);
+      color: var(--color-harvey-primary);
+      border-left: 3px solid var(--color-harvey-primary);
     }
 
     .sidebar a:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.02);
       color: white;
     }
 
     /* Custom Scrollbar for Sidebar */
     .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
+      width: 3px;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track {
@@ -59,7 +58,7 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
     }
   </style>
@@ -71,149 +70,151 @@
 
     <!-- Backdrop (Mobile Only) -->
     <div id="sidebar-backdrop" onclick="toggleSidebar()"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 hidden transition-opacity duration-300 md:hidden"></div>
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden transition-opacity duration-300 md:hidden"></div>
 
     <!-- Sidebar: Fixed on Mobile, Static on Desktop -->
     <aside id="sidebar"
-      class="sidebar w-64 flex-shrink-0 flex flex-col justify-between absolute inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 shadow-2xl md:shadow-none h-full">
+      class="sidebar w-60 flex-shrink-0 flex flex-col justify-between absolute inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 h-full">
       <div>
         <div class="p-6 border-b border-white/5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="h-8 w-8 bg-indigo-600 rounded flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <i class="fas fa-robot text-white text-sm"></i>
+          <div class="flex items-center gap-2.5">
+            <div
+              class="h-7 w-7 bg-harvey-primary/10 rounded-lg flex items-center justify-center border border-harvey-primary/20">
+              <i class="fas fa-robot text-harvey-primary text-xs"></i>
             </div>
-            <h2
-              class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              Harvey Admin</h2>
+            <h2 class="text-lg font-bold tracking-tight text-white/90">Harvey</h2>
           </div>
           <!-- Close Button (Mobile Only) -->
-          <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+          <button onclick="toggleSidebar()" class="text-gray-500 hover:text-white md:hidden">
             <i class="fas fa-times"></i>
           </button>
         </div>
 
-        <div class="px-6 mt-4 mb-2">
-          <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-white/5 border border-white/5">
+        <div class="px-5 mt-4 mb-2">
+          <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-white/5 border border-white/5">
             <div class="flex items-center gap-3 overflow-hidden">
               <div
-                class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs shrink-0">
-                <i class="fas fa-user"></i>
+                class="w-6 h-6 rounded-full bg-harvey-primary/10 flex items-center justify-center text-harvey-primary text-[10px] shrink-0 border border-harvey-primary/10">
+                <i class="fas fa-user text-[10px]"></i>
               </div>
-              <span class="text-xs font-medium text-gray-300 truncate">{{ user.username }}</span>
+              <span class="text-[11px] font-semibold text-gray-300 truncate">{{ user.username }}</span>
             </div>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
               <button type="submit"
-                class="text-gray-500 hover:text-red-400 transition-colors flex items-center justify-center w-6 h-6 rounded hover:bg-white/10"
+                class="text-gray-500 hover:text-red-400 transition-colors flex items-center justify-center w-6 h-6 rounded hover:bg-white/5"
                 title="Logout">
-                <i class="fas fa-power-off text-xs"></i>
+                <i class="fas fa-power-off text-[10px]"></i>
               </button>
             </form>
           </div>
         </div>
 
-        <nav class="mt-4 px-3 flex-1 overflow-y-auto custom-scrollbar space-y-6">
+        <nav class="mt-4 px-3 flex-1 overflow-y-auto custom-scrollbar space-y-7">
 
-          <!-- Overview -->
+          <!-- Main -->
           <div>
-            <h3 class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Overview</h3>
+            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Main</h3>
             <ul class="space-y-1">
               <li>
                 <a href="{% url 'admin_dashboard' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'admin_dashboard' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-chart-pie w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Dashboard</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'admin_dashboard' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-chart-line w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Dashboard</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'chat_view' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 group">
-                  <i class="fas fa-robot w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">AI Assistant</span>
+                  class="flex items-center px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 group">
+                  <i
+                    class="fas fa-comment-alt w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">AI Agent</span>
                 </a>
               </li>
             </ul>
           </div>
 
-          <!-- Recruitment Suite -->
+          <!-- HR & Recruitment -->
           <div>
-            <h3 class="px-4 text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Recruitment</h3>
+            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Recruitment</h3>
             <ul class="space-y-1">
               <li>
                 <a href="{% url 'recruitment_dashboard' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'recruitment' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-briefcase w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Candidates</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'recruitment' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-id-card w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Candidates</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'leaves' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'leaves' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-calendar-alt w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Leaves</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'leaves' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-calendar-day w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Leaves</span>
                 </a>
               </li>
             </ul>
           </div>
 
-          <!-- Organization -->
+          <!-- Team & Knowledge -->
           <div>
-            <h3 class="px-4 text-[10px] font-bold text-purple-500 uppercase tracking-widest mb-2">Organization</h3>
+            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Organization</h3>
             <ul class="space-y-1">
               <li>
                 <a href="{% url 'manage_employees' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_employees' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-users w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Employees</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_employees' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-user-friends w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Employees</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'manage_invites' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_invites' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-paper-plane w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Invites</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_invites' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-envelope-open-text w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Invites</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'manage_policies' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-book w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Policies</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-file-invoice w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Policies</span>
                 </a>
               </li>
             </ul>
           </div>
 
-          <!-- RAG / AI -->
+          <!-- Systems & AI -->
           <div>
-            <h3 class="px-4 text-[10px] font-bold text-violet-500 uppercase tracking-widest mb-2">RAG / AI</h3>
+            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Systems & AI</h3>
             <ul class="space-y-1">
               <li>
                 <a href="{% url 'rag_dashboard' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'rag' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-database w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">RAG Management</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'rag' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-brain w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">RAG Management</span>
                 </a>
               </li>
-            </ul>
-          </div>
-
-          <!-- Settings -->
-          <div>
-            <h3 class="px-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">System</h3>
-            <ul class="space-y-1">
               <li>
                 <a href="{% url 'org_settings' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-sliders-h w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">Settings</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-sliders-h w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Settings</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'hrms_integration' %}"
-                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'hrms_integration' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i class="fas fa-network-wired w-5 text-center mr-3 transition-transform group-hover:scale-110"></i>
-                  <span class="font-medium text-sm">HRMS Integration</span>
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'hrms_integration' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-sync-alt w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">HRMS Sync</span>
                 </a>
               </li>
             </ul>
@@ -222,21 +223,21 @@
       </div>
 
       <!-- Footer -->
-      <div class="p-4 border-t border-white/5 bg-black/20">
-        <div class="px-2 flex justify-between items-center">
-          <p class="text-[10px] text-gray-600 uppercase tracking-widest">&copy; 2025 Harvey</p>
-          <span class="text-[9px] text-gray-700 font-mono bg-white/5 px-2 py-0.5 rounded">v1.2</span>
+      <div class="px-6 py-4 border-t border-white/[0.03]">
+        <div class="flex justify-between items-center opacity-30">
+          <p class="text-[8px] uppercase tracking-widest">&copy; 2026 Harvey</p>
+          <span class="text-[8px] font-mono">v1.2.0</span>
         </div>
       </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-slate-900/50">
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-harvey-bg/50">
 
       <!-- Mobile Header / Toggle -->
       <div
-        class="md:hidden p-4 flex items-center justify-between border-b border-white/5 bg-slate-900/80 backdrop-blur-md z-20 sticky top-0">
-        <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white transition-colors">
+        class="md:hidden p-4 flex items-center justify-between border-b border-white/5 bg-harvey-bg/80 backdrop-blur-md z-20 sticky top-0">
+        <button onclick="toggleSidebar()" class="text-harvey-muted hover:text-white transition-colors">
           <i class="fas fa-bars text-xl"></i>
         </button>
         <span class="font-bold text-white">Dashboard</span>

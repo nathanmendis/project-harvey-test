@@ -1,5 +1,5 @@
 <!-- Features Grid: High-Density Glass Cards -->
-<section id="features" class="bg-gray-950 py-16 px-6 border-t border-gray-800 relative z-10 md:py-20">
+<section id="features" class="bg-harvey-bg py-16 px-6 border-t border-gray-800 relative z-10 md:py-20">
 
     <!-- Background decorative grid -->
     <div
@@ -8,60 +8,59 @@
 
     <!-- Glows -->
     <div
-        class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
+        class="absolute top-0 left-1/4 w-96 h-96 bg-harvey-primary/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
     </div>
     <div
-        class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
+        class="absolute bottom-0 right-1/4 w-96 h-96 bg-harvey-accent/10 rounded-full blur-3xl pointer-events-none mix-blend-screen">
     </div>
 
     <div class="max-w-7xl mx-auto relative z-10">
         <div class="text-center mb-16 md:mb-20">
             <h2
-                class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white to-indigo-300 mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-harvey-accent via-white to-harvey-accent mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                 Enterprise Capabilities
             </h2>
-            <p class="text-gray-400 max-w-3xl mx-auto text-base md:text-lg font-light leading-relaxed">
+            <p class="text-harvey-muted max-w-3xl mx-auto text-base md:text-lg font-light leading-relaxed">
                 A technical showcase of modern web architecture and applied AI.
             </p>
         </div>
 
-        <!-- Responsive 2x2 Grid using Refactored Components -->
+        <!-- Responsive 2x2 Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
             {% for cat in feature_categories %}
-            {% cycle "#6366f1" "#a855f7" "#10b981" "#f43f5e" as cat_color silent %}
-            {% cycle "99,102,241" "168,85,247" "16,185,129" "244,63,94" as cat_rgb silent %}
 
-            <div class="feature-category opacity-0 blur-md translate-y-12 transition-all duration-700 glass-card p-6 lg:p-10 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl relative overflow-hidden group hover:shadow-xl transition-all duration-500 flex flex-col"
-                style="--cat-color: {{ cat_color }}; --cat-rgb: {{ cat_rgb }};">
+            <div class="feature-category opacity-0 blur-md translate-y-12 transition-all duration-700 glass-card p-6 lg:p-10 rounded-3xl border border-white/5 bg-harvey-surface/40 backdrop-blur-xl relative overflow-hidden group hover:shadow-2xl hover:shadow-harvey-primary/10 transition-all duration-500 flex flex-col"
+                style="--cat-color: var(--color-harvey-primary); --cat-rgb: 6, 182, 212;">
 
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500"
-                        style="background: rgba({{ cat_rgb }}, 0.2); color: {{ cat_color }};">
+                    <div
+                        class="w-12 h-12 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500 bg-harvey-primary/20 text-harvey-primary">
                         <i class="fas {{ cat.icon }} text-xl"></i>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-white">{{ cat.title|safe }}</h3>
-                        <p class="text-sm text-gray-400">{{ cat.subtitle }}</p>
+                        <h3 class="text-xl font-bold text-harvey-text">{{ cat.title|safe }}</h3>
+                        <p class="text-sm text-harvey-muted">{{ cat.subtitle }}</p>
                     </div>
                 </div>
 
                 <ul class="space-y-6 relative z-10 flex-1">
                     {% for item in cat.items %}
                     <li class="feature-item opacity-0 translate-y-4 transition-all duration-500 flex gap-4">
-                        <div class="mt-1 text-sm" style="color: {{ cat_color }};">
+                        <div class="mt-1 text-sm text-harvey-primary">
                             <i class="fas {{ item.icon }}"></i>
                         </div>
                         <div>
-                            <h4 class="text-white font-semibold text-sm">{{ item.title }}</h4>
-                            <p class="text-gray-400 text-sm mt-1 leading-relaxed">{{ item.description }}</p>
+                            <h4 class="text-harvey-text font-semibold text-sm">{{ item.title }}</h4>
+                            <p class="text-harvey-muted text-sm mt-1 leading-relaxed">{{ item.description }}</p>
                         </div>
                     </li>
                     {% endfor %}
                 </ul>
 
                 <!-- Background glow -->
-                <div class="absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-[80px] group-hover:opacity-100 transition-opacity duration-700 pointer-events-none opacity-50"
-                    style="background: rgba({{ cat_rgb }}, 0.15);"></div>
+                <div
+                    class="absolute -bottom-32 -right-32 w-80 h-80 rounded-full blur-[80px] group-hover:opacity-100 transition-opacity duration-700 pointer-events-none opacity-20 bg-harvey-primary/30">
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -69,8 +68,8 @@
 
     <style>
         .feature-category:hover {
-            border-color: rgba(var(--cat-rgb), 0.3) !important;
-            box-shadow: 0 0 40px rgba(var(--cat-rgb), 0.1);
+            border-color: rgba(6, 182, 212, 0.3) !important;
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.05);
         }
     </style>
     <script>

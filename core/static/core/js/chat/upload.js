@@ -16,7 +16,7 @@ Harvey.Upload = {
 
             const btn = Harvey.DOM.uploadBtn;
             const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-indigo-400"></i>';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin text-harvey-primary"></i>';
             btn.disabled = true;
 
             fetch(Harvey.Config.urls.uploadResume, {

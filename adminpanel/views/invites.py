@@ -89,6 +89,7 @@ def manage_invites(request):
         'invites': page_obj,
         'page_obj': page_obj,
         'paginator': paginator,
+        'org': org,
     })
 
 @login_required

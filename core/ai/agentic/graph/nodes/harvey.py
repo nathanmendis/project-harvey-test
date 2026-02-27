@@ -40,7 +40,11 @@ def harvey_node(state):
     )
 
     now_ist = timezone.now().astimezone(pytz.timezone("Asia/Kolkata"))
-    current_date_text = now_ist.strftime("%A, %B %d, %Y, %I:%M %p")
+    current_date_text = now_ist.strftime("%A, %B %d, %Y (%I:%M %p)")
+    
+    # Simple anchor for the LLM. 
+    # Python tools will handle all "next monday" or "in 2 days" logic now.
+    current_date_text = f"Today is {current_date_text}. Use this as the reference context."
 
     target_tool_hint = ""
     target_tool = get_state_value(state, "target_tool")

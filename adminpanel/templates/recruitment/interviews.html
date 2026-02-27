@@ -4,7 +4,7 @@
 <div class="py-8">
     <div class="mb-8">
         <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Interviews</h1>
-        <p class="text-green-400 text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
+        <p class="text-harvey-primary text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
     </div>
 
     <!-- 🔍 Search Bar -->
@@ -14,10 +14,10 @@
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
                 <input id="interview-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
                     placeholder="Search by candidate name, interviewer, or status..."
-                    class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-green-500 focus:outline-none transition-all" />
+                    class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-primary focus:outline-none transition-all" />
             </div>
             <button type="submit"
-                class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-green-600/20 font-bold transition-all hover:scale-[1.02]">
+                class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02]">
                 Search
             </button>
             {% if request.GET.q %}
@@ -62,7 +62,7 @@
                     </td>
                     <td class="px-6 py-4">
                         <a href="{% url 'interview_detail' interview.id %}"
-                            class="text-green-400 hover:text-green-300 transition-colors text-sm font-medium">
+                            class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium">
                             View Details →
                         </a>
                     </td>

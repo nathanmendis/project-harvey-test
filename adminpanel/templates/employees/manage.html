@@ -5,13 +5,14 @@
     <div>
       <h2 class="text-3xl font-extrabold tracking-tight">
         Manage Employees
-        <span class="block text-sm font-semibold text-indigo-400 uppercase tracking-widest mt-1">{{ org.name }}</span>
+        <span class="block text-sm font-semibold text-harvey-primary uppercase tracking-widest mt-1">
+          {{ org.name}}</span>
       </h2>
     </div>
 
     <a href="{% url 'add_employee' %}"
-      class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 border border-indigo-500/30 px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/20 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 font-semibold backdrop-blur-md">
-      <i class="fas fa-plus-circle text-indigo-400"></i>
+      class="bg-harvey-primary/20 hover:bg-harvey-primary/30 text-harvey-primary border border-harvey-primary/30 px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/10 hover:shadow-harvey-primary/20 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 font-semibold backdrop-blur-md">
+      <i class="fas fa-plus-circle text-harvey-primary"></i>
       <span>Add New Employee</span>
     </a>
   </div>
@@ -23,10 +24,10 @@
         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
         <input id="employee-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
           placeholder="Search by name, username, email, or ID..."
-          class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+          class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-primary focus:outline-none transition-all" />
       </div>
       <button type="submit"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/20 font-bold transition-all hover:scale-[1.02]">
+        class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02]">
         Search
       </button>
       {% if request.GET.q %}
@@ -56,8 +57,9 @@
           {% for user in employees %}
           <tr class="hover:bg-white/5 transition-colors group">
             <td class="py-4 px-6">
-              <div class="font-semibold text-white group-hover:text-indigo-300 transition-colors">{{ user.name }}</div>
-              <div class="text-xs text-gray-500">{{ user.email }}</div>
+              <div class="font-semibold text-white group-hover:text-harvey-primary transition-colors">{{ user.name }}
+              </div>
+              <div class="text-xs text-harvey-muted">{{ user.email }}</div>
             </td>
             <td class="py-4 px-6">
               <span class="bg-white/5 px-2 py-1 rounded text-xs text-gray-400 font-mono">{{ user.username }}</span>
@@ -66,13 +68,13 @@
             <!-- Role -->
             <td class="py-4 px-6">
               {% if user.role == 'org_admin' %}
-              <span class="text-indigo-400 text-xs font-bold uppercase tracking-wider">Org Admin</span>
+              <span class="text-harvey-primary text-xs font-bold uppercase tracking-wider">Org Admin</span>
               {% elif user.role == 'manager' %}
-              <span class="text-purple-400 text-xs font-bold uppercase tracking-wider">Manager</span>
+              <span class="text-harvey-accent text-xs font-bold uppercase tracking-wider">Manager</span>
               {% elif user.role == 'hr' %}
-              <span class="text-pink-400 text-xs font-bold uppercase tracking-wider">HR</span>
+              <span class="text-harvey-primary/70 text-xs font-bold uppercase tracking-wider">HR</span>
               {% else %}
-              <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">Employee</span>
+              <span class="text-harvey-muted text-xs font-bold uppercase tracking-wider">Employee</span>
               {% endif %}
             </td>
 
@@ -82,13 +84,13 @@
                 <div class="relative w-10 h-5">
                   <!-- track -->
                   <div class="absolute inset-0 rounded-full border border-white/5 transition-colors duration-300
-               {% if user.has_chat_access %}bg-indigo-600/20{% else %}bg-white/10{% endif %}">
+               {% if user.has_chat_access %}bg-harvey-primary/20{% else %}bg-white/10{% endif %}">
                   </div>
 
                   <!-- dot -->
                   <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-all duration-300 ease-in-out
                {% if user.has_chat_access %}
-                 translate-x-5 bg-indigo-500 shadow-lg shadow-indigo-500/50
+                 translate-x-5 bg-harvey-primary shadow-lg shadow-harvey-primary/50
                {% else %}
                  bg-gray-600
                {% endif %}">
@@ -105,7 +107,7 @@
                 <div class="relative w-10 h-5">
                   <!-- track -->
                   <div class="absolute inset-0 rounded-full border border-white/5 transition-colors duration-300
-               {% if user.role == 'org_admin' %}bg-indigo-600/20{% else %}bg-white/10{% endif %}">
+               {% if user.role == 'org_admin' %}bg-harvey-primary/20{% else %}bg-white/10{% endif %}">
                   </div>
 
                   <!-- dot -->
@@ -119,7 +121,7 @@
                 </div>
               </a>
               {% else %}
-              <span class="text-xs text-indigo-400/50 font-bold uppercase">You</span>
+              <span class="text-xs text-harvey-primary/50 font-bold uppercase">You</span>
               {% endif %}
             </td>
 

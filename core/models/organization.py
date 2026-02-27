@@ -21,7 +21,11 @@ class Organization(models.Model):
     google_refresh_token = models.TextField(null=True, blank=True)
     google_token_expires = models.DateTimeField(null=True, blank=True)
     google_connected_email = models.EmailField(null=True, blank=True)
-    
+    # Regional Settings
+    import pytz
+    TIMEZONE_CHOICES = tuple(zip(pytz.common_timezones, pytz.common_timezones))
+    timezone = models.CharField(max_length=50, choices=TIMEZONE_CHOICES, default="Asia/Kolkata", help_text="Default timezone for the organization")
+
 
     def __str__(self):
         return f"{self.name} ({self.org_id})"

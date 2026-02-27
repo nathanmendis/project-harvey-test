@@ -5,8 +5,8 @@
 <!-- Header -->
 <div class="mb-8">
     <div class="flex items-center gap-3 mb-2">
-        <div class="h-9 w-9 rounded-xl bg-violet-600/20 flex items-center justify-center">
-            <i class="fas fa-database text-violet-400 text-sm"></i>
+        <div class="h-9 w-9 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
+            <i class="fas fa-database text-harvey-primary text-sm"></i>
         </div>
         <div>
             <h1 class="text-2xl font-bold text-white">RAG Pipeline Management</h1>
@@ -20,47 +20,47 @@
 
     <!-- Policies -->
     <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-blue-600/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-book text-blue-400 text-lg"></i>
+        <div class="h-12 w-12 rounded-xl bg-harvey-primary/20 flex items-center justify-center shrink-0">
+            <i class="fas fa-book text-harvey-primary text-lg"></i>
         </div>
         <div>
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Policies</p>
+            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Policies</p>
             <p class="text-2xl font-bold text-white">{{ indexed_policy_count }}<span
-                    class="text-sm font-normal text-gray-500"> / {{ policy_count }}</span></p>
-            <p class="text-[11px] text-gray-500">indexed / total</p>
+                    class="text-sm font-normal text-harvey-muted"> / {{ policy_count }}</span></p>
+            <p class="text-[11px] text-harvey-muted">indexed / total</p>
         </div>
     </div>
 
     <!-- Candidates -->
     <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-green-600/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-user-tie text-green-400 text-lg"></i>
+        <div class="h-12 w-12 rounded-xl bg-harvey-accent/20 flex items-center justify-center shrink-0">
+            <i class="fas fa-user-tie text-harvey-accent text-lg"></i>
         </div>
         <div>
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Candidates</p>
+            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Candidates</p>
             <p class="text-2xl font-bold text-white">{{ candidate_count }}</p>
-            <p class="text-[11px] text-gray-500">in organisation</p>
+            <p class="text-[11px] text-harvey-muted">in organisation</p>
         </div>
     </div>
 
     <!-- Jobs -->
     <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-amber-600/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-briefcase text-amber-400 text-lg"></i>
+        <div class="h-12 w-12 rounded-xl bg-harvey-primary/20 flex items-center justify-center shrink-0">
+            <i class="fas fa-briefcase text-harvey-primary text-lg"></i>
         </div>
         <div>
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Job Roles</p>
+            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Job Roles</p>
             <p class="text-2xl font-bold text-white">{{ job_count }}</p>
-            <p class="text-[11px] text-gray-500">in organisation</p>
+            <p class="text-[11px] text-harvey-muted">in organisation</p>
         </div>
     </div>
 </div>
 
 <!-- Celery schedule notice -->
-<div class="mb-6 glass-card rounded-xl px-5 py-3 flex items-center gap-3 border border-violet-500/10">
-    <i class="fas fa-clock text-violet-400 text-sm shrink-0"></i>
-    <p class="text-sm text-gray-400">
-        <span class="text-violet-300 font-medium">Automatic schedule:</span>
+<div class="mb-6 glass-card rounded-xl px-5 py-3 flex items-center gap-3 border border-harvey-primary/10">
+    <i class="fas fa-clock text-harvey-primary text-sm shrink-0"></i>
+    <p class="text-sm text-harvey-muted">
+        <span class="text-harvey-accent font-medium">Automatic schedule:</span>
         Candidates &amp; Jobs are re-indexed automatically every <strong class="text-white">2 hours</strong> via Celery
         Beat.
         Policies are re-indexed on upload or via the button below.
@@ -73,23 +73,23 @@
     <!-- Policies Card -->
     <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
         <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-blue-600/20 flex items-center justify-center">
-                <i class="fas fa-book text-blue-400"></i>
+            <div class="h-10 w-10 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
+                <i class="fas fa-book text-harvey-primary"></i>
             </div>
             <div>
                 <h3 class="text-base font-semibold text-white">Policies</h3>
-                <p class="text-xs text-gray-500">Chunk &amp; embed all policy documents</p>
+                <p class="text-xs text-harvey-muted">Chunk &amp; embed all policy documents</p>
             </div>
         </div>
-        <p class="text-xs text-gray-400 leading-relaxed flex-1">
+        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
             Extracts text from uploaded files and URLs, splits into chunks using
-            <code class="text-indigo-300 bg-white/5 px-1 rounded">RecursiveCharacterTextSplitter</code>,
+            <code class="text-harvey-primary bg-white/5 px-1 rounded">RecursiveCharacterTextSplitter</code>,
             and upserts into PGVector.
         </p>
         <form method="POST" action="{% url 'reindex_all_policies' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/20 text-blue-300 hover:text-white font-medium text-sm transition-all duration-200 group">
+                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-primary/20 hover:bg-harvey-primary/40 border border-harvey-primary/20 text-harvey-primary hover:text-white font-medium text-sm transition-all duration-200 group">
                 <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
                 Reindex Policies
             </button>
@@ -99,22 +99,22 @@
     <!-- Candidates Card -->
     <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
         <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-green-600/20 flex items-center justify-center">
-                <i class="fas fa-user-tie text-green-400"></i>
+            <div class="h-10 w-10 rounded-xl bg-harvey-accent/20 flex items-center justify-center">
+                <i class="fas fa-user-tie text-harvey-accent"></i>
             </div>
             <div>
                 <h3 class="text-base font-semibold text-white">Candidates</h3>
-                <p class="text-xs text-gray-500">Build/refresh candidate embeddings</p>
+                <p class="text-xs text-harvey-muted">Build/refresh candidate embeddings</p>
             </div>
         </div>
-        <p class="text-xs text-gray-400 leading-relaxed flex-1">
+        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
             Generates a rich text embedding from each candidate's name, email, skills,
             and parsed résumé data. Normally synced every 2 hours — trigger manually here.
         </p>
         <form method="POST" action="{% url 'reindex_all_candidates' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-green-600/20 hover:bg-green-600/40 border border-green-500/20 text-green-300 hover:text-white font-medium text-sm transition-all duration-200 group">
+                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-accent/20 hover:bg-harvey-accent/40 border border-harvey-accent/20 text-harvey-accent hover:text-white font-medium text-sm transition-all duration-200 group">
                 <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
                 Reindex Candidates
             </button>
@@ -124,22 +124,22 @@
     <!-- Jobs Card -->
     <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
         <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-amber-600/20 flex items-center justify-center">
-                <i class="fas fa-briefcase text-amber-400"></i>
+            <div class="h-10 w-10 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
+                <i class="fas fa-briefcase text-harvey-primary"></i>
             </div>
             <div>
                 <h3 class="text-base font-semibold text-white">Job Roles</h3>
-                <p class="text-xs text-gray-500">Build/refresh job role embeddings</p>
+                <p class="text-xs text-harvey-muted">Build/refresh job role embeddings</p>
             </div>
         </div>
-        <p class="text-xs text-gray-400 leading-relaxed flex-1">
+        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
             Generates embeddings from each job's title, department, description, and
             requirements. Normally synced every 2 hours — trigger manually here.
         </p>
         <form method="POST" action="{% url 'reindex_all_jobs' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/20 text-amber-300 hover:text-white font-medium text-sm transition-all duration-200 group">
+                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-primary/20 hover:bg-harvey-primary/40 border border-harvey-primary/20 text-harvey-primary hover:text-white font-medium text-sm transition-all duration-200 group">
                 <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
                 Reindex Jobs
             </button>
@@ -156,10 +156,11 @@
         </div>
         <div class="flex-1">
             <h3 class="text-base font-semibold text-red-300 mb-1">Full Reindex Everything</h3>
-            <p class="text-xs text-gray-400 mb-4">
-                Queues <strong class="text-gray-300">all three</strong> reindex tasks at once — policies, candidates,
+            <p class="text-xs text-harvey-muted mb-4">
+                Queues <strong class="text-harvey-muted">all three</strong> reindex tasks at once — policies,
+                candidates,
                 and jobs —
-                for <strong class="text-gray-300">{{ org.name }}</strong>.
+                for <strong class="text-harvey-muted">{{ org.name }}</strong>.
                 Existing vector data will be replaced. This may take a few minutes depending on data size.
             </p>
             <form method="POST" action="{% url 'reindex_everything' %}"

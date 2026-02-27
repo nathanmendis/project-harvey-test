@@ -13,30 +13,32 @@
         }
 
         .hero-pattern {
-            background-color: #0f172a;
+            background-color: var(--color-harvey-bg);
             background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(31, 41, 55, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.1) 0, transparent 50%);
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(31, 41, 55, 0.4);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .chat-bubble-user {
             border-bottom-right-radius: 0 !important;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, var(--color-harvey-primary) 0%, var(--color-harvey-accent) 100%);
+            color: var(--color-harvey-bg);
+            font-weight: 500;
         }
 
         .chat-bubble-ai {
             border-bottom-left-radius: 0 !important;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--color-harvey-elevated);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--color-harvey-text);
         }
 
         /* Custom Scrollbar */
@@ -49,12 +51,12 @@
         }
 
         .chat-box::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(6, 182, 212, 0.2);
             border-radius: 20px;
         }
 
         .chat-box::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(6, 182, 212, 0.4);
         }
     </style>
 </head>
@@ -63,9 +65,10 @@
 
     <!-- Background decorative blobs -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px]">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-harvey-primary/10 rounded-full blur-[100px]">
         </div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px]">
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-harvey-accent/10 rounded-full blur-[100px]">
         </div>
     </div>
 
@@ -81,13 +84,12 @@
 
         <!-- Sidebar -->
         <aside id="chat-sidebar" onclick="handleSidebarClick(event)"
-            class="w-64 shrink-0 bg-black/20 border-r border-white/5 flex flex-col -translate-x-full md:translate-x-0 transition-all duration-300 absolute md:static top-0 left-0 h-full z-40 backdrop-blur-md md:backdrop-blur-none cursor-pointer group/sidebar"
-            style="background-color: rgba(15, 23, 42, 0.95);">
+            class="w-64 shrink-0 bg-harvey-bg/95 border-r border-white/5 flex flex-col -translate-x-full md:translate-x-0 transition-all duration-300 absolute md:static top-0 left-0 h-full z-40 backdrop-blur-md md:backdrop-blur-none cursor-pointer group/sidebar">
 
             <div class="p-4 transition-all duration-200">
                 <button onclick="startNewChat()"
-                    class="w-full h-12 bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white rounded-xl flex items-center justify-start px-3 gap-3 transition-all border border-white/5 font-medium backdrop-blur-sm group overflow-hidden">
-                    <i class="fas fa-plus text-lg min-w-[20px] text-center"></i>
+                    class="w-full h-12 bg-white/5 hover:bg-white/10 text-harvey-text hover:text-white rounded-xl flex items-center justify-start px-3 gap-3 transition-all border border-white/5 font-medium backdrop-blur-sm group overflow-hidden">
+                    <i class="fas fa-plus text-lg min-w-[20px] text-center text-harvey-primary"></i>
                     <span class="whitespace-nowrap transition-opacity duration-200 sidebar-text opacity-100">New
                         Chat</span>
                 </button>

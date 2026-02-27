@@ -39,7 +39,7 @@ Harvey.Data = {
             `;
 
             div.innerHTML = `
-                <div class="w-8 min-w-[2rem] flex items-center justify-center text-xs font-bold tracking-wide uppercase ${isActive ? 'text-indigo-400' : 'text-gray-500'}">
+                <div class="w-8 min-w-[2rem] flex items-center justify-center text-xs font-bold tracking-wide uppercase ${isActive ? 'text-harvey-primary' : 'text-gray-500'}">
                     ${initials}
                 </div>
                 <span class="whitespace-nowrap truncate transition-opacity duration-200 sidebar-text opacity-100 font-medium flex-1">${c.title}</span>

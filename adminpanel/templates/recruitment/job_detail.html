@@ -3,7 +3,8 @@
 {% block content %}
 <div class="py-8 max-w-4xl mx-auto">
     <div class="mb-6">
-        <a href="{% url 'jobs' %}" class="text-pink-400 hover:text-pink-300 transition-colors text-sm font-medium">
+        <a href="{% url 'jobs' %}"
+            class="text-harvey-accent hover:text-harvey-primary transition-colors text-sm font-medium">
             ← Back to Jobs
         </a>
     </div>
@@ -11,7 +12,7 @@
     <div class="glass-card rounded-2xl p-8 border-white/10">
         <div class="mb-6">
             <h1 class="text-3xl font-extrabold text-white mb-2">{{ job.title }}</h1>
-            <p class="text-pink-400 text-sm font-medium">{{ job.department }}</p>
+            <p class="text-harvey-accent text-sm font-medium">{{ job.department }}</p>
         </div>
 
         <div class="space-y-6">

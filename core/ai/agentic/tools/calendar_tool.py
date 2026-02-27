@@ -1,60 +1,103 @@
+
 from langchain.tools import tool
 import json
-from .utils import ok, err, get_org, resolve_user_emails
+import logging
+import dateparser
+import datetime
+import pytz
+from django.utils import timezone
+from .utils import ok, err, get_org, resolve_user_emails, resolve_natural_time
+
+logger = logging.getLogger("harvey")
+
 
 @tool
-def create_calendar_event_tool(title: str, start_time: str, end_time: str, description: str = "", attendees: str = "", user=None) -> str:
+def create_calendar_event_tool(
+    title: str,
+    start_time: str,
+    end_time: str = None,
+    description: str = "",
+    attendees: str = "",
+    user=None,
+) -> str:
     """
     Create a calendar event.
-    Use this tool for all generic meeting scheduling, appointments, or when the user says "schedule" or "meeting" 
-    WITHOUT explicitly using the word "interview".
-    'start_time' and 'end_time' should be in ISO format (e.g., '2023-10-27T10:00:00').
-    'attendees' should be a comma-separated list of email addresses or names.
+    Use this for generic meeting scheduling.
     """
-    org = get_org(user)
+    from integrations.google.calendar import CalendarService
+    from .utils import get_user_timezone, create_calendar_event_helper
     
-    # Resolve service
+    org = get_org(user)
+
+    # 1. Fetch user's actual calendar timezone FIRST (Production safe)
+    tz = get_user_timezone(user, org)
+
+    # 2. Resolve Times using the correct TZ
     try:
-        from integrations.google.calendar import CalendarService
-        service = CalendarService(user=user)
-        
-        attendee_list = []
+        start_dt = resolve_natural_time(start_time, tz)
+        if not start_dt:
+            return err(f"I couldn't understand the start time '{start_time}'. Please try something like 'monday 3pm'.")
+
+        if end_time:
+            end_dt = resolve_natural_time(end_time, tz)
+            if not end_dt:
+                end_dt = start_dt + datetime.timedelta(hours=1)
+        else:
+            end_dt = start_dt + datetime.timedelta(hours=1)
+
+    except Exception as parse_e:
+        logger.error(f"Time parsing error: {str(parse_e)}")
+        return err(f"Time parsing error: {str(parse_e)}")
+
+    # 3. Resolve Attendees
+    attendee_list = []
+    try:
         if attendees:
-            raw_attendees = [a.strip() for a in attendees.split(',') if a.strip()]
+            raw_attendees = [a.strip() for a in attendees.split(",") if a.strip()]
             for raw_a in raw_attendees:
                 if "@" in raw_a:
                     attendee_list.append(raw_a)
                 elif org:
-                    # Try resolving as user name
                     emails = resolve_user_emails(raw_a, org)
                     if emails:
                         attendee_list.extend(emails)
-                    else:
-                        # If not resolved, keep as is (maybe it's an email without @? unlikely but safer)
-                        attendee_list.append(raw_a)
-                else:
-                    attendee_list.append(raw_a)
-        
-        # If user is requesting this, they probably want to be invited (since the bot is the organizer)
-        if user and user.email and user.email not in attendee_list:
-            attendee_list.append(user.email)
-            
-        final_attendees = ",".join(list(set(attendee_list)))
 
-        event_result = service.create_event(
+        if user and user.email:
+            attendee_list.append(user.email)
+        attendee_list = list(set(attendee_list))
+    except Exception as e:
+        logger.error(f"Attendee resolution failed: {str(e)}")
+
+    # 4. Create Event via Helper
+    try:
+        event_result, final_tz = create_calendar_event_helper(
             title=title,
-            start_time=start_time,
-            end_time=end_time,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            attendees_list=attendee_list,
             description=description,
-            attendees=final_attendees
+            user=user,
+            tz=tz
         )
-        
-        link = event_result.get('htmlLink')
-        message = f"I have successfully scheduled the event '{title}' on your calendar."
+
+        link = event_result.get("htmlLink")
+        message = (
+            f"I have successfully scheduled the event '{title}' "
+            f"on your calendar for {start_dt.strftime('%A, %B %d at %I:%M %p')}."
+        )
         if link:
             message += f" Link: {link}"
-        
-        return ok(message, link=link, title=title, start=start_time, end=end_time, attendees=final_attendees)
+
+        return ok(
+            message,
+            link=link,
+            title=title,
+            start=start_dt.isoformat(),
+            end=end_dt.isoformat(),
+            timezone=final_tz,
+            attendees=",".join(attendee_list),
+        )
 
     except Exception as e:
+        logger.error(f"Failed to create event: {str(e)}")
         return err(f"Failed to create event: {str(e)}")

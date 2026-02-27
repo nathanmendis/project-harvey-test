@@ -27,7 +27,7 @@ def list_leave_requests(status: str = "pending", user=None) -> str:
     
     for l in leaves:
         duration = (l.end_date - l.start_date).days + 1
-        lines.append(f"• **{l.employee.name}**: {l.leave_type} for {duration} day(s) ({l.start_date} to {l.end_date})")
+        lines.append(f"• **{l.employee.name}**: {l.leave_type} for {duration} day(s) ({l.start_date} to {l.end_date}) - {l.reason}")
         results.append({"id": l.id, "employee": l.employee.name, "status": l.status})
 
     return ok("\n".join(lines), results=results)

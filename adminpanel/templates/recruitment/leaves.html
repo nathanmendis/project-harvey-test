@@ -4,7 +4,7 @@
 <div class="py-8">
     <div class="mb-8">
         <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2">Leave Requests</h1>
-        <p class="text-yellow-400 text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
+        <p class="text-harvey-accent text-xs font-bold uppercase tracking-widest">{{ org.name }}</p>
     </div>
 
     <!-- 🔍 Search Bar -->
@@ -65,11 +65,10 @@
                     </td>
                     <td class="px-6 py-4">
                         <a href="{% url 'leave_detail' leave.id %}"
-                            class="text-yellow-400 hover:text-yellow-300 transition-colors text-sm font-medium">
+                            class="text-harvey-accent hover:text-harvey-primary transition-colors text-sm font-medium">
                             View Details →
                         </a>
                     </td>
-                </tr>
                 </tr>
                 {% empty %}
                 <tr>

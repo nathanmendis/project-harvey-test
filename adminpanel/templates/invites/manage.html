@@ -3,13 +3,13 @@
 {% block content %}
 <div class="mb-8 flex items-center justify-between">
     <div>
-        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-harvey-primary">
             Manage Invites
         </h1>
-        <p class="text-gray-400 mt-2">View and manage pending invitations</p>
+        <p class="text-harvey-muted mt-2">View and manage pending invitations</p>
     </div>
     <a href="{% url 'add_employee' %}"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+        class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-4 py-2 rounded-lg transition-all shadow-lg shadow-harvey-primary/20 flex items-center gap-2 font-bold">
         <i class="fas fa-plus"></i>
         <span>Send New Invite</span>
     </a>
@@ -22,10 +22,10 @@
             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
             <input id="invite-search" name="q" value="{{ request.GET.q|default:'' }}" type="text"
                 placeholder="Search by email or role..."
-                class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all" />
+                class="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-harvey-primary focus:outline-none transition-all" />
         </div>
         <button type="submit"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-indigo-600/20 font-bold transition-all hover:scale-[1.02]">
+            class="bg-harvey-primary hover:bg-harvey-accent text-harvey-bg px-6 py-3 rounded-xl shadow-lg shadow-harvey-primary/20 font-bold transition-all hover:scale-[1.02]">
             Search
         </button>
         {% if request.GET.q %}
@@ -58,7 +58,7 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span
-                            class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            class="px-2 py-1 text-xs font-semibold rounded-full bg-harvey-accent/10 text-harvey-accent border border-harvey-accent/20">
                             {{ invite.get_role_display|default:invite.role|title }}
                         </span>
                     </td>

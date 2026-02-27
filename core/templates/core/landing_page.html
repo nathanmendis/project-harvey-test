@@ -15,17 +15,17 @@
         }
 
         .hero-pattern {
-            background-color: #0f172a;
+            background-color: var(--color-harvey-bg);
             background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(31, 41, 55, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.1) 0, transparent 50%);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(31, 41, 55, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Flip Card Styles */
@@ -66,15 +66,16 @@
         }
 
         .flip-card-front {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(31, 41, 55, 0.4);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .flip-card-back {
-            background: rgba(30, 27, 75, 0.9);
-            /* Dark Indigo */
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(39, 52, 73, 0.95);
+            /* Elevated Color */
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            /* Cyan Border */
             transform: rotateY(180deg);
             backdrop-filter: blur(10px);
         }

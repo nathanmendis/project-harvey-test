@@ -34,23 +34,14 @@ def send_email_tool(recipient_email: str, subject: str, body: str, user=None) ->
     if not is_valid_email(resolved_email):
         return err(f"Resolved email '{resolved_email}' is invalid.")
 
-    # ✍️ Append signature
-    signature = get_email_signature(user)
-    final_body = f"{body.rstrip()}\n\n{signature}"
-
-    # 🧾 Log to DB
-    EmailLog.objects.create(
-        organization=org,
-        recipient_email=resolved_email,
-        subject=subject,
-        body=final_body,
-        status="sent"
-    )
-
     try:
-        from integrations.google.gmail import GmailService
-        service = GmailService(user=user)
-        service.send_email(resolved_email, subject, final_body)
+        from .utils import send_email_helper
+        send_email_helper(
+            recipient_email=resolved_email,
+            subject=subject,
+            body=body,
+            user=user
+        )
 
         return ok(f"Email sent to {resolved_email}", recipient=resolved_email, subject=subject)
 

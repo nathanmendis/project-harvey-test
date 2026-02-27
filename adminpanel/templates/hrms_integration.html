@@ -7,10 +7,11 @@
   <!-- ── Header ─────────────────────────────────────── -->
   <div class="flex justify-between items-center">
     <div>
-      <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+      <h1
+        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-harvey-primary to-harvey-accent">
         HRMS Integration
       </h1>
-      <p class="text-gray-400 mt-2">Manage your Human Resource Management System bindings securely.</p>
+      <p class="text-harvey-muted mt-2">Manage your Human Resource Management System bindings securely.</p>
     </div>
 
     {% if is_active %}
@@ -20,9 +21,9 @@
         <input type="hidden" name="action" value="trigger_hrms_sync" />
         <button type="submit" {% if is_sync_disabled %}disabled{% endif %}
           class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border flex items-center gap-2
-                 {% if is_sync_disabled %}bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed
-                 {% else %}bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-500/25 border-indigo-400/20{% endif %}">
-          <i class="fas fa-sync-alt {% if is_sync_running %}animate-spin text-indigo-300{% endif %}"></i>
+                 {% if is_sync_disabled %}bg-slate-800 text-harvey-muted border-white/5 cursor-not-allowed
+                 {% else %}bg-harvey-primary hover:bg-harvey-accent text-harvey-bg shadow-harvey-primary/25 border-harvey-primary/20{% endif %}">
+          <i class="fas fa-sync-alt {% if is_sync_running %}animate-spin text-harvey-bg/70{% endif %}"></i>
           {% if is_sync_running %}Syncing...
           {% elif is_sync_disabled %}Sync Cooldown ({{ minutes_remaining }}m)
           {% else %}Sync Now{% endif %}

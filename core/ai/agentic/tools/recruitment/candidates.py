@@ -145,7 +145,7 @@ def get_candidate_detail(candidate_id: int = None, email: str = None, user=None)
         f" Phone: {c.phone or 'N/A'}",
         f" Status: {c.status}",
         f" Skills: {skills_str}",
-        f"Source: {c.source}",
+        f" Source: {c.source}",
     ]
 
     # Check for scores/applications

@@ -33,8 +33,8 @@ Harvey.UI = {
         div.id = 'welcome-placeholder';
         div.className = "flex flex-col items-center justify-center h-full opacity-60 transition-opacity duration-500";
         div.innerHTML = `
-            <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 animate-pulse border border-white/5 shadow-[0_0_30px_rgba(79,70,229,0.1)]">
-                <i class="fas fa-comment-alt text-4xl text-indigo-400"></i>
+            <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 animate-pulse border border-white/5 shadow-[0_0_30px_rgba(6,182,212,0.1)]">
+                <i class="fas fa-comment-alt text-4xl text-harvey-primary"></i>
             </div>
             <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">
                 Hello, ${Harvey.Config.username || 'User'}</h3>
@@ -90,10 +90,10 @@ Harvey.UI = {
 
         if (sender === "user") {
             container.classList.add("flex-row-reverse");
-            icon.classList.add("bg-indigo-600", "text-white");
+            icon.classList.add("bg-harvey-primary", "text-harvey-bg");
             icon.innerText = "ME";
         } else {
-            icon.classList.add("bg-gradient-to-br", "from-indigo-500", "to-purple-600", "text-white");
+            icon.classList.add("bg-gradient-to-br", "from-harvey-primary", "to-harvey-accent", "text-harvey-bg");
             icon.innerHTML = '<i class="fas fa-robot"></i>';
         }
 
@@ -160,7 +160,7 @@ Harvey.UI = {
             bubble = document.createElement("div");
             bubble.className = "flex items-start gap-3 thinking-bubble animate-pulse mb-4";
             bubble.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs shadow-md">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-harvey-primary to-harvey-accent flex items-center justify-center text-harvey-bg text-xs shadow-md">
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="chat-bubble-ai px-4 py-3 rounded-2xl flex gap-1 items-center h-10">
@@ -189,7 +189,7 @@ Harvey.UI = {
 
         Harvey.State.attachedFiles.forEach((file, index) => {
             const chip = document.createElement('div');
-            chip.className = "flex items-center gap-2 bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg text-xs text-indigo-200 animate-fade-in";
+            chip.className = "flex items-center gap-2 bg-harvey-primary/20 border border-harvey-primary/30 px-3 py-1.5 rounded-lg text-xs text-harvey-primary animate-fade-in";
             chip.innerHTML = `
                 <i class="fas fa-file-alt"></i>
                 <span class="max-w-[150px] truncate">${file.name}</span>

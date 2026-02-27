@@ -2,8 +2,8 @@
 <div class="mt-6 flex items-center justify-between border-t border-white/5 pt-6 text-sm">
     <div class="text-gray-400">
         Showing <span class="font-medium text-white">{{ page_obj.start_index }}</span> to <span
-            class="font-medium text-white">{{ page_obj.end_index }}</span> of <span class="font-medium text-white">{{
-            paginator.count }}</span> results
+            class="font-medium text-white">{{ page_obj.end_index }}</span> of <span class="font-medium text-white">
+            {{page_obj.paginator.count }}</span> results
     </div>
 
     <nav class="flex items-center gap-1" aria-label="Pagination">
@@ -21,7 +21,7 @@
         {% for i in paginator.page_range %}
         {% if page_obj.number == i %}
         <span
-            class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-medium shadow-lg shadow-indigo-600/20">
+            class="flex items-center justify-center w-8 h-8 rounded-lg bg-harvey-primary text-harvey-bg font-medium shadow-lg shadow-harvey-primary/20">
             {{ i }}
         </span>
         {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <a

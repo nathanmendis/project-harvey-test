@@ -4,7 +4,7 @@
 <div class="py-8 max-w-4xl mx-auto">
     <div class="mb-6">
         <a href="{% url 'leaves' %}"
-            class="text-yellow-400 hover:text-yellow-300 transition-colors text-sm font-medium">
+            class="text-harvey-accent hover:text-harvey-primary transition-colors text-sm font-medium">
             ← Back to Leave Requests
         </a>
     </div>
@@ -13,7 +13,7 @@
         <div class="flex items-start justify-between mb-6">
             <div>
                 <h1 class="text-3xl font-extrabold text-white mb-2">Leave Request</h1>
-                <p class="text-yellow-400 text-sm">{{ leave.employee.username }}</p>
+                <p class="text-harvey-accent text-sm">{{ leave.employee.username }}</p>
             </div>
             <span class="px-4 py-2 rounded-full text-sm font-bold
         {% if leave.status == 'pending' %}bg-yellow-500/20 text-yellow-400
@@ -49,7 +49,7 @@
         <form method="post" action="{% url 'approve_leave' leave.id %}">
             {% csrf_token %}
             <button type="submit"
-                class="px-6 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/50 rounded-xl font-semibold transition-all flex items-center gap-2">
+                class="px-6 py-3 bg-harvey-primary/20 hover:bg-harvey-primary/30 text-harvey-primary border border-harvey-primary/50 rounded-xl font-semibold transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>

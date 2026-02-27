@@ -51,7 +51,8 @@ def router_node(state):
     - "send" email/draft -> send_email_tool.
     - Ask about person/staff -> search_knowledge_base.
     - Ask about policy, rule, working hours, attendance, or behavior -> search_policies.
-    - "interview" -> schedule_interview.
+    - User says "interview" -> schedule_interview.
+    - User says "meeting", "calendar", "invite", "schedule" -> create_calendar_event_tool.
     - "chat" ONLY for greetings or drafting without sending.
 
     CRITICAL: Any question about Harvey's policies or how things work at Harvey MUST be "tool" with "search_policies". Do NOT guess or answer from general knowledge.

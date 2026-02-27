@@ -3,7 +3,8 @@
 {% block content %}
 <div class="max-w-2xl mx-auto glass-card p-8 rounded-3xl shadow-2xl border border-white/10 relative overflow-hidden">
     <!-- Decorative Glow -->
-    <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-harvey-primary/10 rounded-full blur-3xl pointer-events-none">
+    </div>
 
     <h2 class="text-3xl font-bold mb-8 text-white relative z-10">Invite New User</h2>
 
@@ -29,7 +30,7 @@
         <div class="flex items-center justify-between pt-6 border-t border-white/10 mt-8">
             <a href="{% url 'admin_dashboard' %}" class="text-gray-400 hover:text-white transition-colors">Cancel</a>
             <button type="submit"
-                class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 transition-all duration-200 transform hover:-translate-y-0.5">
+                class="bg-harvey-primary text-harvey-bg font-bold px-6 py-3 rounded-xl hover:bg-harvey-accent hover:shadow-lg hover:shadow-harvey-primary/30 transition-all duration-200 transform hover:-translate-y-0.5">
                 Send Invite
             </button>
         </div>

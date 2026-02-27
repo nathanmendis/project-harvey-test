@@ -1,295 +1,208 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="space-y-12 animate-fade-in-up">
+<div class="space-y-10 animate-fade-in">
 
-  <!-- Header & Stats (Sleek Horizontal) -->
-  <div class="glass-card p-6 md:p-8 rounded-3xl border border-white/5 relative overflow-hidden">
-    <!-- Background Glow -->
-    <div class="absolute -top-32 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-    <div
-      class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10 mb-8 border-b border-white/5 pb-6">
-      <div>
-        <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
-          Dashboard
-        </h2>
-        <div class="flex items-center gap-2 text-sm text-gray-400">
-          <span>Overview for</span>
-          <span class="text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded">{{ org_name }}</span>
-        </div>
-      </div>
+  <!-- Header & Performance (Professional Summary) -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2 px-2">
+    <div>
+      <h2 class="text-2xl font-bold text-white tracking-tight">System Overview</h2>
+      <p class="text-xs text-gray-500 mt-1">Real-time status for <span class="text-harvey-primary font-bold">
+          {{ org_name}}</span></p>
+    </div>
+    <div class="flex items-center gap-3">
       <span
-        class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-full font-mono font-bold tracking-wider flex items-center gap-2">
-        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        SYSTEM OPERATIONAL
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold text-emerald-500 tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        OPERATIONAL
       </span>
     </div>
+  </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Stat 1 -->
-      <div class="group">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Users</span>
-          <i class="fas fa-users text-indigo-500/50 group-hover:text-indigo-400 transition-colors"></i>
-        </div>
-        <p class="text-3xl font-bold text-white">{{ total_users }}</p>
+  <!-- Stats Grid (Minimalist) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
+      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Network</p>
+      <div class="flex items-baseline justify-between">
+        <h3 class="text-3xl font-bold text-white">{{ total_users }}</h3>
+        <i class="fas fa-users text-lg text-gray-700 group-hover:text-harvey-primary transition-colors"></i>
       </div>
-
-      <!-- Stat 2 -->
-      <div class="group border-l border-white/5 pl-6">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Admins</span>
-          <i class="fas fa-user-shield text-purple-500/50 group-hover:text-purple-400 transition-colors"></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <p class="text-3xl font-bold text-white">{{ admin_users }}</p>
-
-        </div>
+    </div>
+    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
+      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Admins</p>
+      <div class="flex items-baseline justify-between">
+        <h3 class="text-3xl font-bold text-white">{{ admin_users }}</h3>
+        <i class="fas fa-shield-alt text-lg text-gray-700 group-hover:text-harvey-accent transition-colors"></i>
       </div>
-
-      <!-- Stat 3 -->
-      <div class="group border-l border-white/5 pl-6">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Staff</span>
-          <i class="fas fa-user-tie text-pink-500/50 group-hover:text-pink-400 transition-colors"></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <p class="text-3xl font-bold text-white">{{ staff_users }}</p>
-
-        </div>
+    </div>
+    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
+      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Active Staff</p>
+      <div class="flex items-baseline justify-between">
+        <h3 class="text-3xl font-bold text-white">{{ staff_users }}</h3>
+        <i class="fas fa-user-tie text-lg text-gray-700 group-hover:text-harvey-primary transition-colors"></i>
       </div>
-
-      <!-- Stat 4 -->
-      <div class="group border-l border-white/5 pl-6">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Employees</span>
-          <i class="fas fa-user-tag text-cyan-500/50 group-hover:text-cyan-400 transition-colors"></i>
-        </div>
-        <div class="flex items-baseline gap-2">
-          <p class="text-3xl font-bold text-white">{{ regular_users }}</p>
-
-        </div>
+    </div>
+    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
+      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Employees</p>
+      <div class="flex items-baseline justify-between">
+        <h3 class="text-3xl font-bold text-white">{{ regular_users }}</h3>
+        <i class="fas fa-id-badge text-lg text-gray-700 group-hover:text-harvey-accent transition-colors"></i>
       </div>
     </div>
   </div>
 
-  <!-- SECTIONS (Stacked Horizontally) -->
+  <!-- MODULE CLUSTERS -->
 
-  <!-- Recruitment Section -->
-  <div>
-    <div class="flex items-center gap-3 mb-6 px-2">
-      <div class="h-8 w-1 rounded-full bg-indigo-500"></div>
-      <h3 class="text-lg font-bold text-white tracking-wide">Recruitment Suite</h3>
+  <!-- Recruitment Cluster -->
+  <section class="space-y-4">
+    <div class="flex items-center gap-2 px-1">
+      <i class="fas fa-briefcase text-harvey-primary text-xs opacity-50"></i>
+      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Recruitment Suite</h4>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <a href="{% url 'recruitment_dashboard' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-indigo-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-indigo-500/5 group-hover:text-indigo-500/10 transition-colors rotate-12">
-          <i class="fas fa-briefcase"></i>
-        </div>
-
-        <div
-          class="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-briefcase"></i>
-        </div>
-
-        <div class="relative z-10">
-          <span
-            class="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded mb-2 inline-block">CORE</span>
-          <h4 class="text-lg font-bold text-white mb-1">Candidates & Jobs</h4>
-          <p class="text-xs text-gray-500">Manage pipelines and job roles.</p>
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group relative overflow-hidden">
+        <div class="flex flex-col h-full justify-between gap-6">
+          <div
+            class="w-10 h-10 rounded-xl bg-harvey-primary/10 border border-harvey-primary/20 flex items-center justify-center text-harvey-primary group-hover:bg-harvey-primary group-hover:text-harvey-bg transition-all">
+            <i class="fas fa-id-card"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Candidate Pipeline</h5>
+            <p class="text-[11px] text-gray-500 leading-relaxed">Manage applicants and active job roles.</p>
+          </div>
         </div>
       </a>
-
-      <!-- Card -->
-      <a href="{% url 'leaves' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-yellow-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-yellow-500/5 group-hover:text-yellow-500/10 transition-colors rotate-12">
-          <i class="fas fa-calendar-check"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-calendar-check"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Leave Management</h4>
-          <p class="text-xs text-gray-500">Approve time-off requests.</p>
-        </div>
-      </a>
-
-      <!-- Card -->
       <a href="{% url 'interviews' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-blue-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-blue-500/5 group-hover:text-blue-500/10 transition-colors rotate-12">
-          <i class="fas fa-video"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-video"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Interviews</h4>
-          <p class="text-xs text-gray-500">Schedule & manage meetings.</p>
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
+        <div class="flex flex-col h-full justify-between gap-6">
+          <div
+            class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+            <i class="fas fa-video"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Interviews</h5>
+            <p class="text-[11px] text-gray-500 leading-relaxed">Schedule and manage candidate screenings.</p>
+          </div>
         </div>
       </a>
-
-      <!-- Placeholder -->
+      <a href="{% url 'leaves' %}"
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
+        <div class="flex flex-col h-full justify-between gap-6">
+          <div
+            class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Leave Requests</h5>
+            <p class="text-[11px] text-gray-500 leading-relaxed">Review and approve time-off applications.</p>
+          </div>
+        </div>
+      </a>
       <div
-        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
-        <i class="fas fa-chart-pie text-3xl text-gray-600 mb-3"></i>
-        <h4 class="font-bold text-gray-400 text-sm">Analytics</h4>
-        <p class="text-[10px] text-gray-500">Coming soon</p>
+        class="border border-white/5 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center opacity-40">
+        <i class="fas fa-chart-bar text-xl text-gray-600 mb-2"></i>
+        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Coming Soon</span>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Organization Section -->
-  <div>
-    <div class="flex items-center gap-3 mb-6 px-2">
-      <div class="h-8 w-1 rounded-full bg-purple-500"></div>
-      <h3 class="text-lg font-bold text-white tracking-wide">Organization</h3>
+  <!-- Organization Cluster -->
+  <section class="space-y-4">
+    <div class="flex items-center gap-2 px-1">
+      <i class="fas fa-user-friends text-harvey-accent text-xs opacity-50"></i>
+      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Organization</h4>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <a href="{% url 'manage_employees' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-purple-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-purple-500/5 group-hover:text-purple-500/10 transition-colors rotate-12">
-          <i class="fas fa-users"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-users"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Employee Directory</h4>
-          <p class="text-xs text-gray-500">View & manage all staff.</p>
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
+        <div class="flex gap-4 items-start">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-harvey-accent/10 border border-harvey-accent/20 flex items-center justify-center text-harvey-accent group-hover:scale-105 transition-transform">
+            <i class="fas fa-users"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Staff Directory</h5>
+            <p class="text-[11px] text-gray-500">Full control over employee roles and access.</p>
+          </div>
         </div>
       </a>
-
-      <!-- Card -->
-      <a href="{% url 'add_employee' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-pink-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-pink-500/5 group-hover:text-pink-500/10 transition-colors rotate-12">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-pink-500/20 flex items-center justify-center text-pink-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Add Employee</h4>
-          <p class="text-xs text-gray-500">Onboard new team members.</p>
+      <a href="{% url 'manage_invites' %}"
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
+        <div class="flex gap-4 items-start">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
+            <i class="fas fa-paper-plane"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Invitations</h5>
+            <p class="text-[11px] text-gray-500">Onboard new team members via secure links.</p>
+          </div>
         </div>
       </a>
-
-      <!-- Card -->
       <a href="{% url 'manage_policies' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-cyan-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-cyan-500/5 group-hover:text-cyan-500/10 transition-colors rotate-12">
-          <i class="fas fa-book"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-book"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Policies & Docs</h4>
-          <p class="text-xs text-gray-500">Knowledge base management.</p>
-        </div>
-      </a>
-
-      <!-- Card -->
-      <a href="{% url 'org_settings' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-gray-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-gray-500/5 group-hover:text-gray-500/10 transition-colors rotate-12">
-          <i class="fas fa-cog"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-gray-500/20 flex items-center justify-center text-gray-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-cog"></i>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-lg font-bold text-white mb-1">Settings</h4>
-          <p class="text-xs text-gray-500">Configure system options.</p>
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
+        <div class="flex gap-4 items-start">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+            <i class="fas fa-file-contract"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white mb-1">Policy Engine</h5>
+            <p class="text-[11px] text-gray-500">Manage internal documentation and RAG source files.</p>
+          </div>
         </div>
       </a>
     </div>
-  </div>
+  </section>
 
-  <!-- System & AI Section -->
-  <div>
-    <div class="flex items-center gap-3 mb-6 px-2">
-      <div class="h-8 w-1 rounded-full bg-violet-500"></div>
-      <h3 class="text-lg font-bold text-white tracking-wide">System &amp; AI</h3>
+  <!-- Systems & AI Cluster -->
+  <section class="space-y-4">
+    <div class="flex items-center gap-2 px-1">
+      <i class="fas fa-brain text-harvey-primary text-xs opacity-50"></i>
+      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Systems &amp; AI</h4>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <!-- HRMS Integration -->
-      <a href="{% url 'hrms_integration' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-orange-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-orange-500/5 group-hover:text-orange-500/10 transition-colors rotate-12">
-          <i class="fas fa-network-wired"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-network-wired"></i>
-        </div>
-        <div class="relative z-10">
-          <span
-            class="text-[10px] font-bold text-orange-400 bg-orange-500/10 px-2 py-1 rounded mb-2 inline-block">INTEGRATION</span>
-          <h4 class="text-lg font-bold text-white mb-1">HRMS Integration</h4>
-          <p class="text-xs text-gray-500">Connect &amp; sync external HR systems.</p>
-        </div>
-      </a>
-
-      <!-- RAG Management -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <a href="{% url 'rag_dashboard' %}"
-        class="glass-card p-8 rounded-3xl border border-white/5 hover:bg-white/5 transition-all duration-300 group h-48 flex flex-col justify-between hover:border-violet-500/30 hover:-translate-y-1 relative overflow-hidden">
-        <div
-          class="absolute -right-8 -bottom-8 text-9xl text-violet-500/5 group-hover:text-violet-500/10 transition-colors rotate-12">
-          <i class="fas fa-database"></i>
-        </div>
-        <div
-          class="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center text-violet-400 text-xl group-hover:scale-110 transition-transform">
-          <i class="fas fa-database"></i>
-        </div>
-        <div class="relative z-10">
-          <span class="text-[10px] font-bold text-violet-400 bg-violet-500/10 px-2 py-1 rounded mb-2 inline-block">RAG /
-            AI</span>
-          <h4 class="text-lg font-bold text-white mb-1">RAG Management</h4>
-          <p class="text-xs text-gray-500">Reindex the AI knowledge base.</p>
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-harvey-primary/10 flex items-center justify-center text-harvey-primary group-hover:bg-harvey-primary group-hover:text-harvey-bg transition-colors">
+            <i class="fas fa-database"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white">RAG Management</h5>
+            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">Vector Store Control</p>
+          </div>
         </div>
       </a>
-
-      <!-- Placeholder -->
-      <div
-        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
-        <i class="fas fa-plug text-3xl text-gray-600 mb-3"></i>
-        <h4 class="font-bold text-gray-400 text-sm">Integrations</h4>
-        <p class="text-[10px] text-gray-500">Coming soon</p>
-      </div>
-
-      <!-- Placeholder -->
-      <div
-        class="glass-card p-8 rounded-3xl border border-white/5 border-dashed opacity-50 flex flex-col justify-center items-center text-center h-48">
-        <i class="fas fa-shield-alt text-3xl text-gray-600 mb-3"></i>
-        <h4 class="font-bold text-gray-400 text-sm">Audit Logs</h4>
-        <p class="text-[10px] text-gray-500">Coming soon</p>
-      </div>
+      <a href="{% url 'hrms_integration' %}"
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+            <i class="fas fa-sync"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white">HRMS Sync</h5>
+            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">External Data Gateway</p>
+          </div>
+        </div>
+      </a>
+      <a href="{% url 'org_settings' %}"
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-10 h-10 shrink-0 rounded-xl bg-gray-500/10 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:text-black transition-colors">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div>
+            <h5 class="text-sm font-bold text-white">Advanced Settings</h5>
+            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">Global Configuration</p>
+          </div>
+        </div>
+      </a>
     </div>
-  </div>
+  </section>
 
 </div>
 {% endblock %}

@@ -1,10 +1,36 @@
 import json
 import re
+import dateparser
+import pytz
+from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 EMAIL_REGEX = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+def resolve_natural_time(time_str, user_tz="Asia/Kolkata", prefer_future=True):
+    """
+    Resolve natural language time string into timezone-aware datetime.
+    """
+    tz_obj = pytz.timezone(user_tz)
+    now = timezone.now().astimezone(tz_obj)
+
+    settings = {
+        "RELATIVE_BASE": now.replace(tzinfo=None),
+        "TIMEZONE": user_tz,
+        "RETURN_AS_TIMEZONE_AWARE": False,
+        "PREFER_DATES_FROM": "future" if prefer_future else "current",
+    }
+
+    dt = dateparser.parse(time_str, settings=settings)
+
+    if dt:
+        return tz_obj.localize(dt)
+
+    return None
+
+
 
 def ok(message, **data):
     return json.dumps({"ok": True, "message": message, **data})
@@ -88,3 +114,121 @@ def get_email_signature(user):
         lines.append(f"Email: {email}")
 
     return "\n".join(lines)
+
+def send_email_helper(recipient_email, subject, body, user):
+    """
+    Centralized helper to send emails via Gmail and log to DB.
+    """
+    from core.models.recruitment import EmailLog
+    from integrations.google.gmail import GmailService
+    import logging
+    logger = logging.getLogger("harvey")
+
+    org = get_org(user)
+    if not org:
+        raise ValueError("User not associated with organization.")
+
+    # ✍️ Append signature
+    signature = get_email_signature(user)
+    final_body = f"{body.rstrip()}\n\n{signature}"
+
+    # 🧾 Log to DB
+    EmailLog.objects.create(
+        organization=org,
+        recipient_email=recipient_email,
+        subject=subject,
+        body=final_body,
+        status="sent"
+    )
+
+    # 📧 Send via Gmail
+    service = GmailService(user=user)
+    service.send_email(recipient_email, subject, final_body)
+    logger.info(f"[HELPER] Email sent to {recipient_email}")
+    return True
+
+def get_user_timezone(user, org=None):
+    """
+    Fetch the appropriate timezone for a user.
+    Priority: Organization Timezone -> Google Calendar Settings -> Asia/Kolkata
+    """
+    if not org:
+        org = get_org(user)
+    
+    if org and getattr(org, 'timezone', None):
+        return org.timezone
+        
+    try:
+        from integrations.google.calendar import CalendarService
+        from googleapiclient.discovery import build
+        service = CalendarService(user=user)
+        google_service = build("calendar", "v3", credentials=service.get_credentials())
+        return google_service.settings().get(setting="timezone").execute()["value"]
+    except Exception:
+        return "Asia/Kolkata"
+
+def create_calendar_event_helper(
+    title,
+    start_dt,
+    end_dt,
+    attendees_list,
+    description,
+    user,
+    tz=None
+):
+    """
+    Centralized helper to create Google Calendar events
+    using explicit timezone handling (enterprise-safe).
+    """
+
+    from integrations.google.calendar import CalendarService
+    from googleapiclient.discovery import build
+    import pytz
+    import logging
+
+    logger = logging.getLogger("harvey")
+
+    org = get_org(user)
+
+    # 🔹 Determine Target Timezone
+    if not tz:
+        tz = get_user_timezone(user, org)
+
+    # 🔹 Create service once
+    service = CalendarService(user=user)
+
+    # 🔹 Build Google service once (no double init)
+    google_service = build("calendar", "v3", credentials=service.get_credentials())
+
+    if tz == "Asia/Kolkata":
+        try:
+            tz = google_service.settings().get(setting="timezone").execute()["value"]
+        except Exception:
+            pass
+            
+    try:
+        tz_obj = pytz.timezone(tz)
+    except pytz.UnknownTimeZoneError:
+        tz_obj = pytz.timezone("Asia/Kolkata")
+        tz = "Asia/Kolkata"
+
+    # Convert to the target timezone just to be safe, then strip tzinfo for Google API format
+    final_start = start_dt.astimezone(tz_obj).replace(tzinfo=None)
+    final_end = end_dt.astimezone(tz_obj).replace(tzinfo=None)
+
+    final_start_str = final_start.strftime("%Y-%m-%dT%H:%M:%S")
+    final_end_str = final_end.strftime("%Y-%m-%dT%H:%M:%S")
+
+    att_str = ",".join(attendees_list) if isinstance(attendees_list, list) else (attendees_list or "")
+
+    event_result = service.create_event(
+        title=title,
+        start_time=final_start_str,
+        end_time=final_end_str,
+        description=description,
+        attendees=att_str,
+        timezone=tz
+    )
+    
+    logger.info(f"[HELPER] Calendar event created: {title} at {final_start_str} (TZ: {tz})")
+    return event_result, tz

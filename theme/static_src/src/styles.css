@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-harvey-bg: #111827;
+  --color-harvey-surface: #1F2937;
+  --color-harvey-elevated: #273449;
+  --color-harvey-primary: #06B6D4;
+  --color-harvey-accent: #22D3EE;
+  --color-harvey-text: #E5E7EB;
+  --color-harvey-muted: #9CA3AF;
+}
+
 /**
   * A catch-all path to Django template files, JavaScript, and Python files
   * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
