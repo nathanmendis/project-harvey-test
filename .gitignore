@@ -38,7 +38,7 @@ checkpoints.db-wal
 
 # User Data/Logs
 logs/
-policies/
+/policies/
 
 # Secrets & Local Scripts
 get_gmail_token.py
