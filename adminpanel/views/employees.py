@@ -9,10 +9,10 @@ from datetime import timedelta
 from core.models.organization import User
 from core.models.invite import Invite
 from adminpanel.forms import InviteForm
-from .utils import is_org_admin
+from .utils import is_org_admin, is_admin_manager_hr
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def add_employee(request):
     """Add new employee (Invite or Manual)."""
     org = request.user.organization
@@ -113,7 +113,7 @@ def add_employee(request):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def manage_employees(request):
     """View all employees in the organization."""
     org = request.user.organization
@@ -142,7 +142,7 @@ def manage_employees(request):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def remove_employee(request, user_id):
     """Remove an employee from the organization."""
     org = request.user.organization
@@ -158,7 +158,7 @@ def remove_employee(request, user_id):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def toggle_chat_access(request, user_id):
     """Enable or disable chatbot access for an employee."""
     org = request.user.organization
@@ -173,7 +173,7 @@ def toggle_chat_access(request, user_id):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def toggle_admin_role(request, user_id):
     """Promote or demote an employee to/from Org Admin."""
     org = request.user.organization
@@ -194,5 +194,52 @@ def toggle_admin_role(request, user_id):
     user.save()
     return redirect("manage_employees")
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def send_password_reset(request, user_id):
+    """Send a password reset email to an employee."""
+    org = request.user.organization
+    user = get_object_or_404(User, id=user_id, organization=org)
 
+    # 1. Generate Token & ID
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+
+    # 2. Build Reset Link
+    reset_link = request.build_absolute_uri(
+        f"/reset/{uid}/{token}/"
+    )
+
+    # 3. Render Email
+    from django.template.loader import render_to_string
+    from django.utils.html import strip_tags
+
+    html_content = render_to_string('emails/password_reset.html', {
+        'org_name': org.name,
+        'user_name': user.name or user.username,
+        'reset_link': reset_link,
+        'requester_name': request.user.get_full_name() or request.user.username,
+    })
+    text_content = strip_tags(html_content)
+
+    # 4. Send Email
+    try:
+        from integrations.google.gmail import GmailService
+        gmail_service = GmailService() 
+        gmail_service.send_email(
+            recipient_email=user.email,
+            subject=f"Password Reset Request for {org.name}",
+            body=text_content,
+            html_content=html_content
+        )
+        messages.success(request, f"Password reset email sent to {user.email}.")
+    except ValueError as e:
+        messages.warning(request, f"Email failed: {e}. Check Organization Google credentials.")
+    except Exception as e:
+        messages.error(request, f"Error sending email: {e}")
+
+    return redirect("manage_employees")

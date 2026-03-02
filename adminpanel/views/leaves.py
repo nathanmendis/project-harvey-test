@@ -4,10 +4,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .utils import is_org_admin
+from .utils import is_org_admin ,is_admin_manager_hr
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def leaves(request):
     """View to display list of pending leave requests."""
     org = request.user.organization
@@ -34,7 +34,7 @@ def leaves(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def leave_detail(request, leave_id):
     """View to display leave details."""
     org = request.user.organization
@@ -46,7 +46,7 @@ def leave_detail(request, leave_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def approve_leave(request, leave_id):
     """View to approve a leave request."""
     org = request.user.organization

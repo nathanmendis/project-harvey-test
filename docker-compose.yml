@@ -1,8 +1,8 @@
 services:
   app:
     build: .
-    image: nathanmendis/project-harvey:latest
     container_name: project-harvey
+    restart: always
 
     command: daphne -b 0.0.0.0 -p 8000 project_harvey.asgi:application
     volumes:
@@ -24,8 +24,9 @@ services:
       - redis
 
   celery:
-    image: nathanmendis/project-harvey:latest
+    build: .
     container_name: project-harvey-celery
+    restart: always
     command: celery -A project_harvey worker --loglevel=info --concurrency=2
     volumes:
       - .:/app
@@ -44,8 +45,9 @@ services:
       - redis
 
   celery-beat:
-    image: nathanmendis/project-harvey:latest
+    build: .
     container_name: project-harvey-celery-beat
+    restart: always
     command: celery -A project_harvey beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app

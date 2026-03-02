@@ -106,6 +106,9 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "core.User"
+# Set password reset link expiry to 15 minutes (900 seconds)
+PASSWORD_RESET_TIMEOUT = 900
+
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

@@ -19,6 +19,9 @@ echo "Waiting for Redis at $REDIS_URL..."
 if [ "$1" = "daphne" ] || [ "$#" -eq 0 ]; then
     echo "App: Running Migrations..."
     python manage.py migrate
+elif [ "$1" = "celery" ]; then
+    echo "Celery: Waiting for migrations to finish..."
+    sleep 15
 fi
 
 echo "App: Starting Server..."

@@ -16,7 +16,6 @@ logger = logging.getLogger("harvey")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Periodic tasks (candidates + jobs)
-# ──────────────────────────────────────────────────────────────────────────────
 
 @shared_task(bind=True, max_retries=2, default_retry_delay=60)
 def index_candidates_and_jobs(self):
@@ -69,7 +68,6 @@ def index_candidates_and_jobs(self):
 
 # ──────────────────────────────────────────────────────────────────────────────
 # On-demand tasks (triggered from the RAG admin dashboard)
-# ──────────────────────────────────────────────────────────────────────────────
 
 @shared_task(bind=True, max_retries=2, default_retry_delay=30)
 def reindex_all_candidates_task(self, organization_id=None):

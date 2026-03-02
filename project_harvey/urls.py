@@ -40,6 +40,10 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.api import PolicyViewSet
+from django.http import HttpResponse
+
+def favicon_view(request):
+    return HttpResponse(status=204)
 
 router = DefaultRouter()
 router.register(r'policies', PolicyViewSet)
@@ -51,4 +55,5 @@ urlpatterns = [
     path('integrations/', include('integrations.urls')),
     path('api/', include(router.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
+    path("favicon.ico", favicon_view),
 ]

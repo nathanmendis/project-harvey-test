@@ -29,7 +29,7 @@
         <div id="user-dropdown"
             class="absolute right-0 top-full mt-2 w-48 glass-panel rounded-xl shadow-2xl py-2 hidden opacity-0 transform scale-95 transition-all duration-200 origin-top-right z-50 border border-white/10">
 
-            {% if user.is_superuser or user.role == 'org_admin' %}
+            {% if user.is_superuser or user.role in "org_admin,hr,manager" %}
             <a href="{% url 'admin_dashboard' %}"
                 class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors">
                 <i class="fas fa-tachometer-alt w-4 text-harvey-primary"></i>

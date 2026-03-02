@@ -8,6 +8,7 @@ urlpatterns = [
     path("manage-employees/", views.manage_employees, name="manage_employees"),
     path("remove-employee/<int:user_id>/", views.remove_employee, name="remove_employee"),
     path("toggle-chat-access/<int:user_id>/", views.toggle_chat_access, name="toggle_chat_access"),
+    path("send-reset-email/<int:user_id>/", views.send_password_reset, name="send_password_reset"),
     path("add-org-admin/", views.add_org_admin, name="add_org_admin"),
     path("manage-org-admins/", views.manage_org_admins, name="manage_org_admins"),
     path("toggle-admin/<int:user_id>/", views.toggle_admin_role, name="toggle_admin_role"),

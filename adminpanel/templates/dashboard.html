@@ -139,8 +139,19 @@
           </div>
         </div>
       </a>
+    </div>
+  </section>
+
+  <!-- Systems & AI Cluster -->
+  {% if user.is_org_admin %}
+  <section class="space-y-4">
+    <div class="flex items-center gap-2 px-1">
+      <i class="fas fa-brain text-harvey-primary text-xs opacity-50"></i>
+      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Systems &amp; AI</h4>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <a href="{% url 'manage_policies' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
+        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
         <div class="flex gap-4 items-start">
           <div
             class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
@@ -152,16 +163,6 @@
           </div>
         </div>
       </a>
-    </div>
-  </section>
-
-  <!-- Systems & AI Cluster -->
-  <section class="space-y-4">
-    <div class="flex items-center gap-2 px-1">
-      <i class="fas fa-brain text-harvey-primary text-xs opacity-50"></i>
-      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Systems &amp; AI</h4>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <a href="{% url 'rag_dashboard' %}"
         class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
         <div class="flex items-center gap-4">
@@ -203,6 +204,7 @@
       </a>
     </div>
   </section>
+  {% endif %}
 
 </div>
 {% endblock %}

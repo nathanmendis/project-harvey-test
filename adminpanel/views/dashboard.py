@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models.organization import User
-from .utils import is_org_admin
+from .utils import is_org_admin, is_admin_manager_hr
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def admin_dashboard(request):
     """Admin dashboard with user and chatbot management."""
     org = request.user.organization

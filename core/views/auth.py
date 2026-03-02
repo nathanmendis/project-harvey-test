@@ -7,6 +7,10 @@ import requests
 import os
 from core.models.organization import User
 from core.models.invite import Invite
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+
 
 # --- Standard Auth ---
 
@@ -14,7 +18,7 @@ def login_view(request):
     
     if request.user.is_authenticated:
         # Already logged in: redirect by role
-        if request.user.role == "org_admin" or request.user.is_superuser:
+        if request.user.role in ["org_admin", "hr", "manager"] or request.user.is_superuser:
             return redirect('admin_dashboard')
         elif getattr(request.user, "has_chat_access", False):
             return redirect('chat_view')
@@ -36,7 +40,7 @@ def login_view(request):
                 request.session.set_expiry(0)  # Expires on browser close
 
             # Redirect based on role or permissions
-            if user.role == "org_admin" or user.is_superuser:
+            if user.role in ["org_admin", "hr", "manager"] or user.is_superuser:
                 return redirect('admin_dashboard')
             elif getattr(user, "has_chat_access", False):
                 return redirect('chat_view')
@@ -156,6 +160,8 @@ def google_callback(request):
     if user:
         # User exists -> Login
         login(request, user)
+        if user.role in ["org_admin", "hr", "manager"] or user.is_superuser:
+            return redirect('admin_dashboard')
         return redirect(settings.LOGIN_REDIRECT_URL)
     
     # 2. Check for Invite
@@ -224,3 +230,47 @@ def org_google_login(request):
     
     auth_url = f"{GOOGLE_AUTH_URL}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&access_type=offline&prompt=consent"
     return redirect(auth_url)
+
+
+
+def password_reset_confirm(request, uidb64, token):
+    """Verifies reset link token and displays new password form."""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            new_password = request.POST.get("new_password")
+            confirm_password = request.POST.get("confirm_password")
+
+            import re
+            
+            if not new_password or not confirm_password:
+                messages.error(request, "Passwords cannot be empty.")
+            elif new_password != confirm_password:
+                messages.error(request, "Passwords do not match.")
+            elif len(new_password) < 8:
+                messages.error(request, "Password must be at least 8 characters long.")
+            elif not re.search(r"[A-Z]", new_password):
+                messages.error(request, "Password must contain at least one uppercase letter.")
+            elif not re.search(r"\d", new_password):
+                messages.error(request, "Password must contain at least one number.")
+            elif not re.search(r"[!@#$%^&*(),.?\":{}|<>]", new_password):
+                messages.error(request, "Password must contain at least one special character.")
+            else:
+                user.set_password(new_password)
+                user.save()
+                
+                # Invalidate existing sessions for security
+                request.session.flush() 
+                
+                messages.success(request, "Your password has been successfully reset. You can now log in.")
+                return redirect("login")
+                
+        return render(request, "core/password_reset_confirm.html", {"validlink": True})
+    else:
+        # Invalid or expired token
+        return render(request, "core/password_reset_confirm.html", {"validlink": False})

@@ -178,6 +178,15 @@
                   <span class="font-medium text-[13px]">Invites</span>
                 </a>
               </li>
+            </ul>
+          </div>
+
+          <!-- Systems & AI -->
+          {% if user.is_org_admin %}
+          <div>
+            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">System and Ingetration
+              Management</h3>
+            <ul class="space-y-1">
               <li>
                 <a href="{% url 'manage_policies' %}"
                   class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
@@ -186,13 +195,6 @@
                   <span class="font-medium text-[13px]">Policies</span>
                 </a>
               </li>
-            </ul>
-          </div>
-
-          <!-- Systems & AI -->
-          <div>
-            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Systems & AI</h3>
-            <ul class="space-y-1">
               <li>
                 <a href="{% url 'rag_dashboard' %}"
                   class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'rag' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
@@ -219,6 +221,7 @@
               </li>
             </ul>
           </div>
+          {% endif %}
         </nav>
       </div>
 

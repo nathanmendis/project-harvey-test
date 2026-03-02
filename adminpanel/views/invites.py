@@ -8,10 +8,10 @@ from django.core.paginator import Paginator
 from datetime import timedelta
 from core.models.invite import Invite
 from adminpanel.forms import InviteForm
-from .utils import is_org_admin
+from .utils import is_org_admin ,is_admin_manager_hr
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def invite_user(request):
     """Invite a new user via email."""
     org = request.user.organization
@@ -64,12 +64,10 @@ def invite_user(request):
     return render(request, 'employees/add.html', {'form': form, 'org': org})
 
 @login_required
+@user_passes_test(is_admin_manager_hr)
 def manage_invites(request):
     """View to list pending invites."""
-    if not request.user.is_org_admin():
-        messages.error(request, "Access denied.")
-        return redirect('admin_dashboard')
-        
+
     org = request.user.organization
     query = request.GET.get('q', '').strip()
     
@@ -93,12 +91,10 @@ def manage_invites(request):
     })
 
 @login_required
+@user_passes_test(is_admin_manager_hr)
 def delete_invite(request, invite_id):
     """View to revoke/delete a pending invite."""
-    if not request.user.is_org_admin():
-        messages.error(request, "Access denied.")
-        return redirect('admin_dashboard')
-        
+
     org = request.user.organization
     invite = get_object_or_404(Invite, id=invite_id, organization=org)
     

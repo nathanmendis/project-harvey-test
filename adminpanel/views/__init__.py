@@ -5,7 +5,8 @@ from .employees import (
     manage_employees,
     remove_employee,
     toggle_chat_access,
-    toggle_admin_role
+    toggle_admin_role,
+    send_password_reset
 )
 from .admins import add_org_admin, manage_org_admins
 from .policies import (

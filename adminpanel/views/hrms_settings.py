@@ -15,6 +15,9 @@ import json
 def hrms_integration(request):
     """View to manage HRMS System route configurations and manual sync triggers."""
     org = request.user.organization
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: RAG Management is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
     
     # Get or create an inactive config placeholder
     config, created = HRMSSystemConfig.objects.get_or_create(organization=org)

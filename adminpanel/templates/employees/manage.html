@@ -131,8 +131,16 @@
               {% if user == request.user %}
               <span class="text-[10px] text-gray-600 uppercase font-bold">LOCKED</span>
               {% else %}
-              <a href="{% url 'remove_employee' user.id %}"
-                class="text-red-400/70 hover:text-red-400 text-xs font-bold uppercase tracking-wider transition-colors">Delete</a>
+              <div class="flex items-center justify-center gap-3">
+                <a href="{% url 'send_password_reset' user.id %}" title="Send Password Reset Email"
+                  class="text-amber-400/70 hover:text-amber-400 text-xs transition-colors">
+                  <i class="">Reset Password</i>
+                </a>
+                <a href="{% url 'remove_employee' user.id %}" title="Delete Employee"
+                  class="text-red-400/70 hover:text-red-400 text-xs transition-colors">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </div>
               {% endif %}
             </td>
           </tr>

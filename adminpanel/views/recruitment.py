@@ -5,10 +5,10 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from adminpanel.forms import CandidateForm, JobForm
-from .utils import is_org_admin
+from .utils import is_admin_manager_hr , is_org_admin
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def recruitment_dashboard(request):
     """View to display recruitment dashboard."""
     org = request.user.organization
@@ -18,7 +18,7 @@ def recruitment_dashboard(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def candidates(request):
     """View to display list of candidates."""
     org = request.user.organization
@@ -45,7 +45,7 @@ def candidates(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def jobs(request):
     """View to display list of job roles."""
     org = request.user.organization
@@ -71,7 +71,7 @@ def jobs(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def interviews(request):
     """View to display list of interviews."""
     org = request.user.organization
@@ -101,7 +101,7 @@ def interviews(request):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def candidate_detail(request, candidate_id):
     """View to display candidate details."""
     org = request.user.organization
@@ -113,7 +113,7 @@ def candidate_detail(request, candidate_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def job_detail(request, job_id):
     """View to display job details."""
     org = request.user.organization
@@ -125,7 +125,7 @@ def job_detail(request, job_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def interview_detail(request, interview_id):
     """View to display interview details."""
     org = request.user.organization
@@ -137,7 +137,7 @@ def interview_detail(request, interview_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def email_detail(request, email_id):
     """View to display email details."""
     org = request.user.organization
@@ -149,7 +149,7 @@ def email_detail(request, email_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def calendar_event_detail(request, event_id):
     """View to display calendar event details."""
     org = request.user.organization
@@ -162,7 +162,7 @@ def calendar_event_detail(request, event_id):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def candidate_job_score_detail(request, score_id):
     """View to display candidate job score details."""
     org = request.user.organization
@@ -174,7 +174,7 @@ def candidate_job_score_detail(request, score_id):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def add_candidate(request):
     """View to add a new candidate."""
     org = request.user.organization
@@ -196,7 +196,7 @@ def add_candidate(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def add_job(request):
     """View to add a new job role."""
     org = request.user.organization
@@ -218,7 +218,7 @@ def add_job(request):
     })
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def search_candidate(request):
     """Search candidates by name, email, or phone."""
     query = request.GET.get("q", "").strip()

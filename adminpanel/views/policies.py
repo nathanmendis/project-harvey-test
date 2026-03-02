@@ -6,12 +6,16 @@ from core.ai.rag.policy_indexer import PolicyIndexer
 from django.db.models import Q
 from django.core.paginator import Paginator
 import threading
-from .utils import is_org_admin
+from .utils import is_org_admin, is_admin_manager_hr
 
 @login_required
 @user_passes_test(is_org_admin)
 def manage_policies(request):
     """View and manage organization policies."""
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: The Policy Engine is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
+
     org = request.user.organization
     query = request.GET.get('q', '').strip()
     
@@ -39,6 +43,10 @@ def manage_policies(request):
 @user_passes_test(is_org_admin)
 def add_policy(request):
     """Add a new policy."""
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: The Policy Engine is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
+
     org = request.user.organization
 
     if request.method == "POST":
@@ -82,6 +90,10 @@ def add_policy(request):
 @user_passes_test(is_org_admin)
 def reindex_policy(request, policy_id):
     """Trigger re-indexing for a policy."""
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: The Policy Engine is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
+
     org = request.user.organization
     policy = get_object_or_404(Policy, id=policy_id, created_by__organization=org)
 
@@ -97,6 +109,10 @@ def reindex_policy(request, policy_id):
 @user_passes_test(is_org_admin)
 def delete_policy(request, policy_id):
     """Delete a policy."""
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: The Policy Engine is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
+
     org = request.user.organization
     policy = get_object_or_404(Policy, id=policy_id, created_by__organization=org)
 
