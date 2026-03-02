@@ -6,9 +6,17 @@ Harvey.Sidebar = {
         const isMobile = window.innerWidth < 768;
         const texts = sidebar.querySelectorAll('.sidebar-text');
 
+        const hamburger = document.querySelector('[data-hamburger]');
+
         if (isMobile) {
+            const isOpening = sidebar.classList.contains('-translate-x-full');
             sidebar.classList.toggle('-translate-x-full');
             Harvey.DOM.sidebarOverlay.classList.toggle('hidden');
+            // Hide hamburger when sidebar is open, show when closed
+            if (hamburger) {
+                hamburger.style.opacity = isOpening ? '0' : '1';
+                hamburger.style.pointerEvents = isOpening ? 'none' : 'auto';
+            }
         } else {
             if (sidebar.classList.contains('w-64')) {
                 // Collapse

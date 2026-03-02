@@ -1,6 +1,7 @@
 <!-- Footer / Input Area -->
-<footer class="p-4 relative z-10 pb-6">
-    <div class="max-w-4xl mx-auto glass-panel rounded-2xl p-2 shadow-2xl border border-white/10 flex flex-col gap-2">
+<footer
+    class="px-3 py-2 md:p-4 fixed md:relative bottom-0 left-0 right-0 z-20 pb-4 md:pb-4 bg-gradient-to-t from-harvey-bg/95 via-harvey-bg/80 to-transparent pt-6 md:pt-4 md:bg-none mobile-safe-bottom">
+    <div class="max-w-4xl mx-auto glass-panel rounded-xl p-2 shadow-2xl border border-white/10 flex flex-col gap-2">
 
         <!-- File Previews (Hidden by default) -->
         <div id="file-previews" class="flex flex-wrap gap-2 px-2 hidden">
@@ -11,23 +12,23 @@
             <!-- File Upload -->
             <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" />
             <button id="upload-btn"
-                class="w-12 h-12 md:w-10 md:h-10 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-all flex items-center justify-center tooltip-trigger shrink-0"
+                class="w-8 h-8 md:w-10 md:h-10 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-all flex items-center justify-center shrink-0"
                 title="Upload Document">
-                <i class="fas fa-paperclip text-lg md:text-base"></i>
+                <i class="fas fa-paperclip text-sm md:text-base"></i>
             </button>
 
-            <!-- Input -->
-            <input id="user-input" type="text" placeholder="Ask about policies, leave balance..."
-                class="flex-1 min-w-0 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none px-2 py-3 text-base md:text-sm" />
+            <!-- Input: font-size MUST be >= 16px (text-base) to prevent iOS auto-zoom -->
+            <input id="user-input" type="text" placeholder="Ask Harvey..." style="font-size: 16px;"
+                class="flex-1 min-w-0 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none px-2 py-2 md:py-3" />
 
             <!-- Send Button -->
             <button id="send-btn"
-                class="bg-harvey-primary hover:bg-harvey-accent text-white w-12 h-12 md:w-10 md:h-10 rounded-xl flex items-center justify-center shadow-lg shadow-harvey-primary/20 transition-all hover:scale-105 active:scale-95 group shrink-0">
-                <i class="fas fa-arrow-up group-hover:-translate-y-0.5 transition-transform text-lg md:text-base"></i>
+                class="bg-harvey-primary hover:bg-harvey-accent text-white w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center shadow-lg shadow-harvey-primary/20 transition-all hover:scale-105 active:scale-95 group shrink-0">
+                <i class="fas fa-arrow-up group-hover:-translate-y-0.5 transition-transform text-sm md:text-base"></i>
             </button>
         </div>
     </div>
-    <div class="text-center mt-3 text-[10px] text-gray-600 font-medium">
+    <div class="text-center mt-2 text-[10px] text-gray-600 font-medium">
         Project Harvey AI • Please verify important policy details with HR.
     </div>
 </footer>
