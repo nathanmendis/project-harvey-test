@@ -86,7 +86,7 @@ Harvey.UI = {
         container.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up", "mb-4");
 
         const icon = document.createElement("div");
-        icon.className = "w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-md";
+        icon.className = "w-10 h-10 md:w-8 md:h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs md:text-xs font-bold shadow-md";
 
         if (sender === "user") {
             container.classList.add("flex-row-reverse");
@@ -94,14 +94,14 @@ Harvey.UI = {
             icon.innerText = "ME";
         } else {
             icon.classList.add("bg-gradient-to-br", "from-harvey-primary", "to-harvey-accent", "text-harvey-bg");
-            icon.innerHTML = '<i class="fas fa-robot"></i>';
+            icon.innerHTML = '<i class="fas fa-robot text-sm"></i>';
         }
 
         const contentWrapper = document.createElement("div");
         contentWrapper.className = `flex flex-col ${sender === 'user' ? 'items-end' : 'items-start'} max-w-2xl`;
 
         const bubble = document.createElement("div");
-        bubble.classList.add("p-4", "rounded-2xl", "leading-relaxed", "text-sm", "shadow-sm", "w-full", "prose-chat");
+        bubble.classList.add("p-4", "md:p-4", "rounded-2xl", "leading-relaxed", "text-[15px]", "md:text-sm", "shadow-sm", "w-full", "prose-chat");
         bubble.classList.add(sender === "user" ? "chat-bubble-user" : "chat-bubble-ai");
         if (sender === "user") bubble.classList.add("text-white", "[&_a]:text-white", "[&_a]:underline-offset-2");
 
@@ -160,7 +160,7 @@ Harvey.UI = {
             bubble = document.createElement("div");
             bubble.className = "flex items-start gap-3 thinking-bubble animate-pulse mb-4";
             bubble.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-harvey-primary to-harvey-accent flex items-center justify-center text-harvey-bg text-xs shadow-md">
+                <div class="w-10 h-10 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-harvey-primary to-harvey-accent flex items-center justify-center text-harvey-bg text-sm md:text-xs shadow-md">
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="chat-bubble-ai px-4 py-3 rounded-2xl flex gap-1 items-center h-10">
