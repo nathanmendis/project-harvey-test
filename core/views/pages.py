@@ -35,6 +35,17 @@ def landing_page(request):
             ]
         },
         {
+            "title": "Proactive Agentic UX",
+            "subtitle": "Zero-token logic & anticipation",
+            "icon": "fa-lightbulb",
+            "items": [
+                {"icon": "fa-comment-medical", "title": "Zero-Token Auto-Greetings", "description": "Deterministically evaluates server time, sticky session context, and worker anniversaries to inject instant, context-aware greetings before the LLM fires."},
+                {"icon": "fa-calendar-check", "title": "Dashboard Alert Cards", "description": "Glowing UI cards that continuously scan SQL databases via ORM to highlight pending manager tasks right upon login."},
+                {"icon": "fa-mouse-pointer", "title": "Copilot Action Chips", "description": "Context-sensitive macro buttons mapped uniquely to roles (e.g. 'Apply for PTO' for employees) that pre-fill strict prompts into WebSockets."},
+                {"icon": "fa-envelope-open-text", "title": "Scalable Celery Digests", "description": "Automated background workers aggregating user statuses to dispatch customized, OAuth-secured Gmail summary reports."}
+            ]
+        },
+        {
             "title": "Modern Architecture",
             "subtitle": "Security & infrastructure",
             "icon": "fa-server",

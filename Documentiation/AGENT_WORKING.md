@@ -150,3 +150,29 @@ Every time the agent "thinks", a record is created in the `GraphRun` model:
 - **Token Logs**: Granular logs of Prompt vs Completion tokens per LLM call.
 - **Final Result**: The absolute state of the graph after the run.
 - **Debugging**: Admins can view these in the `/admin/` panel to debug failing tool-calls or long response times.
+
+---
+
+## 6. Proactive UX Architecture
+
+To ensure the AI feels constantly engaged and helpful without burning massive LLM API budgets, an entirely deterministic Python-based proactive layer wraps the chat:
+
+### 6.1 Token-Free Auto Greeting (`core.ai.agentic.proactive`)
+When the user opens the chat, the interface doesn't just say "Hello". Instead, `get_proactive_greeting` executes a series of zero-LLM-cost logic evaluations:
+- **Time of Day Checks**: (e.g., "Good morning").
+- **Lifecycle Nudges**: Checks the employee's `date_joined` relative to today to celebrate work anniversaries.
+- **Task Triage**: Performs a quick SQL ORM count on `LeaveRequest` where `status='pending'` for the user. If tasks exist, they are appended to the greeting.
+- **Sticky Memory**: It runs a backward scan on `core.models.chatbot.Message` to fetch the user's latest uncompleted intent, appending context like: `"Are we still looking into applying for Sick Leave?"`.
+
+### 6.2 Copilot Action Chips
+Buttons are dynamically rendered via Django templating (`footer_input.html`) based on the user's role:
+- Managers receive "Review pending leaves".
+- Employees receive "Apply for PTO".  
+When clicked, these directly map to Chat WebSocket events, feeding perfect syntax into the Agent string.
+
+### 6.3 Background Notifications (Celery)
+The agent operates asynchronously while the user is offline:
+- **`send_daily_manager_digest`**: Executes at 9 AM, running SQL aggregation to format pending task alerts and push them via the `GmailService` OAuth token.
+- **`send_weekly_employee_summary`**: Executes at 4 PM on Fridays for employees to summarize leaves taken.
+
+These integrations guarantee that the user interface operates intelligently *before* the LLM is even invoked.

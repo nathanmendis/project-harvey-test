@@ -21,6 +21,13 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 - **PGVector Knowledge Base**: Semantic search using **PostgreSQL + pgvector** and **PyTorch-based all-MiniLM-L6-v2** embeddings.
 - **Policy Assistant**: Index PDFs or URLs and get answers with source attribution.
 
+### 🧠 Proactive Agentic UX & UI
+
+- **Zero-Token Contextual Auto-Greetings**: The agent reads server time, pending tasks, anniversaries, and *sticky memory* (your last chat intent) to dynamically greet you on page load without using a single LLM token.
+- **Copilot Action Chips**: Clickable macro-chips embedded above the chat input allowing managers to "Review Leaves" or employees to "Apply for PTO" with a single tap.
+- **Dashboard Alert Cards & Modals**: Action-required glowing cards automatically populate the dashboard for pending approvals, alongside celebratory pop-up modals for organization anniversaries based on user join dates.
+- **Scalable Background Digests**: Celery beat workers automatically compile and dispatch Daily Manager Action Digests (9 AM M-F) and Weekly Employee Leave Summaries (4 PM Fri) over Gmail OAuth.
+
 ### 🏖️ Leave & PTO Management
 
 - **Centralized Policy Engine**: Organization-level control over yearly leave allocations (Sick, Annual, etc.).
