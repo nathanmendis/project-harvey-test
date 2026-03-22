@@ -22,6 +22,14 @@ app.conf.beat_schedule = {
         'task': 'core.tasks.index_candidates_and_jobs',
         'schedule': crontab(minute=0, hour='*/2'),  # Every 2 hours
     },
+    'daily-manager-leave-digest': {
+        'task': 'core.tasks.send_daily_manager_digest',
+        'schedule': crontab(minute=0, hour=9, day_of_week='1-5'),  # 9:00 AM Mon-Fri
+    },
+    'weekly-employee-leave-summary': {
+        'task': 'core.tasks.send_weekly_employee_summary',
+        'schedule': crontab(minute=0, hour=16, day_of_week='5'),  # 4:00 PM Friday
+    },
 }
 
 app.conf.timezone = 'Asia/Kolkata'

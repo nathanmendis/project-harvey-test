@@ -60,6 +60,17 @@ def approve_leave(request, leave_id):
     if request.method == "POST":
         leave.status = 'approved'
         leave.save()
+        
+        # Dispatch Email
+        try:
+            from integrations.google.gmail import GmailService
+            gmail_service = GmailService()
+            subject = f"Leave Request Approved! - {leave.start_date}"
+            body = f"Hi {leave.employee.name or leave.employee.username},\n\nGood news! Your leave request for {leave.leave_type} from {leave.start_date} to {leave.end_date} has been approved.\n\nEnjoy your time off!\n\nThanks,\n{org.name} HR"
+            gmail_service.send_email(recipient_email=leave.employee.email, subject=subject, body=body)
+        except Exception as e:
+            print(f"Failed to send approval email: {e}")
+
         messages.success(request, f"Leave request for {leave.employee.username} has been approved.")
         return redirect('leave_detail', leave_id=leave.id)
     
@@ -73,9 +84,22 @@ def reject_leave(request, leave_id):
     leave = get_object_or_404(LeaveRequest, id=leave_id, organization=org)
     
     if request.method == "POST":
-        leave.status = 'rejected'
-        leave.save()
-        messages.success(request, f"Leave request for {leave.employee.username} has been rejected.")
-        return redirect('leave_detail', leave_id=leave.id)
+        # Dispatch Email
+        try:
+            from integrations.google.gmail import GmailService
+            gmail_service = GmailService()
+            subject = f"Leave Request Rejected - {leave.start_date}"
+            body = f"Hi {leave.employee.name or leave.employee.username},\n\nYour leave request for {leave.leave_type} from {leave.start_date} to {leave.end_date} has unfortunately been rejected by your manager.\n\nPlease reach out if you have any questions.\n\nThanks,\n{org.name} HR"
+            gmail_service.send_email(recipient_email=leave.employee.email, subject=subject, body=body)
+        except Exception as e:
+            print(f"Failed to send rejection email: {e}")
+            
+        employee_name = leave.employee.username
+        # Delete the rejected request from the database as requested
+        leave.delete()
+        
+        messages.success(request, f"Leave request for {employee_name} has been rejected and permanently removed from the records.")
+        # Redirect back to the list view, since the detail page no longer exists
+        return redirect('leaves')
     
-    return redirect('leave_detail', leave_id=leave.id)
+    return redirect('leaves')

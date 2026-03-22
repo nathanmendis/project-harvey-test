@@ -8,6 +8,16 @@
             <!-- Dynamically populated -->
         </div>
 
+        <!-- Copilot Action Chips -->
+        <div class="flex gap-2 overflow-x-auto px-2 pb-1 scrollbar-hide text-xs md:text-sm whitespace-nowrap">
+            {% if user.role == 'manager' or user.role == 'org_admin' %}
+                <button onclick="document.getElementById('user-input').value='Show me pending leave approvals'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Review Pending Leaves</button>
+            {% endif %}
+            <button onclick="document.getElementById('user-input').value='Apply for leave'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Apply for Leave</button>
+            <button onclick="document.getElementById('user-input').value='Check my leave balance'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Check Leave Balance</button>
+            <button onclick="document.getElementById('user-input').value='What are the IT policies?'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">View HR Policies</button>
+        </div>
+
         <div class="flex items-center gap-2">
             <!-- File Upload -->
             <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" />

@@ -5,13 +5,19 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 import json
 from core.ai.agentic.graph.chat_service import generate_llm_reply
+from core.ai.agentic.proactive import get_proactive_greeting
 
 @login_required
 def chat_page(request):
     """Render the chat UI if user has access."""
     if not getattr(request.user, "has_chat_access", False):
         return render(request, "core/no_access.html")  # access blocked
-    return render(request, "core/core.html")
+        
+    proactive_msg = get_proactive_greeting(request.user)
+    
+    return render(request, "core/core.html", {
+        "proactive_greeting": proactive_msg
+    })
 
 @csrf_exempt
 @require_POST

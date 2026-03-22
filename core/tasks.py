@@ -195,3 +195,93 @@ def allocate_leave_balances_task(self, policy_id):
 
     logger.info("Leave allocation complete for policy %s. Provisioned %s employee accounts.", policy_id, alloc_count)
     return {"provisioned": alloc_count}
+
+
+@shared_task(bind=True, max_retries=1)
+def send_daily_manager_digest(self):
+    """
+    Sends a daily email to managers summarizing how many pending leave requests require attention.
+    Designed for 9:00 AM M-F execution.
+    """
+    from core.models.leaves import LeaveRequest
+    from core.models.organization import User
+    from integrations.google.gmail import GmailService
+    from django.utils import timezone
+    
+    managers = User.objects.filter(role__in=['manager', 'org_admin'], is_active=True)
+    count = 0
+    
+    # We initialize the service once per run, defaulting to system integration (no user specified)
+    try:
+        gmail_service = GmailService()
+    except Exception as e:
+        logger.error(f"Failed to initialize Gmail API for digests: {e}")
+        return {"status": "error", "error": str(e)}
+
+    for manager in managers:
+        pending_count = LeaveRequest.objects.filter(
+            status='pending', 
+            organization=manager.organization
+        ).count()
+        
+        if pending_count > 0:
+            subject = f"Action Required: {pending_count} Pending Requests"
+            body = f"Hi {manager.name or manager.username},\n\nYou have {pending_count} pending leave requests waiting for your approval in Project Harvey.\n\nPlease log into the dashboard to review them."
+            
+            try:
+                gmail_service.send_email(
+                    recipient_email=manager.email,
+                    subject=subject,
+                    body=body
+                )
+                count += 1
+            except Exception as e:
+                logger.error(f"Failed to send digest to {manager.email}: {e}")
+                
+    return {"sent": count}
+
+@shared_task(bind=True, max_retries=1)
+def send_weekly_employee_summary(self):
+    """
+    Sends a weekly email to employees summarizing their approved leaves for the week.
+    Designed for 4:00 PM Friday execution.
+    """
+    from core.models.leaves import LeaveRequest
+    from core.models.organization import User
+    from integrations.google.gmail import GmailService
+    from django.utils import timezone
+    import datetime
+    
+    users = User.objects.filter(is_active=True)
+    count = 0
+    
+    try:
+        gmail_service = GmailService()
+    except Exception as e:
+        logger.error(f"Failed to initialize Gmail API for weekly summaries: {e}")
+        return {"status": "error", "error": str(e)}
+        
+    start_of_week = timezone.now().date() - datetime.timedelta(days=timezone.now().weekday())
+    
+    for user in users:
+        leaves_this_week = LeaveRequest.objects.filter(
+            employee=user, 
+            status='approved',
+            start_date__gte=start_of_week
+        ).count()
+        
+        if leaves_this_week > 0:
+            subject = "Your Weekly Leave Summary"
+            body = f"Hi {user.name or user.username},\n\nJust a quick summary for this week:\nYou had {leaves_this_week} approved leave request(s) starting this week.\n\nEnjoy your weekend!"
+            
+            try:
+                gmail_service.send_email(
+                    recipient_email=user.email,
+                    subject=subject,
+                    body=body
+                )
+                count += 1
+            except Exception as e:
+                logger.error(f"Failed to send weekly summary to {user.email}: {e}")
+                
+    return {"sent": count}

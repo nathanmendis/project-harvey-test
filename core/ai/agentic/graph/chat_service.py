@@ -133,14 +133,18 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         # --- FINAL AGGREGATION ---
         # Combine all NEW messages from this turn (AI or Tool) into a final transcript
         all_result_msgs = result.get("messages", [])
-        input_msg_ids = {m.id for m in state_input.get("messages", []) if getattr(m, 'id', None)}
         
-        # New messages are those that didn't exist in the input state (generated during this graph run)
-        new_msgs = [m for m in all_result_msgs if getattr(m, 'id', None) not in input_msg_ids]
-        
-        # Fallback if IDs aren't reliable (e.g. LangGraph raw messages without IDs)
-        if not input_msg_ids or len(new_msgs) == len(all_result_msgs):
-             new_msgs = all_result_msgs[len(state_input.get("messages", [])):]
+        # Safely extract ONLY messages generated after the user's latest prompt
+        last_human_idx = -1
+        for i in range(len(all_result_msgs) - 1, -1, -1):
+            if isinstance(all_result_msgs[i], HumanMessage):
+                last_human_idx = i
+                break
+                
+        if last_human_idx != -1:
+            new_msgs = all_result_msgs[last_human_idx + 1:]
+        else:
+            new_msgs = [all_result_msgs[-1]] if all_result_msgs else []
         
         has_ai_message = any(isinstance(msg, AIMessage) and msg.content for msg in new_msgs)
         

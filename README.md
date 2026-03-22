@@ -21,6 +21,13 @@ Harvey is a high-performance, agentic HR assistant designed to automate recruitm
 - **PGVector Knowledge Base**: Semantic search using **PostgreSQL + pgvector** and **PyTorch-based all-MiniLM-L6-v2** embeddings.
 - **Policy Assistant**: Index PDFs or URLs and get answers with source attribution.
 
+### 🏖️ Leave & PTO Management
+
+- **Centralized Policy Engine**: Organization-level control over yearly leave allocations (Sick, Annual, etc.).
+- **Asynchronous Mass-Provisioning**: Leverages Celery background workers to instantly cascade policy updates to thousands of employee balances securely.
+- **Smart Carryover**: Natively supports rolling over unused PTO from the previous year into the new year's balance automatically.
+- **Real-Time Verification**: Integrated with the AI agent to dynamically verify employee balances and deduct approved requests via strict Django signals.
+
 ### 🔐 Enterprise-Grade Identity
 
 - **Two-Tier OAuth**: Decouples simple user login from system-wide Gmail/Calendar capacities, ensuring the system can "act" reliably via a System Account.

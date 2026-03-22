@@ -10,7 +10,12 @@
         </div>
         <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">
             Hello, {{ user.username }}</h3>
-        <div class="text-center text-gray-400 max-w-sm text-sm leading-relaxed">How can I assist you with your HR
-            tasks or policy questions today?</div>
+        <div class="text-center text-gray-400 max-w-sm text-sm leading-relaxed">
+            {% if proactive_greeting %}
+                {{ proactive_greeting }}
+            {% else %}
+                How can I assist you with your HR tasks or policy questions today?
+            {% endif %}
+        </div>
     </div>
 </main>

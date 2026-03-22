@@ -115,6 +115,11 @@ This is the central reasoning node.
     -   `text`: A segment of the document.
     -   `vector_id`: ID in the **PGVector** index.
 
+### Leave Management (`core/models/leaves.py`)
+-   **`OrganizationLeavePolicy`**: Defines tenant-level base allowances per year.
+-   **`LeaveBalance`**: Tracks an employee's specific balance. Features an automatic carryover computation from the previous year.
+-   **`LeaveRequest`**: The request object. Deduction of balance is handled safely via Django signals exclusively upon an "approved" status state.
+
 ---
 
 ## 4. The Tool Ecosystem (`core/ai/agentic/tools/`)

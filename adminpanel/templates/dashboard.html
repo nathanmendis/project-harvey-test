@@ -1,6 +1,53 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="space-y-10 animate-fade-in">
+<div class="space-y-10 animate-fade-in relative">
+
+  <!-- Smart Proactive Alerts -->
+  {% if pending_leaves and pending_leaves > 0 %}
+  <a href="{% url 'leaves' %}" class="block glass-panel bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 shadow-lg hover:bg-amber-500/20 transition-all cursor-pointer group">
+    <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div>
+            <h3 class="text-white font-bold text-lg">Action Required</h3>
+            <p class="text-gray-300 text-sm">You have <span class="text-amber-400 font-bold px-1">{{ pending_leaves }}</span> pending leave request(s) waiting for your approval.</p>
+        </div>
+        <div class="ml-auto text-amber-400">
+            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+        </div>
+    </div>
+  </a>
+  {% endif %}
+
+  <!-- Anniversary Auto-Modal -->
+  {% if show_anniversary_popup %}
+  <div id="anniversaryModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-harvey-bg/80 backdrop-blur-md">
+      <div class="glass-panel p-8 rounded-3xl border border-harvey-primary/30 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(6,182,212,0.2)] transform transition-all scale-95 opacity-0 text-center" id="anniversaryContent">
+          <div class="w-20 h-20 bg-gradient-to-tr from-harvey-primary to-harvey-accent rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-harvey-primary/40 animate-bounce">
+              <i class="fas fa-gift text-3xl text-white"></i>
+          </div>
+          <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">Happy Work Anniversary!</h2>
+          <p class="text-gray-400 mb-8 leading-relaxed">Thank you for being an amazing part of the <span class="text-harvey-primary">{{ org_name }}</span> family. We appreciate everything you do!</p>
+          <button onclick="document.getElementById('anniversaryModal').classList.add('hidden')" class="w-full py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/5">
+              Close
+          </button>
+      </div>
+  </div>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const modal = document.getElementById('anniversaryModal');
+          const content = document.getElementById('anniversaryContent');
+          if(modal && content) {
+              modal.classList.remove('hidden');
+              setTimeout(() => {
+                  content.classList.remove('scale-95', 'opacity-0');
+                  content.classList.add('scale-100', 'opacity-100');
+              }, 100);
+          }
+      });
+  </script>
+  {% endif %}
 
   <!-- Header & Performance (Professional Summary) -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2 px-2">

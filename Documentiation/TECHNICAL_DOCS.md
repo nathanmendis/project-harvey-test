@@ -46,6 +46,12 @@ The database is divided into logical functional areas:
 - **Message**: Individual speech acts. Content is **AES-256 encrypted** in the database.
 - **GraphRun**: Logs for individual agent execution trails, including timing metrics and node traces.
 
+### 3.5 Leave Management
+- **OrganizationLeavePolicy**: Defines the default yearly allocation (e.g. 15 Sick Days in 2026) per organization.
+- **LeaveBalance**: Tracks an individual employee's `total_allocated`, `used`, and dynamically calculates `remaining` days. Automatically handles carryovers from previous years.
+- **LeaveRequest**: Records employee PTO requests. Includes a `post_save` signal that securely deducts days from the `LeaveBalance` only upon "approved" status.
+- **LeaveSystemConfig**: Manages secure edit tokens for the token-gated Admin Panel UI.
+
 ---
 
 ## 4. The Agentic Workflow (`core/llm_graph/`)
