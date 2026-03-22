@@ -32,6 +32,11 @@
             <div>
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Leave Type</h3>
                 <p class="text-white">{{ leave.leave_type|title }}</p>
+                {% if balance %}
+                    <p class="text-xs text-gray-400 mt-1">Balance: {{ balance.remaining }} days left</p>
+                {% else %}
+                    <p class="text-xs text-yellow-500 mt-1">No balance recorded</p>
+                {% endif %}
             </div>
             <div>
                 <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Start Date</h3>
@@ -45,7 +50,14 @@
     </div>
 
     {% if leave.status == 'pending' %}
-    <div class="mt-8 border-t border-white/10 pt-6 flex justify-end">
+    <div class="mt-8 border-t border-white/10 pt-6 flex justify-end gap-4">
+        <form method="post" action="{% url 'reject_leave' leave.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                class="px-6 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-500 border border-red-500/50 rounded-xl font-semibold transition-all">
+                Reject Request
+            </button>
+        </form>
         <form method="post" action="{% url 'approve_leave' leave.id %}">
             {% csrf_token %}
             <button type="submit"

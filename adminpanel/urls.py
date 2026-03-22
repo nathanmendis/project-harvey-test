@@ -34,10 +34,12 @@ urlpatterns = [
     path("leaves/", views.leaves, name="leaves"),
     path("leaves/<int:leave_id>/", views.leave_detail, name="leave_detail"),
     path("leaves/<int:leave_id>/approve/", views.approve_leave, name="approve_leave"),
+    path("leaves/<int:leave_id>/reject/", views.reject_leave, name="reject_leave"),
     
     # Org Settings
     path("settings/", views.org_settings, name="org_settings"),
     path("settings/hrms/", views.hrms_integration, name="hrms_integration"),
+    path("settings/leaves/", views.leave_settings, name="leave_settings"),
 
     # RAG Pipeline Management
     path("rag/", views.rag_dashboard, name="rag_dashboard"),

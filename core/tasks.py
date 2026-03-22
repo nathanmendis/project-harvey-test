@@ -151,3 +151,47 @@ def reindex_all_policies_task(self, organization_id=None):
 
     logger.info("Admin reindex policies: ok=%s fail=%s", ok, fail)
     return {"indexed": ok, "failed": fail}
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
+def allocate_leave_balances_task(self, policy_id):
+    """
+    Background task to allocate or update LeaveBalances for all employees
+    when an OrganizationLeavePolicy is created or updated.
+    """
+    from core.models.leaves import OrganizationLeavePolicy, LeaveBalance
+    from core.models.organization import User
+
+    try:
+        policy = OrganizationLeavePolicy.objects.get(id=policy_id)
+    except OrganizationLeavePolicy.DoesNotExist:
+        logger.warning("Leave policy %s no longer exists. Aborting allocation.", policy_id)
+        return {"status": "aborted"}
+
+    employees = User.objects.filter(organization=policy.organization, is_active=True)
+    alloc_count = 0
+
+    for employee in employees:
+        balance, balance_created = LeaveBalance.objects.get_or_create(
+            employee=employee,
+            organization=policy.organization,
+            year=policy.year,
+            leave_type=policy.leave_type,
+            defaults={'total_allocated': policy.default_allocated, 'used': 0.0}
+        )
+        
+        if balance_created:
+            alloc_count += 1
+            # 1. Provide carryover natively from the prior year
+            last_year_balance = LeaveBalance.objects.filter(
+                employee=employee,
+                organization=policy.organization,
+                year=policy.year - 1,
+                leave_type=policy.leave_type
+            ).first()
+            
+            if last_year_balance and last_year_balance.remaining > 0:
+                balance.total_allocated += last_year_balance.remaining
+                balance.save()
+
+    logger.info("Leave allocation complete for policy %s. Provisioned %s employee accounts.", policy_id, alloc_count)
+    return {"provisioned": alloc_count}

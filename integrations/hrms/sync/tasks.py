@@ -1,7 +1,8 @@
 from celery import shared_task
 from django.utils import timezone
 from core.models.organization import Organization, User
-from core.models.recruitment import Candidate, Interview, LeaveRequest, JobRole, HRMSSystemConfig, HRMSEndpointMapping
+from core.models.recruitment import Candidate, Interview, JobRole, HRMSSystemConfig, HRMSEndpointMapping
+from core.models.leaves import LeaveRequest
 from integrations.hrms.service import HRMSIntegrationService
 from integrations.hrms.sync.tracker import SyncStatusTracker
 import logging

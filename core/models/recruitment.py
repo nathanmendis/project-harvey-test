@@ -52,21 +52,6 @@ class Interview(models.Model):
         return f"Interview: {self.candidate.name} ({self.organization.name})"
 
 
-class LeaveRequest(models.Model):
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
-    employee = models.ForeignKey(User, on_delete=models.CASCADE)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    leave_type = models.CharField(max_length=50)
-    LEAVE_STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-    ]
-    status = models.CharField(max_length=50, choices=LEAVE_STATUS_CHOICES, default='pending')
-
-    def __str__(self):
-        return f"{self.employee.username} - {self.leave_type} ({self.status})"
-
 
 class EmailLog(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
@@ -169,4 +154,6 @@ class HRMSEndpointMapping(models.Model):
 
     def __str__(self):
         return f"{self.target_model} ← {self.endpoint_url}"
+
+
 

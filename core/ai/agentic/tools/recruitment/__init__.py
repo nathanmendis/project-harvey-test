@@ -14,8 +14,5 @@ from .interviews import (
     schedule_interview,
     list_interviews
 )
-from .leaves import (
-    list_leave_requests, 
-    apply_leave
-)
+
 from .emails import send_email

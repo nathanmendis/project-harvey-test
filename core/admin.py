@@ -5,7 +5,10 @@ from django.contrib.auth.hashers import make_password
 from .models import Organization, User, Policy, PolicyChunk, AppLog
 from .models.recruitment import (
     Candidate, JobRole, Interview, EmailLog, 
-    CalendarEvent, LeaveRequest, CandidateJobScore, HRMSSystemConfig
+    CalendarEvent, CandidateJobScore, HRMSSystemConfig
+)
+from .models.leaves import (
+    OrganizationLeavePolicy, LeaveBalance, LeaveSystemConfig, LeaveRequest
 )
 from core.ai.rag.policy_indexer import PolicyIndexer
 import threading
@@ -36,6 +39,7 @@ class OrganizationAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('<int:org_id>/generate-hrms-token/', self.admin_site.admin_view(self.generate_hrms_token_view), name='core_organization_generate_hrms_token'),
+            path('<int:org_id>/generate-leave-token/', self.admin_site.admin_view(self.generate_leave_token_view), name='core_organization_generate_leave_token'),
         ]
         return custom_urls + urls
 
@@ -48,6 +52,15 @@ class OrganizationAdmin(admin.ModelAdmin):
         self.message_user(request, f"Generated new HRMS Edit Token for {org.name}. Token: {token} (Valid for 24h)")
         return redirect('admin:core_organization_changelist')
 
+    def generate_leave_token_view(self, request, org_id):
+        from django.shortcuts import get_object_or_404, redirect
+        from .models.leaves import LeaveSystemConfig
+        org = get_object_or_404(Organization, pk=org_id)
+        config, created = LeaveSystemConfig.objects.get_or_create(organization=org)
+        token = config.generate_edit_token()
+        self.message_user(request, f"Generated new Leave Policies Edit Token for {org.name}. Token: {token} (Valid for 24h)")
+        return redirect('admin:core_organization_changelist')
+
     def add_org_admin_button(self, obj):
         """Action buttons directly on the org page."""
         from django.urls import reverse
@@ -56,15 +69,24 @@ class OrganizationAdmin(admin.ModelAdmin):
         except Exception:
             token_url = "#"
             
+        try:
+            leave_token_url = reverse('admin:core_organization_generate_leave_token', args=[obj.id])
+        except Exception:
+            leave_token_url = "#"
+            
         return format_html(
-            f'<div style="display:flex; gap:8px;">'
-            f'<a href="/admin/core/user/add/?organization={obj.id}&role=org_admin" '
-            f'style="background-color:#4f46e5;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
-            f' Add Org Admin</a>'
-            f'<a href="{token_url}" '
-            f'style="background-color:#10b981;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
-            f' Gen HRMS Token</a>'
-            f'</div>'
+            '<div style="display:flex; gap:8px;">'
+            '<a href="/admin/core/user/add/?organization={}&role=org_admin" '
+            'style="background-color:#4f46e5;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
+            ' Add Org Admin</a>'
+            '<a href="{}" '
+            'style="background-color:#10b981;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
+            ' Gen HRMS Token</a>'
+            '<a href="{}" '
+            'style="background-color:#f59e0b;color:white;padding:4px 10px;border-radius:5px;text-decoration:none;font-weight:bold;">'
+            ' Gen Leave Token</a>'
+            '</div>',
+            obj.id, token_url, leave_token_url
         )
     add_org_admin_button.short_description = "Actions"
 
@@ -137,6 +159,22 @@ class CalendarEventAdmin(admin.ModelAdmin):
 
 
 
+@admin.register(OrganizationLeavePolicy)
+class OrganizationLeavePolicyAdmin(admin.ModelAdmin):
+    list_display = ("organization", "year", "leave_type", "default_allocated")
+    list_filter = ("organization", "year", "leave_type")
+
+@admin.register(LeaveBalance)
+class LeaveBalanceAdmin(admin.ModelAdmin):
+    list_display = ("employee", "organization", "year", "leave_type", "total_allocated", "used", "remaining")
+    list_filter = ("organization", "year", "leave_type")
+    search_fields = ("employee__username", "employee__name")
+
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ("employee", "organization", "leave_type", "start_date", "end_date", "status", "is_deducted")
+    list_filter = ("status", "organization")
+
 @admin.register(HRMSSystemConfig)
 class HRMSSystemConfigAdmin(admin.ModelAdmin):
     list_display = ("organization", "hrms_type", "is_active", "edit_token", "edit_token_expires_at")
@@ -149,6 +187,19 @@ class HRMSSystemConfigAdmin(admin.ModelAdmin):
         for config in queryset:
             token = config.generate_edit_token()
         self.message_user(request, f"Generated new edit tokens for {queryset.count()} organization(s).")
+    generate_new_edit_token.short_description = "Generate fresh 24h Edit Token"
+
+@admin.register(LeaveSystemConfig)
+class LeaveSystemConfigAdmin(admin.ModelAdmin):
+    list_display = ("organization", "edit_token", "edit_token_expires_at")
+    search_fields = ("organization__name", "edit_token")
+    readonly_fields = ("edit_token", "edit_token_expires_at")
+    actions = ["generate_new_edit_token"]
+
+    def generate_new_edit_token(self, request, queryset):
+        for config in queryset:
+            token = config.generate_edit_token()
+        self.message_user(request, f"Generated new Leave edit tokens for {queryset.count()} organization(s).")
     generate_new_edit_token.short_description = "Generate fresh 24h Edit Token"
 
 # ─────────────────────────────

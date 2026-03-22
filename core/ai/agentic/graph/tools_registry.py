@@ -8,13 +8,16 @@ from core.ai.agentic.tools.recruitment import (
     schedule_interview,
     create_job_description,
     shortlist_candidates,
-    apply_leave,
     list_candidates,
     get_candidate_detail,
     list_job_roles,
     get_job_role_detail,
-    list_interviews,
-    list_leave_requests
+    list_interviews
+)
+from core.ai.agentic.tools.leaves import (
+    apply_leave,
+    list_leave_requests,
+    check_leave_balance
 )
 from core.ai.rag.tools.search_tool import search_knowledge_base
 from core.ai.rag.tools.policy_search_tool import search_policies
@@ -37,7 +40,8 @@ AVAILABLE_TOOLS = [
     list_job_roles,
     get_job_role_detail,
     list_interviews,
-    list_leave_requests
+    list_leave_requests,
+    check_leave_balance
 ]
 
 tool_registry = {t.name: t.func for t in AVAILABLE_TOOLS}

@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models.organization import User
-from .utils import is_org_admin
+from .utils import is_org_admin, is_admin_manager_hr
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def add_org_admin(request):
     """Allow an organization admin to add another admin within the same org."""
     org = request.user.organization
@@ -42,7 +42,7 @@ def add_org_admin(request):
 
 
 @login_required
-@user_passes_test(is_org_admin)
+@user_passes_test(is_admin_manager_hr)
 def manage_org_admins(request):
     """View and manage all organization admins within your organization."""
     org = request.user.organization

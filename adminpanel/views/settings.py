@@ -8,6 +8,9 @@ from .utils import is_org_admin
 def org_settings(request):
     """View to manage organization settings and integrations."""
     org = request.user.organization
+    if not request.user.is_org_admin():
+        messages.error(request, "Access Denied: RAG Management is restricted to Organization Admins only.")
+        return redirect('admin_dashboard')
     
     if request.method == "POST":
         action = request.POST.get("action")

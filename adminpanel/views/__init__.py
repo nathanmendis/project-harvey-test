@@ -31,7 +31,8 @@ from .recruitment import (
 from .leaves import (
     leaves,
     leave_detail,
-    approve_leave
+    approve_leave,
+    reject_leave
 )
 from .hrms_settings import hrms_integration
 from .rag_management import (
@@ -41,3 +42,4 @@ from .rag_management import (
     reindex_all_jobs,
     reindex_everything,
 )
+from .leave_settings import leave_settings

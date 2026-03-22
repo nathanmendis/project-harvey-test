@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from core.models.organization import Organization, User
-from core.models.recruitment import LeaveRequest
+from core.models.leaves import LeaveRequest
 from django.utils import timezone
 import datetime
 

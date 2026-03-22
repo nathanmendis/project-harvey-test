@@ -219,6 +219,14 @@
                   <span class="font-medium text-[13px]">HRMS Sync</span>
                 </a>
               </li>
+              <li>
+                <a href="{% url 'leave_settings' %}"
+                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'settings/leaves' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  <i
+                    class="fas fa-calendar-check w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                  <span class="font-medium text-[13px]">Leave Policies</span>
+                </a>
+              </li>
             </ul>
           </div>
           {% endif %}

@@ -5,7 +5,8 @@ from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from django.db.models import Q
 from langchain_core.tools import tool
-from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, CandidateJobScore, LeaveRequest
+from core.models.recruitment import Candidate, JobRole, Interview, EmailLog, CandidateJobScore
+from core.models.leaves import LeaveRequest
 from core.models.organization import Organization
 from core.ai.utils.resume_parser import ResumeParser
 from core.ai.utils.candidate_scorer import CandidateScorer
