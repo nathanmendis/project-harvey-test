@@ -25,7 +25,7 @@ class GmailService(EmailService):
                 try:
                     refresh_token = decrypt_token(encrypted_token)
                 except Exception as e:
-                    print(f"⚠️ Failed to decrypt org token: {e}")
+                    print(f" Failed to decrypt org token: {e}")
         
         # 2. System Token (Fallback)
         if not refresh_token:
@@ -68,10 +68,10 @@ class GmailService(EmailService):
     def send_email(self, recipient_email, subject, body, html_content=None):
         """Send an email using Gmail API."""
         if not self.creds:
-            print("❌ GmailService Error: Not authenticated")
+            print(" GmailService Error: Not authenticated")
             raise ValueError("Not authenticated")
 
-        print(f"📧 Sending email to {recipient_email} via Gmail API...")
+        print(f" Sending email to {recipient_email} via Gmail API...")
         service = build('gmail', 'v1', credentials=self.creds)
 
         message = MIMEText(html_content if html_content else body, 'html' if html_content else 'plain')
@@ -84,8 +84,8 @@ class GmailService(EmailService):
         try:
             message_box = {'raw': raw_message}
             sent_message = service.users().messages().send(userId="me", body=message_box).execute()
-            print(f"✅ Email SENT Successfully! Message ID: {sent_message.get('id')}")
+            print(f" Email SENT Successfully! Message ID: {sent_message.get('id')}")
             return sent_message
         except Exception as e:
-            print(f"❌ Error sending email: {e}")
+            print(f" Error sending email: {e}")
             raise e
