@@ -2,14 +2,14 @@
 {% load static %}
 
 {% block content %}
-<div class="py-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+<div class="space-y-10 py-6 max-w-6xl mx-auto px-4">
 
   <!-- Header -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 px-2">
     <div>
-      <h1 class="text-3xl font-extrabold text-white tracking-tight">Leave Configuration</h1>
-      <p class="text-harvey-muted mt-2 text-sm leading-relaxed">
-        Configure yearly leave allocation policies for <span class="text-harvey-primary">{{ user.organization.name }}</span>.
+      <h1 class="text-4xl font-black text-slate-900 tracking-tight">Leave Configuration</h1>
+      <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">
+        Allocating Resources for <span class="bg-indigo-50 px-2 py-0.5 rounded text-indigo-700 tracking-normal">{{ user.organization.name }}</span>
       </p>
     </div>
     
@@ -18,8 +18,9 @@
       {% csrf_token %}
       <input type="hidden" name="action" value="lock_leave_config" />
       <button type="submit" 
-        class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white flex items-center gap-2">
-        <i class="fas fa-lock"></i> Lock Configuration
+        class="bg-white hover:bg-slate-50 text-slate-600 px-6 py-3 rounded-2xl border border-slate-100 shadow-sm transition-all hover:scale-[1.02] flex items-center gap-3 font-black text-xs uppercase tracking-widest">
+        <i class="fas fa-lock text-[10px]"></i> 
+        <span>Secure Changes</span>
       </button>
     </form>
     {% endif %}
@@ -27,25 +28,25 @@
 
   {% if not is_unlocked %}
   <!-- Locked State Widget -->
-  <div class="glass-card rounded-2xl p-10 border border-white/10 max-w-xl mx-auto text-center relative overflow-hidden">
-    <div class="absolute inset-0 bg-harvey-primary/5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-harvey-primary/10 via-transparent to-transparent"></div>
-    <div class="relative z-10 space-y-6">
-      <div class="w-16 h-16 bg-harvey-primary/10 rounded-2xl border border-harvey-primary/20 mx-auto flex flex-col items-center justify-center text-harvey-primary">
-        <i class="fas fa-lock text-2xl"></i>
+  <div class="bg-white rounded-[40px] p-16 border border-slate-100 shadow-xl max-w-2xl mx-auto text-center relative overflow-hidden">
+    <div class="absolute -top-32 -left-32 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl opacity-50"></div>
+    <div class="relative z-10 space-y-10">
+      <div class="w-24 h-24 bg-indigo-50 rounded-[32px] border border-indigo-100 mx-auto flex items-center justify-center text-indigo-600 shadow-sm">
+        <i class="fas fa-shield-halved text-4xl"></i>
       </div>
-      <div>
-        <h2 class="text-xl font-bold text-white mb-2">Secure Configuration Access</h2>
-        <p class="text-sm text-gray-400 px-4">This area controls organizational leave policies. Please enter a valid one-time Edit Token generated from the Django Administration interface to make changes.</p>
+      <div class="space-y-4">
+        <h2 class="text-3xl font-black text-slate-900 tracking-tight">Access Restrictions Active</h2>
+        <p class="text-slate-500 font-medium leading-relaxed max-w-md mx-auto">This terminal controls core organizational directives. To modify leave policies, please input a verified Authentication Token generated from the Control Center.</p>
       </div>
-      <form method="POST" action="{% url 'leave_settings' %}" class="space-y-4">
+      <form method="POST" action="{% url 'leave_settings' %}" class="space-y-6">
         {% csrf_token %}
         <input type="hidden" name="action" value="unlock_leave_config" />
-        <div>
-          <input type="text" name="edit_token" placeholder="Enter edit token" required
-            class="w-full bg-harvey-bg/50 border border-white/10 rounded-xl px-4 py-3 text-white text-center font-mono placeholder:text-gray-600 focus:outline-none focus:border-harvey-primary/50 transition-colors" />
+        <div class="relative group">
+          <input type="text" name="edit_token" placeholder="INPUT AUTHENTICATION KEY" required
+            class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 text-slate-900 text-center font-black tracking-[0.3em] placeholder:text-slate-300 placeholder:tracking-normal focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all uppercase" />
         </div>
-        <button type="submit" class="w-full py-3 rounded-xl bg-harvey-primary hover:bg-harvey-accent text-harvey-bg font-bold transition-all shadow-lg shadow-harvey-primary/20">
-          Unlock Configuration
+        <button type="submit" class="w-full py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl shadow-indigo-100 active:scale-[0.98]">
+            Transmit Validation Token
         </button>
       </form>
     </div>
@@ -54,74 +55,82 @@
   {% else %}
   
   <!-- Add New Policy Form -->
-  <div class="glass-card rounded-2xl p-8 border border-white/10">
-    <div class="flex items-center gap-3 mb-6">
-      <div class="w-8 h-8 rounded-lg bg-harvey-primary/20 flex items-center justify-center text-harvey-primary">
-        <i class="fas fa-plus"></i>
+  <div class="bg-white rounded-[32px] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
+    <div class="absolute top-0 right-0 p-4 opacity-[0.03]">
+        <i class="fas fa-plus text-8xl"></i>
+    </div>
+    <div class="flex items-center gap-4 mb-10 relative z-10">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 border border-indigo-100">
+        <i class="fas fa-plus-circle text-xl"></i>
       </div>
-      <h2 class="text-xl font-bold text-white">Add Yearly Policy</h2>
+      <h2 class="text-2xl font-black text-slate-900 tracking-tight">Define Quota Policy</h2>
     </div>
     
-    <form method="POST" action="{% url 'leave_settings' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+    <form method="POST" action="{% url 'leave_settings' %}" class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end relative z-10">
       {% csrf_token %}
       <input type="hidden" name="action" value="add_policy" />
       
-      <div class="space-y-1">
-        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Year</label>
+      <div class="space-y-2">
+        <label class="text-[10px] font-black text-indigo-600 uppercase tracking-widest pl-1">Temporal Year</label>
         <input type="number" name="year" placeholder="2026" required
-          class="w-full bg-harvey-bg border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-harvey-primary transition-colors" />
+          class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold" />
       </div>
       
-      <div class="space-y-1">
-        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Leave Type</label>
-        <input type="text" name="leave_type" placeholder="e.g. Sick, Annual" required
-          class="w-full bg-harvey-bg border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-harvey-primary transition-colors" />
+      <div class="space-y-2">
+        <label class="text-[10px] font-black text-indigo-600 uppercase tracking-widest pl-1">Leave Classification</label>
+        <input type="text" name="leave_type" placeholder="e.g. Wellness, Annual" required
+          class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold" />
       </div>
 
-      <div class="space-y-1">
-        <label class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Days Allocated</label>
-        <input type="number" step="0.5" name="default_allocated" placeholder="e.g. 15.5" required
-          class="w-full bg-harvey-bg border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-harvey-primary transition-colors" />
+      <div class="space-y-2">
+        <label class="text-[10px] font-black text-indigo-600 uppercase tracking-widest pl-1">Absence Quota</label>
+        <input type="number" step="0.5" name="default_allocated" placeholder="e.g. 15.0" required
+          class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold" />
       </div>
 
-      <button type="submit" class="w-full py-3 rounded-xl bg-harvey-primary hover:bg-harvey-accent text-harvey-bg font-bold transition-all shadow-lg shadow-harvey-primary/20">
-        Save Policy
+      <button type="submit" class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100 mb-0.5 active:scale-[0.98]">
+        Save Directive
       </button>
     </form>
   </div>
 
   <!-- Active Policies List -->
-  <div class="space-y-4">
-    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-      <i class="fas fa-list text-harvey-accent"></i> Current Policies
-    </h3>
+  <div class="space-y-8">
+    <div class="flex items-center gap-3 px-2">
+      <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+      <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Operational Directives</h3>
+    </div>
     
     {% if not policies %}
-    <div class="glass-card rounded-2xl p-8 border border-white/5 border-dashed text-center text-gray-500">
-      <i class="fas fa-folder-open text-3xl mb-3 opacity-50"></i>
-      <p>No leave policies currently configured for your organization.</p>
+    <div class="bg-white rounded-[40px] p-20 border border-slate-100 shadow-sm border-dashed text-center">
+      <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+          <i class="fas fa-folder-open text-4xl"></i>
+      </div>
+      <p class="text-slate-400 font-medium">System records reflect zero active leave policies for this organization.</p>
     </div>
     {% else %}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {% for policy in policies %}
-      <div class="glass-card rounded-xl border border-white/10 p-5 group flex justify-between items-start">
-        <div>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="px-2 py-1 rounded bg-harvey-bg/50 border border-white/5 text-xs text-harvey-primary font-bold">
+      <div class="bg-white rounded-[32px] border border-slate-100 p-8 group flex items-start justify-between hover:border-indigo-200 transition-all shadow-sm">
+        <div class="space-y-6">
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest border border-indigo-100">
               {{ policy.year }}
             </span>
-            <span class="text-sm font-bold text-white">{{ policy.leave_type|title }}</span>
+            <span class="text-sm font-black text-slate-900 tracking-tight">{{ policy.leave_type|title }}</span>
           </div>
-          <p class="text-2xl font-black text-white px-1">{{ policy.default_allocated }} <span class="text-sm text-gray-500 font-normal">days/yr</span></p>
+          <div>
+              <p class="text-4xl font-black text-slate-900 tracking-tighter">{{ policy.default_allocated }} <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Units Allocated</span></p>
+          </div>
         </div>
         
-        <form method="POST" action="{% url 'leave_settings' %}">
+        <form method="POST" action="{% url 'leave_settings' %}" class="opacity-0 group-hover:opacity-100 transition-opacity">
           {% csrf_token %}
           <input type="hidden" name="action" value="delete_policy" />
           <input type="hidden" name="policy_id" value="{{ policy.id }}" />
-          <button type="submit" onclick="return confirm('Are you sure you want to delete this policy?')"
-            class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-            <i class="fas fa-trash text-sm"></i>
+          <button type="submit" onclick="return confirm('Confirm permanent deletion of this policy directive?')"
+            class="w-10 h-10 rounded-xl bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all border border-rose-100">
+            <i class="fas fa-trash-alt text-sm"></i>
           </button>
         </form>
       </div>

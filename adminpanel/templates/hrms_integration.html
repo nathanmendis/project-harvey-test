@@ -2,31 +2,31 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-10 py-6">
 
   <!-- ── Header ─────────────────────────────────────── -->
-  <div class="flex justify-between items-center">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 px-2">
     <div>
       <h1
-        class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-harvey-primary to-harvey-accent">
+        class="text-4xl font-black text-slate-900 tracking-tight">
         HRMS Integration
       </h1>
-      <p class="text-harvey-muted mt-2">Manage your Human Resource Management System bindings securely.</p>
+      <p class="text-slate-500 font-medium mt-2">Manage your Human Resource Management System bindings securely.</p>
     </div>
 
     {% if is_active %}
-    <div class="flex gap-3">
+    <div class="flex flex-wrap gap-4">
       <form method="POST" action="{% url 'hrms_integration' %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="trigger_hrms_sync" />
         <button type="submit" {% if is_sync_disabled %}disabled{% endif %}
-          class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border flex items-center gap-2
-                 {% if is_sync_disabled %}bg-slate-800 text-harvey-muted border-white/5 cursor-not-allowed
-                 {% else %}bg-harvey-primary hover:bg-harvey-accent text-harvey-bg shadow-harvey-primary/25 border-harvey-primary/20{% endif %}">
-          <i class="fas fa-sync-alt {% if is_sync_running %}animate-spin text-harvey-bg/70{% endif %}"></i>
-          {% if is_sync_running %}Syncing...
-          {% elif is_sync_disabled %}Sync Cooldown ({{ minutes_remaining }}m)
-          {% else %}Sync Now{% endif %}
+          class="px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl flex items-center gap-3 border
+                 {% if is_sync_disabled %}bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed
+                 {% else %}bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100 border-indigo-500 hover:scale-[1.02] active:scale-[0.98]{% endif %}">
+          <i class="fas fa-sync-alt {% if is_sync_running %}animate-spin text-white/70{% endif %}"></i>
+          {% if is_sync_running %}Syncing Workforce...
+          {% elif is_sync_disabled %}Cooldown ({{ minutes_remaining }}m)
+          {% else %}Trigger Sync Now{% endif %}
         </button>
       </form>
 
@@ -36,8 +36,8 @@
         <input type="hidden" name="action" value="force_stop_sync" />
         <button type="submit"
           onclick="return confirm('Force-stop the running sync? Partial data already written will be kept.');"
-          class="px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg border flex items-center gap-2 bg-red-700 hover:bg-red-600 text-white shadow-red-500/25 border-red-500/30">
-          <i class="fas fa-stop-circle"></i> Force Stop
+          class="px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl bg-red-600 hover:bg-red-700 text-white shadow-red-100 border border-red-500 hover:scale-[1.02]">
+          <i class="fas fa-stop-circle text-xs"></i> Emergency Stop
         </button>
       </form>
       {% endif %}

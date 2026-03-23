@@ -1,29 +1,89 @@
 {% extends 'admin_base.html' %}
 
 {% block content %}
-<div class="py-8 max-w-4xl mx-auto">
-    <div class="mb-6">
+<div class="py-12 max-w-5xl mx-auto px-4">
+    <div class="mb-10">
         <a href="{% url 'jobs' %}"
-            class="text-harvey-accent hover:text-harvey-primary transition-colors text-sm font-medium">
-            ← Back to Jobs
+            class="text-slate-400 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 group">
+            <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+            <span>Back to Jobs</span>
         </a>
     </div>
 
-    <div class="glass-card rounded-2xl p-8 border-white/10">
-        <div class="mb-6">
-            <h1 class="text-3xl font-extrabold text-white mb-2">{{ job.title }}</h1>
-            <p class="text-harvey-accent text-sm font-medium">{{ job.department }}</p>
-        </div>
+    <div class="bg-white rounded-[40px] p-12 border border-slate-100 shadow-xl relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-32 -right-32 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl opacity-50 font-bold"></div>
 
-        <div class="space-y-6">
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Description</h3>
-                <p class="text-gray-300 leading-relaxed">{{ job.description }}</p>
+        <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 pb-10 border-b border-slate-50">
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 border border-indigo-100 shadow-sm">
+                        <i class="fas fa-briefcase text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-2">{{ job.title }}</h1>
+                        <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em]">{{ job.department }} • Department</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                     <div class="h-10 w-px bg-slate-100 hidden md:block mx-4"></div>
+                     <button class="bg-slate-50 hover:bg-slate-100 text-slate-600 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
+                        Edit Job
+                     </button>
+                     <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-indigo-100">
+                        View Applicants
+                     </button>
+                </div>
             </div>
 
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Requirements</h3>
-                <p class="text-gray-300 leading-relaxed whitespace-pre-line">{{ job.requirements }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+                <div class="md:col-span-8 space-y-12">
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 text-indigo-600">
+                            <i class="fas fa-align-left text-lg"></i>
+                            <h3 class="text-[10px] font-black uppercase tracking-widest">Job Description</h3>
+                        </div>
+                        <div class="text-slate-600 leading-loose font-medium text-lg bg-slate-50/30 p-8 rounded-[32px] border border-slate-100/50">
+                            {{ job.description }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-3 text-indigo-600">
+                            <i class="fas fa-list-check text-lg"></i>
+                            <h3 class="text-[10px] font-black uppercase tracking-widest">Job Requirements</h3>
+                        </div>
+                        <div class="text-slate-600 leading-loose font-medium whitespace-pre-line bg-slate-50/30 p-8 rounded-[32px] border border-slate-100/50">
+                            {{ job.requirements }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-4 space-y-6">
+                    <div class="bg-indigo-600 rounded-[32px] p-8 text-white shadow-2xl shadow-indigo-100">
+                        <h4 class="text-[10px] font-black uppercase tracking-widest mb-6 text-indigo-200">Job Details</h4>
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center py-3 border-b border-white/10">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-200">Status</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest bg-emerald-400/20 text-emerald-300 px-3 py-1 rounded-lg">Active</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-white/10">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-200">Open Slots</span>
+                                <span class="text-lg font-black">2</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-200">Priority</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest bg-rose-400/20 text-rose-300 px-3 py-1 rounded-lg">High</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 rounded-[32px] p-8 text-white">
+                        <h4 class="text-[10px] font-black uppercase tracking-widest mb-4">Note</h4>
+                        <p class="text-xs font-medium text-slate-400 leading-relaxed">Ensure all candidates are evaluated against the latest guidelines for this department.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

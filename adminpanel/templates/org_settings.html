@@ -2,111 +2,116 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="space-y-10 py-6">
     <!-- Header -->
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center px-2">
         <div>
-            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-harvey-muted">
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">
                 Organization Settings
             </h1>
-            <p class="text-harvey-muted mt-2">Manage your organization profile and integrations.</p>
+            <p class="text-slate-500 font-medium mt-2">Manage your organization profile, workspace settings, and third-party integrations.</p>
         </div>
     </div>
 
     <!-- Organization Profile -->
-    <div class="glass-card rounded-2xl p-8">
-        <div class="flex items-center gap-4 mb-6">
+    <div class="bg-white rounded-[32px] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50/50 rounded-full blur-3xl opacity-50"></div>
+        
+        <div class="flex items-center gap-4 mb-8 relative z-10">
             <div
-                class="h-10 w-10 bg-harvey-primary/10 rounded-lg flex items-center justify-center border border-harvey-primary/20">
-                <i class="fas fa-building text-harvey-primary"></i>
+                class="h-12 w-12 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100 shadow-sm">
+                <i class="fas fa-building text-indigo-600"></i>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-white">Organization Profile</h2>
-                <p class="text-sm text-harvey-muted">Update your company details.</p>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Organization Profile</h2>
+                <p class="text-sm text-slate-400 font-medium">Update high-level company identity.</p>
             </div>
         </div>
 
-        <form method="POST" class="space-y-6">
+        <form method="POST" class="space-y-8 relative z-10">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_profile">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                    <label class="block text-sm font-medium text-harvey-muted mb-2">Organization Name</label>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Organization Name</label>
                     <input type="text" name="name" value="{{ org.name }}"
-                        class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-harvey-primary/50 transition-all">
+                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 transition-all font-medium">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-harvey-muted mb-2">Domain (Optional)</label>
+                    <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Domain (Optional)</label>
                     <input type="text" name="domain" value="{{ org.domain|default:'' }}" placeholder="example.com"
-                        class="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-harvey-primary/50 transition-all">
+                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 transition-all font-medium">
                 </div>
             </div>
 
             <div class="flex justify-end">
                 <button type="submit"
-                    class="px-6 py-2.5 bg-harvey-primary hover:bg-harvey-accent text-harvey-bg rounded-xl font-medium transition-all duration-200 shadow-lg shadow-harvey-primary/25 border border-harvey-primary/20">
-                    Save Changes
+                    class="px-10 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-slate-200 hover:scale-[1.02] active:scale-[0.98]">
+                    Save Profile
                 </button>
             </div>
         </form>
     </div>
 
     <!-- Email Integration -->
-    <div class="glass-card rounded-2xl p-8 border-l-4 border-l-harvey-primary">
-        <div class="flex items-start justify-between">
-            <div class="flex gap-4">
-                <div class="h-12 w-12 bg-white rounded-lg flex items-center justify-center p-2.5 shadow-lg">
+    <div class="bg-white rounded-[32px] p-10 border border-slate-100 shadow-sm relative overflow-hidden group">
+        <!-- Accent line -->
+        <div class="absolute left-0 top-0 bottom-0 w-2 bg-indigo-600"></div>
+        
+        <div class="flex flex-col lg:flex-row items-start justify-between gap-10">
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="h-20 w-20 bg-slate-50 border border-slate-100 rounded-3xl flex items-center justify-center p-4 shadow-sm group-hover:scale-105 transition-transform duration-500">
                     <img src="{% static 'images/google-logo.png' %}" alt="Google" class="w-full h-full object-contain">
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-white mb-1">Email & Calendar Integration</h2>
-                    <p class="text-harvey-muted text-sm max-w-xl">
-                        Connect a Google Workspace account to enable the bot to send emails and schedule meetings on
-                        behalf of your organization.
-                        We recommend using a dedicated account like <span
-                            class="bg-white/10 px-1.5 py-0.5 rounded text-white font-mono text-xs">
-                            bot@{{ org.domain|default:'yourcompany.com' }}</span>.
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-2">Workspace Integration</h2>
+                    <p class="text-slate-500 text-sm font-medium max-w-2xl leading-relaxed mb-6">
+                        Connect your Google Workspace infrastructure to enable automated email outreach, calendar scheduling, 
+                        and meeting coordination for your entire team. We suggest using a dedicated <span
+                            class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg font-black text-xs">
+                            bot@{{ org.domain|default:'yourcompany.com' }}</span> account.
                     </p>
 
-                    <div class="mt-4 flex items-center gap-3">
-                        <div class="px-3 py-1 rounded-full text-xs font-semibold border
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border
                         {% if is_connected %}
-                            bg-green-500/10 text-green-400 border-green-500/20
+                            bg-emerald-50 text-emerald-600 border-emerald-100
                         {% else %}
-                            bg-red-500/10 text-red-400 border-red-500/20
+                            bg-red-50 text-red-600 border-red-100
                         {% endif %}">
                             {% if is_connected %}
-                            <i class="fas fa-check-circle mr-1"></i> Connected
+                            <i class="fas fa-check-circle mr-2"></i> Active Connection
                             {% else %}
-                            <i class="fas fa-times-circle mr-1"></i> Not Connected
+                            <i class="fas fa-times-circle mr-2"></i> Disconnected
                             {% endif %}
                         </div>
                         {% if is_connected %}
-                        <span class="text-sm text-gray-500">Connected as <span class="text-gray-300 font-medium">
-                                {{connected_email}}</span></span>
-
+                        <div class="flex items-center gap-2 text-sm text-slate-400 font-medium">
+                            <span class="w-1 h-1 rounded-full bg-slate-200"></span>
+                            Authorized as <span class="text-slate-900 font-black">{{connected_email}}</span>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
-            <div>
+            <div class="shrink-0">
                 {% if is_connected %}
                 <form method="POST"
                     onsubmit="return confirm('Are you sure you want to disconnect? The bot will stop sending emails.');">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="disconnect_google">
                     <button type="submit"
-                        class="px-5 py-2.5 bg-white/5 hover:bg-red-500/20 text-gray-300 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl font-medium transition-all duration-200">
-                        Disconnect
+                        class="px-8 py-4 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-100 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
+                        Invalidate Access
                     </button>
                 </form>
                 {% else %}
                 <a href="{% url 'org_google_login' %}"
-                    class="flex items-center gap-2 px-6 py-3 bg-white text-gray-900 hover:bg-gray-100 rounded-xl font-bold transition-all duration-200 shadow-xl shadow-white/10">
-                    <i class="fab fa-google"></i>
-                    Connect Google Workspace
+                    class="flex items-center gap-3 px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm transition-all shadow-xl shadow-indigo-100 hover:scale-[1.05] active:scale-[0.95]">
+                    <i class="fab fa-google text-lg"></i>
+                    Authorise Workspace
                 </a>
                 {% endif %}
             </div>

@@ -28,8 +28,8 @@ Harvey.Sidebar = {
                 sidebar.classList.add('w-64');
                 sidebar.classList.remove('w-20');
                 texts.forEach(el => {
-                    el.classList.remove('opacity-0', 'w-0', 'p-0', 'm-0', 'overflow-hidden');
-                    el.classList.add('opacity-100');
+                    el.classList.remove('opacity-0', 'w-0', 'p-0', 'm-0', 'overflow-hidden', 'pointer-events-none');
+                    el.classList.add('opacity-100', 'pointer-events-auto');
                 });
             }
         }

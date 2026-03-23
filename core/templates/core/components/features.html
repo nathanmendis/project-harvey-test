@@ -1,26 +1,26 @@
 {% load static %}
 <!-- Features Section: Interactive Tabbed Interface -->
-<section id="features" class="bg-harvey-bg py-16 px-6 border-t border-gray-800 relative z-10 md:py-24 overflow-hidden">
+<section id="features" class="bg-slate-50 py-16 px-6 border-t border-slate-200 relative z-10 md:py-24 overflow-hidden">
 
     <!-- Background decorative elements -->
     <div
-        class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] brightness-100 contrast-150 pointer-events-none">
+        class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] brightness-100 contrast-150 pointer-events-none">
     </div>
     <div
-        class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-harvey-primary/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen">
+        class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-cyan-300/30 rounded-full blur-[100px] pointer-events-none mix-blend-multiply">
     </div>
     <div
-        class="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-harvey-accent/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen">
+        class="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-purple-300/30 rounded-full blur-[100px] pointer-events-none mix-blend-multiply">
     </div>
 
     <div class="max-w-6xl mx-auto relative z-10">
         <div class="text-center mb-16 md:mb-20 opacity-0 translate-y-8 transition-all duration-1000 ease-out"
             id="features-header">
             <h2
-                class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-harvey-accent via-white to-harvey-accent mb-6 tracking-tight drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                class="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 mb-6 tracking-tight drop-shadow-sm">
                 Enterprise Capabilities
             </h2>
-            <p class="text-harvey-muted max-w-2xl mx-auto text-base md:text-lg font-light leading-relaxed">
+            <p class="text-slate-600 max-w-2xl mx-auto text-base md:text-lg font-light leading-relaxed">
                 A technical showcase of modern web architecture, agentic AI, and robust integrations.
             </p>
         </div>
@@ -34,24 +34,24 @@
 
                 <!-- Mobile Beam (Horizontal) -->
                 <div id="features-beam-mobile"
-                    class="lg:hidden absolute bottom-[10px] left-0 h-[2px] bg-gradient-to-r from-transparent via-harvey-primary to-transparent w-0 z-0 shadow-[0_0_15px_rgba(6,182,212,1)] transition-all duration-[2000ms] ease-out delay-500">
+                    class="lg:hidden absolute bottom-[10px] left-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent w-0 z-0 shadow-[0_0_10px_rgba(99,102,241,0.6)] transition-all duration-[2000ms] ease-out delay-500">
                 </div>
 
                 <!-- Desktop Beam (Vertical) -->
                 <div id="features-beam-desktop"
-                    class="hidden lg:block absolute top-[50%] -left-[15px] transform -translate-y-1/2 w-[1px] bg-gradient-to-b from-transparent via-harvey-primary to-transparent h-0 z-0 shadow-[0_0_15px_rgba(6,182,212,1)] transition-all duration-[2000ms] ease-out delay-500">
+                    class="hidden lg:block absolute top-[50%] -left-[15px] transform -translate-y-1/2 w-[1px] bg-gradient-to-b from-transparent via-indigo-500 to-transparent h-0 z-0 shadow-[0_0_10px_rgba(99,102,241,0.6)] transition-all duration-[2000ms] ease-out delay-500">
                 </div>
 
                 {% for cat in feature_categories %}
                 <button onclick="window.switchFeatureTab({{ forloop.counter0 }})" id="tab-btn-{{ forloop.counter0 }}"
-                    class="feature-tab-btn w-[240px] lg:w-full flex-shrink-0 snap-start text-left px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border transition-all duration-300 flex items-center gap-3 sm:gap-4 group {% if forloop.first %}bg-harvey-primary/10 border-harvey-primary/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] text-white{% else %}bg-harvey-surface/20 border-white/5 text-harvey-muted hover:bg-harvey-surface/40 hover:text-white hover:border-white/10{% endif %}">
+                    class="feature-tab-btn w-[240px] lg:w-full flex-shrink-0 snap-start text-left px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border transition-all duration-300 flex items-center gap-3 sm:gap-4 group {% if forloop.first %}bg-indigo-50 border-indigo-200 shadow-sm text-indigo-900{% else %}bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300{% endif %}">
                     <div
-                        class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 {% if forloop.first %}bg-harvey-primary/20 text-harvey-primary scale-110{% else %}bg-white/5 text-gray-400 group-hover:bg-white/10 group-hover:text-white{% endif %}">
+                        class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 {% if forloop.first %}bg-indigo-100 text-indigo-600 scale-110{% else %}bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600{% endif %}">
                         <i class="fas {{ cat.icon }}"></i>
                     </div>
                     <div class="truncate">
                         <h3 class="font-bold text-sm sm:text-base leading-tight truncate">{{ cat.title|safe }}</h3>
-                        <p class="text-xs mt-1 opacity-70 hidden sm:block truncate">{{ cat.subtitle|truncatechars:35 }}
+                        <p class="text-xs mt-1 opacity-70 hidden sm:block truncate text-slate-500">{{ cat.subtitle|truncatechars:35 }}
                         </p>
                     </div>
                 </button>
@@ -63,14 +63,14 @@
                 id="features-content">
                 {% for cat in feature_categories %}
                 <div id="tab-content-{{ forloop.counter0 }}"
-                    class="feature-tab-content col-start-1 row-start-1 transform transition-all duration-500 {% if not forloop.first %}opacity-0 pointer-events-none translate-y-4 scale-95{% else %}opacity-100 translate-y-0 scale-100{% endif %} glass-card p-6 md:p-10 rounded-3xl border border-white/10 bg-harvey-surface/30 backdrop-blur-2xl flex flex-col justify-center">
+                    class="feature-tab-content col-start-1 row-start-1 transform transition-all duration-500 {% if not forloop.first %}opacity-0 pointer-events-none translate-y-4 scale-95{% else %}opacity-100 translate-y-0 scale-100{% endif %} bg-white/80 p-6 md:p-10 rounded-3xl border border-slate-200 shadow-xl backdrop-blur-2xl flex flex-col justify-center">
 
                     <div class="mb-8">
                         <div
-                            class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-harvey-primary/10 border border-harvey-primary/20 text-harvey-primary text-sm font-semibold mb-4">
+                            class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-sm font-semibold mb-4">
                             <i class="fas {{ cat.icon }}"></i> {{ cat.title|safe }}
                         </div>
-                        <p class="text-lg md:text-xl text-gray-300 font-light leading-relaxed max-w-xl">
+                        <p class="text-lg md:text-xl text-slate-600 font-light leading-relaxed max-w-xl">
                             {{ cat.subtitle}}</p>
                     </div>
 
@@ -78,12 +78,12 @@
                         {% for item in cat.items %}
                         <div class="flex gap-4 group">
                             <div
-                                class="mt-1 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 text-harvey-primary transition-colors group-hover:bg-harvey-primary/10 group-hover:border-harvey-primary/30">
+                                class="mt-1 w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center flex-shrink-0 text-indigo-500 transition-colors group-hover:bg-indigo-50 group-hover:border-indigo-200">
                                 <i class="fas {{ item.icon }} text-xs"></i>
                             </div>
                             <div>
-                                <h4 class="text-white font-semibold text-sm mb-1 tracking-wide">{{ item.title }}</h4>
-                                <p class="text-gray-400 text-sm leading-relaxed">{{ item.description }}</p>
+                                <h4 class="text-slate-900 font-semibold text-sm mb-1 tracking-wide">{{ item.title }}</h4>
+                                <p class="text-slate-500 text-sm leading-relaxed">{{ item.description }}</p>
                             </div>
                         </div>
                         {% endfor %}
@@ -91,7 +91,7 @@
 
                     <!-- Inner Background Glow for the active card -->
                     <div
-                        class="absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-[80px] pointer-events-none opacity-20 bg-harvey-primary/40">
+                        class="absolute -bottom-20 -right-20 w-64 h-64 rounded-full blur-[80px] pointer-events-none opacity-40 bg-indigo-300/30">
                     </div>
                 </div>
                 {% endfor %}
@@ -110,5 +110,9 @@
         }
     </style>
 
+    <script>
+        // Adjust the colors toggle logic inside the script if it manipulates classes
+        // It looks like features.js handles this, wait, let me check where features.js is.
+    </script>
     <script src="{% static 'core/js/features.js' %}"></script>
 </section>

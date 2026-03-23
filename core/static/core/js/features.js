@@ -41,13 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (i === index) {
                 // Activate btn
-                btn.classList.add('bg-harvey-primary/10', 'border-harvey-primary/30', 'shadow-[0_0_20px_rgba(6,182,212,0.15)]', 'text-white');
-                btn.classList.remove('bg-harvey-surface/20', 'border-white/5', 'text-harvey-muted');
+                btn.classList.add('bg-indigo-50', 'border-indigo-200', 'shadow-sm', 'text-indigo-900');
+                btn.classList.remove('bg-white', 'border-slate-200', 'text-slate-600');
 
                 // Activate icon styling
                 if (iconContainer) {
-                    iconContainer.classList.add('bg-harvey-primary/20', 'text-harvey-primary', 'scale-110');
-                    iconContainer.classList.remove('bg-white/5', 'text-gray-400');
+                    iconContainer.classList.add('bg-indigo-100', 'text-indigo-600', 'scale-110');
+                    iconContainer.classList.remove('bg-slate-100', 'text-slate-400');
                 }
 
                 // Show content
@@ -56,13 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 content.style.zIndex = '10'; // Bring to front
             } else {
                 // Deactivate btn
-                btn.classList.remove('bg-harvey-primary/10', 'border-harvey-primary/30', 'shadow-[0_0_20px_rgba(6,182,212,0.15)]', 'text-white');
-                btn.classList.add('bg-harvey-surface/20', 'border-white/5', 'text-harvey-muted');
+                btn.classList.remove('bg-indigo-50', 'border-indigo-200', 'shadow-sm', 'text-indigo-900');
+                btn.classList.add('bg-white', 'border-slate-200', 'text-slate-600');
 
                 // Deactivate icon styling
                 if (iconContainer) {
-                    iconContainer.classList.remove('bg-harvey-primary/20', 'text-harvey-primary', 'scale-110');
-                    iconContainer.classList.add('bg-white/5', 'text-gray-400');
+                    iconContainer.classList.remove('bg-indigo-100', 'text-indigo-600', 'scale-110');
+                    iconContainer.classList.add('bg-slate-100', 'text-slate-400');
                 }
 
                 // Hide content

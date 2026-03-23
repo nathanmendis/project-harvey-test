@@ -1,29 +1,30 @@
-﻿{% comment %}Partial: HRMS System Configuration Form{% endcomment %}
-<div class="glass-card rounded-2xl p-8 border-l-4 border-l-harvey-primary">
-  <div class="flex items-center gap-4 mb-6">
+{% comment %}Partial: HRMS System Configuration Form{% endcomment %}
+<div class="bg-white rounded-[40px] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
+  <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50/30 rounded-full blur-3xl opacity-50"></div>
+  
+  <div class="flex items-center gap-5 mb-10 relative z-10">
     <div
-      class="h-10 w-10 bg-harvey-primary/10 rounded-lg flex items-center justify-center border border-harvey-primary/20">
-      <i class="fas fa-network-wired text-harvey-primary"></i>
+      class="h-14 w-14 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100 shadow-sm">
+      <i class="fas fa-network-wired text-indigo-600 text-xl"></i>
     </div>
     <div>
-      <h2 class="text-xl font-bold text-white">System Route Mapping</h2>
-      <p class="text-sm text-gray-400">Provide your system URLs and token. You must provide a valid internal Edit Token
-        to unlock changes.</p>
+      <h2 class="text-2xl font-black text-slate-900 tracking-tight">System Directives</h2>
+      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Registry • Authentication • Route Mapping</p>
     </div>
   </div>
 
-  <form method="POST" action="{% url 'hrms_integration' %}" class="space-y-6">
+  <form method="POST" action="{% url 'hrms_integration' %}" class="space-y-8 relative z-10">
     {% csrf_token %}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
       <div class="md:col-span-2">
-        <label class="block text-sm font-medium text-harvey-muted mb-2">HRMS Type</label>
+        <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 ml-1">HRMS PROVIDER ENTITY</label>
         {% if is_unlocked %}
         <select name="hrms_type"
-          class="w-full rounded-xl px-4 py-3 bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-harvey-primary">
+          class="w-full rounded-2xl px-5 py-4 bg-slate-50 border border-slate-100 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold">
           {% else %}
           <select name="hrms_type" disabled
-            class="w-full rounded-xl px-4 py-3 bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed">
+            class="w-full rounded-2xl px-5 py-4 bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed font-bold opacity-60">
             {% endif %}
             {% for val, label, sel, dis in hrms_type_choices %}
             {% if dis %}
@@ -39,51 +40,50 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-harvey-muted mb-2">Base Application URL</label>
+        <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 ml-1">Core API Base URL</label>
         {% if is_unlocked %}
-        <input type="url" name="base_url" value="{{ config.base_url|default:'' }}" placeholder="https://api.system.com"
+        <input type="url" name="base_url" value="{{ config.base_url|default:'' }}" placeholder="https://api.internal.service"
           required
-          class="w-full rounded-xl px-4 py-3 placeholder-gray-600 bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-harvey-primary" />
+          class="w-full rounded-2xl px-5 py-4 bg-slate-50 border border-slate-100 text-slate-900 placeholder-slate-300 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold" />
         {% else %}
-        <input type="url" name="base_url" value="{{ config.base_url|default:'' }}" placeholder="https://api.system.com"
+        <input type="url" name="base_url" value="{{ config.base_url|default:'' }}" placeholder="https://api.internal.service"
           required disabled
-          class="w-full rounded-xl px-4 py-3 placeholder-gray-600 bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed" />
+          class="w-full rounded-2xl px-5 py-4 bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed font-bold opacity-60" />
         {% endif %}
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-harvey-muted mb-2">Authorization Token (Hidden)</label>
+        <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 ml-1">Secure Authorization Key</label>
         <div class="relative">
           {% if is_unlocked %}
           <input type="password" id="auth_token" name="auth_token" value="{% if is_active %}********{% endif %}"
-            placeholder="Enter Secret Token" required
-            class="w-full rounded-xl px-4 py-3 pr-12 placeholder-gray-600 font-mono tracking-widest bg-slate-900/50 border border-white/10 text-white focus:ring-1 focus:ring-harvey-primary" />
+            placeholder="INPUT CRYPTOGRAPHIC TOKEN" required
+            class="w-full rounded-2xl px-5 py-4 pr-14 bg-slate-50 border border-slate-100 text-slate-900 placeholder-slate-300 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-black tracking-[0.2em]" />
           {% else %}
           <input type="password" id="auth_token" name="auth_token" value="{% if is_active %}********{% endif %}"
-            placeholder="Enter Secret Token" required disabled
-            class="w-full rounded-xl px-4 py-3 pr-12 placeholder-gray-600 font-mono tracking-widest bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed" />
+            placeholder="TOKEN PROTECTION ACTIVE" required disabled
+            class="w-full rounded-2xl px-5 py-4 pr-14 bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed font-black tracking-[0.2em] opacity-60" />
           {% endif %}
           <button type="button" onclick="toggleAuthToken()" {% if not is_unlocked %}disabled{% endif %}
-            class="absolute inset-y-0 right-0 px-4 flex items-center text-gray-500 hover:text-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+            class="absolute inset-y-0 right-0 px-5 flex items-center text-slate-400 hover:text-indigo-600 focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
             <i class="fas fa-eye" id="auth_token_icon"></i>
           </button>
         </div>
       </div>
 
-      <div class="md:col-span-2 mt-4">
-        <h3 class="text-sm font-semibold text-gray-300 border-b border-white/10 pb-2 mb-4">Legacy API Endpoint Routes
-        </h3>
+      <div class="md:col-span-2 mt-6">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 pb-4 mb-2">Internal Route Mappings</h3>
       </div>
 
       {% for field_name, field_label, field_value in legacy_endpoints %}
       <div>
-        <label class="block text-xs font-medium text-harvey-muted mb-1">{{ field_label }}</label>
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">{{ field_label }}</label>
         {% if is_unlocked %}
         <input type="text" name="{{ field_name }}" value="{{ field_value }}" required
-          class="w-full rounded-lg px-4 py-2 text-sm bg-slate-900/50 border border-white/10 text-gray-300 focus:ring-1 focus:ring-harvey-primary" />
+          class="w-full rounded-xl px-5 py-3 text-sm bg-slate-50 border border-slate-100 text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold" />
         {% else %}
         <input type="text" name="{{ field_name }}" value="{{ field_value }}" required disabled
-          class="w-full rounded-lg px-4 py-2 text-sm bg-slate-800/50 text-gray-500 border border-white/5 cursor-not-allowed" />
+          class="w-full rounded-xl px-5 py-3 text-sm bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed font-bold opacity-60" />
         {% endif %}
       </div>
       {% endfor %}
@@ -91,30 +91,48 @@
     </div>
 
     {% if not is_unlocked %}
-    <div class="mt-8 pt-6 border-t border-white/10">
+    <div class="mt-12 pt-10 border-t border-slate-50">
       <div
-        class="bg-harvey-primary/5 border border-harvey-primary/20 rounded-xl p-5 flex flex-col md:flex-row items-center gap-4 justify-between">
-        <div>
-          <h3 class="text-white font-medium flex items-center gap-2"><i class="fas fa-lock text-harvey-primary"></i>
-            Locked Configuration</h3>
-          <p class="text-xs text-harvey-muted mt-1">Provide a valid Edit Token to unlock settings and allow changes.</p>
+        class="bg-rose-50 border border-rose-100 rounded-[32px] p-8 flex flex-col lg:flex-row items-center gap-8 justify-between">
+        <div class="flex items-center gap-5">
+           <div class="w-14 h-14 rounded-2xl bg-white border border-rose-200 flex items-center justify-center text-rose-500 shadow-sm">
+             <i class="fas fa-lock text-xl"></i>
+           </div>
+           <div>
+             <h3 class="text-slate-900 font-black text-lg tracking-tight">Directives Frozen</h3>
+             <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-1">Authorization required to rewrite core configuration</p>
+           </div>
         </div>
-        <div class="w-full md:w-1/2 flex items-center gap-2">
-          <input type="text" name="edit_token" placeholder="16-character token" required
-            class="w-full bg-slate-950 border border-harvey-primary/30 rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:ring-2 focus:ring-harvey-primary transition-all text-center font-mono" />
+        <div class="w-full lg:w-1/2 flex items-center gap-3">
+          <input type="text" name="edit_token" placeholder="INPUT VALIDATION KEY" required
+            class="w-full bg-white border border-rose-100 rounded-2xl px-6 py-4 text-slate-900 placeholder-rose-200 focus:ring-4 focus:ring-rose-50 focus:border-rose-200 transition-all text-center font-black tracking-[0.3em] uppercase" />
           <button type="submit" name="action" value="unlock_hrms_config"
-            class="px-6 py-2.5 bg-harvey-primary hover:bg-harvey-accent text-harvey-bg rounded-lg font-bold transition-all shadow border border-harvey-primary/20 whitespace-nowrap">Unlock</button>
+            class="px-8 py-4 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-rose-100 whitespace-nowrap active:scale-[0.98]">Unseal</button>
         </div>
       </div>
     </div>
     {% else %}
-    <div class="flex justify-end pt-8">
+    <div class="flex justify-end pt-10 pb-2">
       <button type="submit" name="action" value="update_hrms_config"
-        class="px-8 py-3 bg-harvey-primary hover:bg-harvey-accent text-harvey-bg rounded-xl font-bold transition-all duration-200 shadow-lg shadow-harvey-primary/25 border border-harvey-primary/20 flex items-center gap-2">
-        <i class="fas fa-save"></i> Save Configuration
+        class="px-10 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl shadow-indigo-100 flex items-center gap-4 active:scale-[0.98]">
+        <i class="fas fa-save text-sm"></i> 
+        <span>Commit Directives</span>
       </button>
     </div>
     {% endif %}
 
   </form>
 </div>
+<script>
+    function toggleAuthToken() {
+        const input = document.getElementById('auth_token');
+        const icon = document.getElementById('auth_token_icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>

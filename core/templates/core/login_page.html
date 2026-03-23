@@ -14,17 +14,18 @@
         }
 
         .hero-pattern {
-            background-color: var(--color-harvey-bg);
+            background-color: #f8fafc;
             background-image:
-                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0, transparent 50%),
-                radial-gradient(at 50% 0%, rgba(31, 41, 55, 1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.1) 0, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0, transparent 50%);
         }
 
         .glass-card {
-            background: rgba(31, 41, 55, 0.4);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
         }
 
         .password-container {
@@ -37,82 +38,83 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #9ca3af;
+            color: #94a3b8;
         }
     </style>
 </head>
 
-<body class="hero-pattern flex items-center justify-center min-h-screen text-white">
+<body class="hero-pattern flex items-center justify-center min-h-screen text-slate-900">
 
     <!-- Background decorative blobs -->
     <div
-        class="absolute top-1/4 left-1/4 w-96 h-96 bg-harvey-primary/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+        class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl mix-blend-multiply pointer-events-none">
     </div>
     <div
-        class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-harvey-accent/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+        class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl mix-blend-multiply pointer-events-none">
     </div>
 
 
-    <div class="w-full max-w-sm glass-card rounded-2xl shadow-2xl p-6 relative z-10">
-        <div class="text-center mb-6">
-            <div
-                class="h-10 w-10 bg-harvey-primary rounded-lg flex items-center justify-center shadow-lg shadow-harvey-primary/30 mx-auto mb-3">
-                <i class="fas fa-robot text-harvey-bg text-xl"></i>
+    <div class="w-full max-w-sm glass-card rounded-2xl p-8 relative z-10 mx-4">
+        <div class="text-center mb-8">
+            <div class="relative w-14 h-14 flex-shrink-0 mx-auto mb-4">
+                <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey" 
+                    class="w-full h-full object-contain rounded-2xl shadow-xl shadow-indigo-100/50 transform hover:scale-105 transition-transform">
             </div>
-            <h2 class="text-2xl font-bold text-white">Welcome Back</h2>
-            <p class="mt-2 text-xs text-harvey-muted">Sign in to <span class="font-semibold text-harvey-primary">Project
-                    Harvey</span></p>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
+            <p class="mt-2 text-sm text-slate-500">Sign in to <span class="font-bold text-indigo-600">Harvey AI</span>
+            </p>
         </div>
 
         {% if messages %}
         {% for message in messages %}
-        <div class="bg-red-900/50 border border-red-500/50 text-red-200 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl relative mb-6 text-sm flex items-center gap-2" role="alert">
+            <i class="fas fa-circle-exclamation"></i>
             <span class="block sm:inline">{{ message }}</span>
         </div>
         {% endfor %}
         {% endif %}
 
         {% if request.GET.access_denied %}
-        <div class="bg-yellow-900/50 border border-yellow-500/50 text-yellow-200 px-4 py-3 rounded relative mb-4"
+        <div class="bg-amber-50 border border-amber-100 text-amber-600 px-4 py-3 rounded-xl relative mb-6 text-sm flex items-center gap-2"
             role="alert">
+            <i class="fas fa-shield-halved"></i>
             You don’t have access to the chatbot. Contact your admin.
         </div>
         {% endif %}
 
-        <!-- Future Google/Apple login options (optional) -->
         <div class="space-y-4">
             <a href="{% url 'google_login' %}"
-                class="w-full flex items-center justify-center px-4 py-3 bg-white/10 border border-white/10 rounded-xl shadow-lg text-sm font-bold text-white hover:bg-white/20 hover:border-white/20 hover:shadow-harvey-primary/10 transition-all duration-200 group backdrop-blur-md">
-                <i class="fab fa-google mr-2 text-white group-hover:scale-110 transition-transform"></i>
+                class="w-full flex items-center justify-center px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm text-sm font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 group">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" alt="Google">
                 Continue with Google
             </a>
         </div>
 
-        <div class="my-6 flex items-center">
-            <div class="flex-grow border-t border-gray-500"></div>
-            <span class="mx-4 text-sm text-gray-300">Or sign in with email</span>
-            <div class="flex-grow border-t border-gray-700"></div>
+        <div class="my-8 flex items-center">
+            <div class="flex-grow border-t border-slate-200"></div>
+            <span class="mx-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Or</span>
+            <div class="flex-grow border-t border-slate-200"></div>
         </div>
 
         <!-- Login form -->
         <form method="POST" action="{% url 'login' %}" class="space-y-6">
             {% csrf_token %}
             <div>
-                <label for="username" class="block text-sm font-medium text-harvey-muted">Username</label>
+                <label for="username" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Username</label>
                 <div class="mt-1">
                     <input type="text" name="username" id="username"
-                        class="w-full px-4 py-3 bg-harvey-bg/50 border border-white/5 rounded-lg shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-harvey-primary focus:border-transparent transition-all"
+                        class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                         placeholder="Enter username" required>
                 </div>
             </div>
 
             <div class="password-container">
-                <label for="password" class="block text-sm font-medium text-harvey-muted">Password</label>
+                <label for="password" class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Password</label>
                 <div class="mt-1 relative">
                     <input type="password" name="password" id="password"
-                        class="w-full px-4 py-3 bg-harvey-bg/50 border border-white/5 rounded-lg shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-2 focus:ring-harvey-primary focus:border-transparent transition-all"
+                        class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                         placeholder="••••••••" required>
-                    <i class="fas fa-eye-slash text-gray-500 hover:text-harvey-primary transition-colors"
+                    <i class="fas fa-eye-slash text-slate-400 hover:text-indigo-600 transition-colors"
                         id="togglePassword"></i>
                 </div>
             </div>
@@ -120,46 +122,47 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input id="remember-me" name="remember-me" type="checkbox"
-                        class="h-4 w-4 text-harvey-primary focus:ring-harvey-primary border-white/5 rounded bg-harvey-bg/50">
-                    <label for="remember-me" class="ml-2 block text-sm text-harvey-muted">Remember me</label>
+                        class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-slate-300 rounded bg-white">
+                    <label for="remember-me" class="ml-2 block text-sm font-medium text-slate-600">Remember</label>
                 </div>
 
                 <div class="text-sm">
                     <a href="#" id="forgotPasswordLink"
-                        class="font-medium text-harvey-accent hover:text-harvey-primary transition-colors">Forgot
+                        class="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">Forgot
                         password?</a>
                 </div>
             </div>
 
             <div>
                 <button type="submit"
-                    class="w-full bg-harvey-primary text-harvey-bg font-bold py-3 rounded-xl hover:bg-harvey-accent hover:shadow-lg hover:shadow-harvey-primary/30 transition-all duration-200 transform hover:-translate-y-0.5">
+                    class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 hover:shadow-lg transition-all duration-200 transform active:scale-[0.98]">
                     Sign In
                 </button>
             </div>
         </form>
 
-        <div class="mt-6 text-center text-sm text-gray-500">
-            <a href="{% url 'landing_page' %}" class="hover:text-white transition-colors"><i
-                    class="fas fa-arrow-left mr-1"></i> Back to Home</a>
+        <div class="mt-8 text-center">
+            <a href="{% url 'landing_page' %}" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-2 group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i> Back to Home
+            </a>
         </div>
     </div>
 
     <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal"
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-harvey-bg border border-white/5 p-8 rounded-2xl shadow-2xl max-w-sm text-center transform scale-95 transition-transform duration-300"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl max-w-sm text-center transform scale-95 transition-transform duration-300 mx-4"
             id="modalContent">
             <div
-                class="h-12 w-12 bg-harvey-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-harvey-primary/30">
-                <i class="fas fa-lock text-harvey-primary text-xl"></i>
+                class="h-16 w-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-indigo-100">
+                <i class="fas fa-lock text-indigo-600 text-2xl"></i>
             </div>
-            <h3 class="text-xl font-bold text-white mb-2">Password Reset</h3>
-            <p class="text-harvey-muted text-sm mb-6">Please contact your organization administrator to reset your
-                password.
+            <h3 class="text-xl font-black text-slate-900 mb-2">Password Reset</h3>
+            <p class="text-slate-500 text-sm mb-8 leading-relaxed">Please contact your organization administrator to reset your
+                password securely.
             </p>
             <button id="closeModal"
-                class="w-full bg-harvey-primary hover:bg-harvey-accent text-harvey-bg font-bold py-2 px-4 rounded-xl transition-colors">
+                class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-xl transition-all active:scale-95">
                 Got it
             </button>
         </div>

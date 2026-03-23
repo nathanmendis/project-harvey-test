@@ -1,11 +1,28 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="glass-card p-12 rounded-3xl border-white/5 text-center max-w-2xl mx-auto mt-12">
-  <div
-    class="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 text-3xl mx-auto mb-6">
-    <i class="fas fa-briefcase"></i>
-  </div>
-  <h2 class="text-3xl font-extrabold tracking-tight mb-4">Manage Job Roles</h2>
-  <p class="text-gray-400 text-lg">Job posting and role management integration is currently in development.</p>
+<div class="max-w-3xl mx-auto py-24 px-4 text-center">
+    <div class="bg-white rounded-[40px] p-16 border border-slate-100 shadow-xl relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-32 -right-32 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl opacity-50"></div>
+        
+        <div class="relative z-10">
+            <div class="w-24 h-24 rounded-3xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-4xl mx-auto mb-8 border border-indigo-100 shadow-sm">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-4">Manage Job Roles</h1>
+            <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mb-10">Under Development</p>
+            
+            <div class="max-w-md mx-auto">
+                <p class="text-slate-400 text-lg font-medium leading-relaxed mb-12">The job role management system is currently being updated and will be available soon.</p>
+            </div>
+            
+            <a href="{% url 'admin_dashboard' %}" 
+               class="inline-flex items-center gap-3 bg-slate-900 hover:bg-slate-800 text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-[1.05] active:scale-100 shadow-2xl shadow-slate-100">
+                <i class="fas fa-arrow-left text-[8px]"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

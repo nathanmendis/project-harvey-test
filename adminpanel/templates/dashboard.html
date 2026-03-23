@@ -1,19 +1,19 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="space-y-10 animate-fade-in relative">
+<div class="space-y-12 animate-fade-in relative">
 
   <!-- Smart Proactive Alerts -->
   {% if pending_leaves and pending_leaves > 0 %}
-  <a href="{% url 'leaves' %}" class="block glass-panel bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 shadow-lg hover:bg-amber-500/20 transition-all cursor-pointer group">
+  <a href="{% url 'leaves' %}" class="block bg-amber-50 border-2 border-amber-100 rounded-3xl p-5 shadow-sm hover:shadow-md hover:border-amber-200 transition-all cursor-pointer group">
     <div class="flex items-center gap-4">
-        <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-transform">
-            <i class="fas fa-exclamation-triangle"></i>
+        <div class="w-12 h-12 rounded-2xl bg-white border border-amber-100 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform shadow-sm">
+            <i class="fas fa-triangle-exclamation text-xl"></i>
         </div>
         <div>
-            <h3 class="text-white font-bold text-lg">Action Required</h3>
-            <p class="text-gray-300 text-sm">You have <span class="text-amber-400 font-bold px-1">{{ pending_leaves }}</span> pending leave request(s) waiting for your approval.</p>
+            <h3 class="text-slate-900 font-black text-lg tracking-tight">Action Required</h3>
+            <p class="text-slate-500 text-sm font-medium">You have <span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-lg font-black mx-1">{{ pending_leaves }}</span> pending leave request(s) waiting for approval.</p>
         </div>
-        <div class="ml-auto text-amber-400">
+        <div class="ml-auto text-amber-500 bg-white w-10 h-10 rounded-full flex items-center justify-center border border-amber-100 shadow-sm">
             <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
         </div>
     </div>
@@ -22,15 +22,18 @@
 
   <!-- Anniversary Auto-Modal -->
   {% if show_anniversary_popup %}
-  <div id="anniversaryModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-harvey-bg/80 backdrop-blur-md">
-      <div class="glass-panel p-8 rounded-3xl border border-harvey-primary/30 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(6,182,212,0.2)] transform transition-all scale-95 opacity-0 text-center" id="anniversaryContent">
-          <div class="w-20 h-20 bg-gradient-to-tr from-harvey-primary to-harvey-accent rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-harvey-primary/40 animate-bounce">
-              <i class="fas fa-gift text-3xl text-white"></i>
+  <div id="anniversaryModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-md">
+      <div class="bg-white p-10 rounded-[40px] border border-slate-100 max-w-md w-full mx-4 shadow-2xl transform transition-all scale-95 opacity-0 text-center relative overflow-hidden" id="anniversaryContent">
+          <!-- Background decoration -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
+          
+          <div class="w-24 h-24 bg-indigo-50 border border-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm relative z-10">
+              <i class="fas fa-gift text-4xl text-indigo-600 animate-bounce"></i>
           </div>
-          <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">Happy Work Anniversary!</h2>
-          <p class="text-gray-400 mb-8 leading-relaxed">Thank you for being an amazing part of the <span class="text-harvey-primary">{{ org_name }}</span> family. We appreciate everything you do!</p>
-          <button onclick="document.getElementById('anniversaryModal').classList.add('hidden')" class="w-full py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all border border-white/5">
-              Close
+          <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">Happy Anniversary!</h2>
+          <p class="text-slate-500 mb-10 leading-relaxed font-medium">Thank you for being an amazing part of the <span class="text-indigo-600 font-bold">{{ org_name }}</span> family. We appreciate everything you do!</p>
+          <button onclick="document.getElementById('anniversaryModal').classList.add('hidden')" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black transition-all shadow-lg active:scale-[0.98]">
+              Cheers to another year!
           </button>
       </div>
   </div>
@@ -49,140 +52,157 @@
   </script>
   {% endif %}
 
-  <!-- Header & Performance (Professional Summary) -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2 px-2">
+  <!-- Header & Performance -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4 px-2">
     <div>
-      <h2 class="text-2xl font-bold text-white tracking-tight">System Overview</h2>
-      <p class="text-xs text-gray-500 mt-1">Real-time status for <span class="text-harvey-primary font-bold">
-          {{ org_name}}</span></p>
+      <h2 class="text-3xl font-black text-slate-900 tracking-tight">System Overview</h2>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-2">
+          Organization: <span class="text-indigo-600 font-black px-2 py-0.5 bg-indigo-50 rounded-lg">{{ org_name}}</span>
+      </p>
     </div>
     <div class="flex items-center gap-3">
       <span
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-bold text-emerald-500 tracking-wider">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        OPERATIONAL
+        class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-100 text-[11px] font-black text-emerald-600 tracking-widest shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        SYSTEM OPERATIONAL
       </span>
     </div>
   </div>
 
-  <!-- Stats Grid (Minimalist) -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
-      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Network</p>
-      <div class="flex items-baseline justify-between">
-        <h3 class="text-3xl font-bold text-white">{{ total_users }}</h3>
-        <i class="fas fa-users text-lg text-gray-700 group-hover:text-harvey-primary transition-colors"></i>
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="glass-card p-6 rounded-3xl border border-white relative group transition-all hover:scale-[1.02]">
+      <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+              <i class="fas fa-users text-sm"></i>
+          </div>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Growth</span>
       </div>
+      <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Network</p>
+      <h3 class="text-3xl font-black text-slate-900">{{ total_users }}</h3>
     </div>
-    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
-      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Admins</p>
-      <div class="flex items-baseline justify-between">
-        <h3 class="text-3xl font-bold text-white">{{ admin_users }}</h3>
-        <i class="fas fa-shield-alt text-lg text-gray-700 group-hover:text-harvey-accent transition-colors"></i>
+    <div class="glass-card p-6 rounded-3xl border border-white relative group transition-all hover:scale-[1.02]">
+      <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 border border-purple-100">
+              <i class="fas fa-shield-halved text-sm"></i>
+          </div>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Security</span>
       </div>
+      <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Admins</p>
+      <h3 class="text-3xl font-black text-slate-900">{{ admin_users }}</h3>
     </div>
-    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
-      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Active Staff</p>
-      <div class="flex items-baseline justify-between">
-        <h3 class="text-3xl font-bold text-white">{{ staff_users }}</h3>
-        <i class="fas fa-user-tie text-lg text-gray-700 group-hover:text-harvey-primary transition-colors"></i>
+    <div class="glass-card p-6 rounded-3xl border border-white relative group transition-all hover:scale-[1.02]">
+      <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 border border-blue-100">
+              <i class="fas fa-user-tie text-sm"></i>
+          </div>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active</span>
       </div>
+      <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Staff</p>
+      <h3 class="text-3xl font-black text-slate-900">{{ staff_users }}</h3>
     </div>
-    <div class="glass-card p-5 rounded-2xl border border-white/5 relative group">
-      <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Employees</p>
-      <div class="flex items-baseline justify-between">
-        <h3 class="text-3xl font-bold text-white">{{ regular_users }}</h3>
-        <i class="fas fa-id-badge text-lg text-gray-700 group-hover:text-harvey-accent transition-colors"></i>
+    <div class="glass-card p-6 rounded-3xl border border-white relative group transition-all hover:scale-[1.02]">
+      <div class="flex items-center justify-between mb-4">
+          <div class="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 border border-emerald-100">
+              <i class="fas fa-id-badge text-sm"></i>
+          </div>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Regular</span>
       </div>
+      <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Employees</p>
+      <h3 class="text-3xl font-black text-slate-900">{{ regular_users }}</h3>
     </div>
   </div>
 
   <!-- MODULE CLUSTERS -->
 
   <!-- Recruitment Cluster -->
-  <section class="space-y-4">
-    <div class="flex items-center gap-2 px-1">
-      <i class="fas fa-briefcase text-harvey-primary text-xs opacity-50"></i>
-      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Recruitment Suite</h4>
+  <section class="space-y-6">
+    <div class="flex items-center gap-3 px-1">
+      <div class="h-px bg-slate-200 flex-1"></div>
+      <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Recruitment Suite</h4>
+      <div class="h-px bg-slate-200 flex-1"></div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <a href="{% url 'recruitment_dashboard' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group relative overflow-hidden">
-        <div class="flex flex-col h-full justify-between gap-6">
+        class="glass-card p-8 rounded-[32px] border border-white hover:border-indigo-200 transition-all group relative overflow-hidden shadow-sm hover:shadow-md">
+        <div class="flex flex-col h-full justify-between gap-8">
           <div
-            class="w-10 h-10 rounded-xl bg-harvey-primary/10 border border-harvey-primary/20 flex items-center justify-center text-harvey-primary group-hover:bg-harvey-primary group-hover:text-harvey-bg transition-all">
-            <i class="fas fa-id-card"></i>
+            class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+            <i class="fas fa-id-card text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Candidate Pipeline</h5>
-            <p class="text-[11px] text-gray-500 leading-relaxed">Manage applicants and active job roles.</p>
+            <h5 class="text-lg font-black text-slate-900 mb-1 tracking-tight">Pipeline</h5>
+            <p class="text-xs text-slate-500 font-medium leading-relaxed">Manage applicants and active job roles across squads.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'interviews' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex flex-col h-full justify-between gap-6">
+        class="glass-card p-8 rounded-[32px] border border-white hover:border-blue-200 transition-all group shadow-sm hover:shadow-md">
+        <div class="flex flex-col h-full justify-between gap-8">
           <div
-            class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-            <i class="fas fa-video"></i>
+            class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-sm">
+            <i class="fas fa-video text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Interviews</h5>
-            <p class="text-[11px] text-gray-500 leading-relaxed">Schedule and manage candidate screenings.</p>
+            <h5 class="text-lg font-black text-slate-900 mb-1 tracking-tight">Interviews</h5>
+            <p class="text-xs text-slate-500 font-medium leading-relaxed">Schedule and manage candidate screenings seamlessly.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'leaves' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex flex-col h-full justify-between gap-6">
+        class="glass-card p-8 rounded-[32px] border border-white hover:border-amber-200 transition-all group shadow-sm hover:shadow-md">
+        <div class="flex flex-col h-full justify-between gap-8">
           <div
-            class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
-            <i class="fas fa-calendar-day"></i>
+            class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-sm">
+            <i class="fas fa-calendar-check text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Leave Requests</h5>
-            <p class="text-[11px] text-gray-500 leading-relaxed">Review and approve time-off applications.</p>
+            <h5 class="text-lg font-black text-slate-900 mb-1 tracking-tight">Leaves</h5>
+            <p class="text-xs text-slate-500 font-medium leading-relaxed">Review and approve employee time-off requests.</p>
           </div>
         </div>
       </a>
       <div
-        class="border border-white/5 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center opacity-40">
-        <i class="fas fa-chart-bar text-xl text-gray-600 mb-2"></i>
-        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Coming Soon</span>
+        class="border-2 border-slate-100 border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center bg-slate-50/50">
+        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-slate-300 mb-4 border border-slate-100">
+            <i class="fas fa-plus"></i>
+        </div>
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">New Modules</span>
       </div>
     </div>
   </section>
 
   <!-- Organization Cluster -->
-  <section class="space-y-4">
-    <div class="flex items-center gap-2 px-1">
-      <i class="fas fa-user-friends text-harvey-accent text-xs opacity-50"></i>
-      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Organization</h4>
+  <section class="space-y-6">
+    <div class="flex items-center gap-3 px-1">
+      <div class="h-px bg-slate-200 flex-1"></div>
+      <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Organization Control</h4>
+      <div class="h-px bg-slate-200 flex-1"></div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
       <a href="{% url 'manage_employees' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
-        <div class="flex gap-4 items-start">
+        class="glass-card p-8 rounded-[32px] border border-white hover:border-purple-200 transition-all group shadow-sm hover:shadow-md">
+        <div class="flex gap-6 items-start">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-harvey-accent/10 border border-harvey-accent/20 flex items-center justify-center text-harvey-accent group-hover:scale-105 transition-transform">
-            <i class="fas fa-users"></i>
+            class="w-14 h-14 shrink-0 rounded-3xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm">
+            <i class="fas fa-users-gear text-2xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Staff Directory</h5>
-            <p class="text-[11px] text-gray-500">Full control over employee roles and access.</p>
+            <h5 class="text-xl font-black text-slate-900 mb-2 tracking-tight">Staff Directory</h5>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">Full control over employee roles, squad access, and global permissions for your entire staff.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'manage_invites' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-accent/30 transition-all group">
-        <div class="flex gap-4 items-start">
+        class="glass-card p-8 rounded-[32px] border border-white hover:border-pink-200 transition-all group shadow-sm hover:shadow-md">
+        <div class="flex gap-6 items-start">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 group-hover:scale-105 transition-transform">
-            <i class="fas fa-paper-plane"></i>
+            class="w-14 h-14 shrink-0 rounded-3xl bg-pink-50 border border-pink-100 flex items-center justify-center text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-all shadow-sm">
+            <i class="fas fa-paper-plane text-2xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Invitations</h5>
-            <p class="text-[11px] text-gray-500">Onboard new team members via secure links.</p>
+            <h5 class="text-xl font-black text-slate-900 mb-2 tracking-tight">Onboarding Requests</h5>
+            <p class="text-sm text-slate-500 font-medium leading-relaxed">Onboard new team members via secure invite links with automated role provisioning.</p>
           </div>
         </div>
       </a>
@@ -191,74 +211,62 @@
 
   <!-- Systems & AI Cluster -->
   {% if user.is_org_admin %}
-  <section class="space-y-4">
-    <div class="flex items-center gap-2 px-1">
-      <i class="fas fa-brain text-harvey-primary text-xs opacity-50"></i>
-      <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest">Systems &amp; AI</h4>
+  <section class="space-y-6">
+    <div class="flex items-center gap-3 px-1">
+      <div class="h-px bg-slate-200 flex-1"></div>
+      <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Intelligence & System</h4>
+      <div class="h-px bg-slate-200 flex-1"></div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <a href="{% url 'manage_policies' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex gap-4 items-start">
+        class="glass-card p-6 rounded-3xl border border-white hover:border-emerald-200 transition-all group shadow-sm">
+        <div class="flex flex-col gap-4">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-            <i class="fas fa-file-contract"></i>
+            class="w-12 h-12 shrink-0 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+            <i class="fas fa-file-shield text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white mb-1">Policy Engine</h5>
-            <p class="text-[11px] text-gray-500">Manage internal documentation and RAG source files.</p>
+            <h5 class="text-md font-black text-slate-900 mb-1">Policy Engine</h5>
+            <p class="text-xs text-slate-500 font-medium">Manage RAG source documents.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'rag_dashboard' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex items-center gap-4">
+        class="glass-card p-6 rounded-3xl border border-white hover:border-indigo-200 transition-all group shadow-sm">
+        <div class="flex flex-col gap-4">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-harvey-primary/10 flex items-center justify-center text-harvey-primary group-hover:bg-harvey-primary group-hover:text-harvey-bg transition-colors">
-            <i class="fas fa-database"></i>
+            class="w-12 h-12 shrink-0 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+            <i class="fas fa-brain text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white">RAG Management</h5>
-            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">Vector Store Control</p>
+            <h5 class="text-md font-black text-slate-900 mb-1">RAG Control</h5>
+            <p class="text-xs text-slate-500 font-medium">Vector Store & Knowledge Hub.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'hrms_integration' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex items-center gap-4">
+        class="glass-card p-6 rounded-3xl border border-white hover:border-orange-200 transition-all group shadow-sm">
+        <div class="flex flex-col gap-4">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-            <i class="fas fa-sync"></i>
+            class="w-12 h-12 shrink-0 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 group-hover:bg-orange-600 group-hover:text-white transition-all">
+            <i class="fas fa-sync text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white">HRMS Sync</h5>
-            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">External Data Gateway</p>
-          </div>
-        </div>
-      </a>
-      <a href="{% url 'leave_settings' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex items-center gap-4">
-          <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:bg-teal-500 group-hover:text-white transition-colors">
-            <i class="fas fa-calendar-check"></i>
-          </div>
-          <div>
-            <h5 class="text-sm font-bold text-white">Leave Policies</h5>
-            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">Yearly Allocations</p>
+            <h5 class="text-md font-black text-slate-900 mb-1">HRMS Sync</h5>
+            <p class="text-xs text-slate-500 font-medium">External Data Connectivity.</p>
           </div>
         </div>
       </a>
       <a href="{% url 'org_settings' %}"
-        class="glass-card p-6 rounded-2xl border border-white/5 hover:border-harvey-primary/30 transition-all group">
-        <div class="flex items-center gap-4">
+        class="glass-card p-6 rounded-3xl border border-white hover:border-slate-300 transition-all group shadow-sm">
+        <div class="flex flex-col gap-4">
           <div
-            class="w-10 h-10 shrink-0 rounded-xl bg-gray-500/10 flex items-center justify-center text-gray-400 group-hover:bg-white group-hover:text-black transition-colors">
-            <i class="fas fa-cog"></i>
+            class="w-12 h-12 shrink-0 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-slate-900 group-hover:text-white transition-all">
+            <i class="fas fa-sliders-h text-xl"></i>
           </div>
           <div>
-            <h5 class="text-sm font-bold text-white">Advanced Settings</h5>
-            <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter mt-0.5">Global Configuration</p>
+            <h5 class="text-md font-black text-slate-900 mb-1">Settings</h5>
+            <p class="text-xs text-slate-500 font-medium">Global Admin Configurations.</p>
           </div>
         </div>
       </a>

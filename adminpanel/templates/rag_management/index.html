@@ -3,144 +3,143 @@
 
 {% block content %}
 <!-- Header -->
-<div class="mb-8">
-    <div class="flex items-center gap-3 mb-2">
-        <div class="h-9 w-9 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
-            <i class="fas fa-database text-harvey-primary text-sm"></i>
+<div class="mb-10 px-2">
+    <div class="flex items-center gap-4 mb-2">
+        <div class="h-12 w-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-sm">
+            <i class="fas fa-database text-indigo-600 text-lg"></i>
         </div>
         <div>
-            <h1 class="text-2xl font-bold text-white">RAG Pipeline Management</h1>
-            <p class="text-sm text-gray-400">Manage vector index chunks for the AI assistant's knowledge base</p>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">RAG Pipeline</h1>
+            <p class="text-slate-500 font-medium text-sm">Synchronize the AI knowledge base with organizational data.</p>
         </div>
     </div>
 </div>
 
 <!-- Stats Row -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
 
     <!-- Policies -->
-    <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-harvey-primary/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-book text-harvey-primary text-lg"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex items-center gap-6">
+        <div class="h-14 w-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 shadow-sm">
+            <i class="fas fa-book text-indigo-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Policies</p>
-            <p class="text-2xl font-bold text-white">{{ indexed_policy_count }}<span
-                    class="text-sm font-normal text-harvey-muted"> / {{ policy_count }}</span></p>
-            <p class="text-[11px] text-harvey-muted">indexed / total</p>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Policies</p>
+            <p class="text-3xl font-black text-slate-900">{{ indexed_policy_count }}<span
+                    class="text-sm font-bold text-slate-300 ml-1">/ {{ policy_count }}</span></p>
+            <p class="text-[10px] text-indigo-600 font-black uppercase tracking-wider mt-1">Ready in Vector Store</p>
         </div>
     </div>
 
     <!-- Candidates -->
-    <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-harvey-accent/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-user-tie text-harvey-accent text-lg"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex items-center gap-6">
+        <div class="h-14 w-14 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0 shadow-sm">
+            <i class="fas fa-user-tie text-purple-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Candidates</p>
-            <p class="text-2xl font-bold text-white">{{ candidate_count }}</p>
-            <p class="text-[11px] text-harvey-muted">in organisation</p>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Candidates</p>
+            <p class="text-3xl font-black text-slate-900">{{ candidate_count }}</p>
+            <p class="text-[10px] text-purple-600 font-black uppercase tracking-wider mt-1">Organization Records</p>
         </div>
     </div>
 
     <!-- Jobs -->
-    <div class="glass-card rounded-2xl p-5 flex items-center gap-4">
-        <div class="h-12 w-12 rounded-xl bg-harvey-primary/20 flex items-center justify-center shrink-0">
-            <i class="fas fa-briefcase text-harvey-primary text-lg"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex items-center gap-6">
+        <div class="h-14 w-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 shadow-sm">
+            <i class="fas fa-briefcase text-blue-600 text-xl"></i>
         </div>
         <div>
-            <p class="text-xs text-harvey-muted uppercase tracking-widest mb-0.5">Job Roles</p>
-            <p class="text-2xl font-bold text-white">{{ job_count }}</p>
-            <p class="text-[11px] text-harvey-muted">in organisation</p>
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mb-1">Job Roles</p>
+            <p class="text-3xl font-black text-slate-900">{{ job_count }}</p>
+            <p class="text-[10px] text-blue-600 font-black uppercase tracking-wider mt-1">Active Positions</p>
         </div>
     </div>
 </div>
 
 <!-- Celery schedule notice -->
-<div class="mb-6 glass-card rounded-xl px-5 py-3 flex items-center gap-3 border border-harvey-primary/10">
-    <i class="fas fa-clock text-harvey-primary text-sm shrink-0"></i>
-    <p class="text-sm text-harvey-muted">
-        <span class="text-harvey-accent font-medium">Automatic schedule:</span>
-        Candidates &amp; Jobs are re-indexed automatically every <strong class="text-white">2 hours</strong> via Celery
-        Beat.
-        Policies are re-indexed on upload or via the button below.
+<div class="mb-10 bg-indigo-50/50 rounded-[24px] px-6 py-4 flex items-center gap-4 border border-indigo-100 shadow-sm">
+    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm shrink-0 border border-indigo-50">
+        <i class="fas fa-clock text-xs"></i>
+    </div>
+    <p class="text-sm text-slate-600 font-medium">
+        <span class="text-indigo-600 font-black uppercase text-[10px] tracking-widest mr-2">Auto-sync:</span>
+        Candidates & Jobs are re-indexed automatically every <strong class="text-slate-900 font-black">2 hours</strong>. 
+        Policies are re-indexed on upload.
     </p>
 </div>
 
 <!-- Action Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
 
     <!-- Policies Card -->
-    <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
-                <i class="fas fa-book text-harvey-primary"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex flex-col gap-6 group hover:border-indigo-200 transition-all">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                <i class="fas fa-book text-lg"></i>
             </div>
             <div>
-                <h3 class="text-base font-semibold text-white">Policies</h3>
-                <p class="text-xs text-harvey-muted">Chunk &amp; embed all policy documents</p>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">Policies</h3>
+                <p class="text-xs text-slate-500 font-medium">Document Vectorization</p>
             </div>
         </div>
-        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
-            Extracts text from uploaded files and URLs, splits into chunks using
-            <code class="text-harvey-primary bg-white/5 px-1 rounded">RecursiveCharacterTextSplitter</code>,
-            and upserts into PGVector.
+        <p class="text-xs text-slate-500 leading-relaxed font-medium flex-1">
+            Builds searchable chunks using
+            <code class="text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-md font-bold mx-1">RecursiveSplitting</code>
+            for ultra-fast AI context retrieval in PGVector.
         </p>
         <form method="POST" action="{% url 'reindex_all_policies' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-primary/20 hover:bg-harvey-primary/40 border border-harvey-primary/20 text-harvey-primary hover:text-white font-medium text-sm transition-all duration-200 group">
-                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                class="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-slate-200">
+                <i class="fas fa-sync-alt"></i>
                 Reindex Policies
             </button>
         </form>
     </div>
 
     <!-- Candidates Card -->
-    <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-harvey-accent/20 flex items-center justify-center">
-                <i class="fas fa-user-tie text-harvey-accent"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex flex-col gap-6 group hover:border-purple-200 transition-all">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm">
+                <i class="fas fa-user-tie text-lg"></i>
             </div>
             <div>
-                <h3 class="text-base font-semibold text-white">Candidates</h3>
-                <p class="text-xs text-harvey-muted">Build/refresh candidate embeddings</p>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">Candidates</h3>
+                <p class="text-xs text-slate-500 font-medium">Profile Embeddings</p>
             </div>
         </div>
-        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
-            Generates a rich text embedding from each candidate's name, email, skills,
-            and parsed résumé data. Normally synced every 2 hours — trigger manually here.
+        <p class="text-xs text-slate-500 leading-relaxed font-medium flex-1">
+            Builds semantic maps from skills, experience, and parsed résumé data for advanced recruitment filtering and AI matching.
         </p>
         <form method="POST" action="{% url 'reindex_all_candidates' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-accent/20 hover:bg-harvey-accent/40 border border-harvey-accent/20 text-harvey-accent hover:text-white font-medium text-sm transition-all duration-200 group">
-                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                class="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-slate-200">
+                <i class="fas fa-sync-alt"></i>
                 Reindex Candidates
             </button>
         </form>
     </div>
 
     <!-- Jobs Card -->
-    <div class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-harvey-primary/20 flex items-center justify-center">
-                <i class="fas fa-briefcase text-harvey-primary"></i>
+    <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex flex-col gap-6 group hover:border-blue-200 transition-all">
+        <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                <i class="fas fa-briefcase text-lg"></i>
             </div>
             <div>
-                <h3 class="text-base font-semibold text-white">Job Roles</h3>
-                <p class="text-xs text-harvey-muted">Build/refresh job role embeddings</p>
+                <h3 class="text-lg font-black text-slate-900 tracking-tight">Job Roles</h3>
+                <p class="text-xs text-slate-500 font-medium">Role Semantic Index</p>
             </div>
         </div>
-        <p class="text-xs text-harvey-muted leading-relaxed flex-1">
-            Generates embeddings from each job's title, department, description, and
-            requirements. Normally synced every 2 hours — trigger manually here.
+        <p class="text-xs text-slate-500 leading-relaxed font-medium flex-1">
+            Extracts requirements and department context to allow the AI to find the best-fit roles for incoming talent.
         </p>
         <form method="POST" action="{% url 'reindex_all_jobs' %}">
             {% csrf_token %}
             <button type="submit"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-harvey-primary/20 hover:bg-harvey-primary/40 border border-harvey-primary/20 text-harvey-primary hover:text-white font-medium text-sm transition-all duration-200 group">
-                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                class="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-slate-200">
+                <i class="fas fa-sync-alt"></i>
                 Reindex Jobs
             </button>
         </form>
@@ -149,27 +148,25 @@
 </div>
 
 <!-- Danger Zone: Full Reindex -->
-<div class="glass-card rounded-2xl p-6 border border-red-500/10">
-    <div class="flex items-start gap-4">
-        <div class="h-10 w-10 rounded-xl bg-red-600/20 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fas fa-bolt text-red-400"></i>
+<div class="bg-red-50/50 rounded-[40px] p-10 border border-red-100 shadow-sm relative overflow-hidden">
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-red-100/50 rounded-full blur-3xl opacity-50"></div>
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+        <div class="h-16 w-16 rounded-[24px] bg-red-100 border border-red-200 flex items-center justify-center shrink-0 shadow-sm">
+            <i class="fas fa-bolt text-red-600 text-2xl animate-pulse"></i>
         </div>
-        <div class="flex-1">
-            <h3 class="text-base font-semibold text-red-300 mb-1">Full Reindex Everything</h3>
-            <p class="text-xs text-harvey-muted mb-4">
-                Queues <strong class="text-harvey-muted">all three</strong> reindex tasks at once — policies,
-                candidates,
-                and jobs —
-                for <strong class="text-harvey-muted">{{ org.name }}</strong>.
-                Existing vector data will be replaced. This may take a few minutes depending on data size.
+        <div class="flex-1 text-center md:text-left">
+            <h3 class="text-2xl font-black text-slate-900 tracking-tight mb-2">Full System Reset</h3>
+            <p class="text-sm text-slate-500 mb-8 font-medium leading-relaxed max-w-2xl">
+                Queues a comprehensive re-index of <strong class="bg-red-100 text-red-700 px-2 py-0.5 rounded-lg">EVERYTHING</strong> for <strong>{{ org.name }}</strong>. 
+                Existing vectors will be purged and rebuilt. Best used after major data migrations.
             </p>
             <form method="POST" action="{% url 'reindex_everything' %}"
                 onsubmit="return confirm('This will reindex ALL policies, candidates, and jobs. Are you sure?')">
                 {% csrf_token %}
                 <button type="submit"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600/20 hover:bg-red-600/40 border border-red-500/20 text-red-300 hover:text-white font-semibold text-sm transition-all duration-200">
-                    <i class="fas fa-bolt"></i>
-                    Full Reindex Everything
+                    class="flex items-center gap-3 px-10 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-red-200 hover:scale-[1.02] active:scale-[0.98]">
+                    <i class="fas fa-power-off text-xs"></i>
+                    Trigger Full Reindex
                 </button>
             </form>
         </div>

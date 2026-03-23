@@ -15,37 +15,39 @@
         }
 
         .hero-pattern {
-            background-color: var(--color-harvey-bg);
+            background-color: #f8fafc;
             background-image:
-                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0, transparent 50%),
-                radial-gradient(at 50% 0%, rgba(31, 41, 55, 1) 0, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.1) 0, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.05) 0, transparent 50%);
         }
 
         .glass-panel {
-            background: rgba(31, 41, 55, 0.4);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
         }
 
         .chat-bubble-user {
-            border-bottom-right-radius: 0 !important;
-            background: linear-gradient(135deg, var(--color-harvey-primary) 0%, var(--color-harvey-accent) 100%);
-            color: var(--color-harvey-bg);
+            border-bottom-right-radius: 4px !important;
+            background: #1e293b;
+            color: white;
             font-weight: 500;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         .chat-bubble-ai {
-            border-bottom-left-radius: 0 !important;
-            background: var(--color-harvey-elevated);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--color-harvey-text);
+            border-bottom-left-radius: 4px !important;
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
 
         /* Custom Scrollbar */
         .chat-box::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
 
         .chat-box::-webkit-scrollbar-track {
@@ -53,12 +55,12 @@
         }
 
         .chat-box::-webkit-scrollbar-thumb {
-            background-color: rgba(6, 182, 212, 0.2);
+            background-color: #e2e8f0;
             border-radius: 20px;
         }
 
         .chat-box::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(6, 182, 212, 0.4);
+            background-color: #cbd5e1;
         }
 
         /* Mobile specific bottom spacing for iPhone home bar */
@@ -70,14 +72,14 @@
     </style>
 </head>
 
-<body class="hero-pattern flex flex-col h-[100dvh] text-white overflow-hidden">
+<body class="hero-pattern flex flex-col h-[100dvh] text-slate-900 overflow-hidden">
 
     <!-- Background decorative blobs -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-harvey-primary/10 rounded-full blur-[100px]">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px]">
         </div>
         <div
-            class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-harvey-accent/10 rounded-full blur-[100px]">
+            class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px]">
         </div>
     </div>
 
@@ -89,30 +91,29 @@
 
         <!-- Mobile Overlay -->
         <div id="sidebar-overlay" onclick="toggleSidebar()"
-            class="fixed inset-0 bg-black/50 z-30 hidden md:hidden transition-opacity backdrop-blur-sm"></div>
+            class="fixed inset-0 bg-slate-900/20 z-30 hidden md:hidden transition-opacity backdrop-blur-sm"></div>
 
         <!-- Sidebar -->
         <aside id="chat-sidebar" onclick="handleSidebarClick(event)"
-            class="w-64 shrink-0 bg-harvey-bg/95 border-r border-white/5 flex flex-col -translate-x-full md:translate-x-0 transition-all duration-300 absolute md:static top-0 left-0 h-full z-40 backdrop-blur-md md:backdrop-blur-none cursor-pointer group/sidebar">
+            class="w-68 shrink-0 bg-white/80 border-r border-slate-200 flex flex-col -translate-x-full md:translate-x-0 transition-all duration-300 absolute md:static top-0 left-0 h-full z-40 backdrop-blur-xl cursor-default group/sidebar">
 
-            <div class="p-4 transition-all duration-200">
+            <div class="p-5">
                 <button onclick="startNewChat()"
-                    class="w-full h-12 bg-white/5 hover:bg-white/10 text-harvey-text hover:text-white rounded-xl flex items-center justify-start px-3 gap-3 transition-all border border-white/5 font-medium backdrop-blur-sm group overflow-hidden">
-                    <i class="fas fa-plus text-lg min-w-[20px] text-center text-harvey-primary"></i>
-                    <span class="whitespace-nowrap transition-opacity duration-200 sidebar-text opacity-100">New
-                        Chat</span>
+                    class="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 font-bold">
+                    <i class="fas fa-plus text-sm"></i>
+                    <span class="sidebar-text">New Chat</span>
                 </button>
             </div>
 
-            <div class="px-6 pb-2 transition-opacity duration-200 sidebar-text">
-                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 whitespace-nowrap">History
-                </div>
+            <div class="px-6 pb-2 sidebar-text">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Recent Chats</div>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-3 space-y-1 chat-box pb-4" id="conversation-list">
+            <div class="flex-1 overflow-y-auto px-3 space-y-1 chat-box pb-10" id="conversation-list">
                 <!-- Dynamic Items -->
-                <div class="animate-pulse flex space-x-4 p-3">
-                    <div class="rounded-full bg-white/10 h-2 w-full"></div>
+                <div class="px-3 py-2 animate-pulse flex flex-col gap-2">
+                    <div class="h-8 bg-slate-100 rounded-lg w-full"></div>
+                    <div class="h-8 bg-slate-50/50 rounded-lg w-3/4"></div>
                 </div>
             </div>
 
@@ -122,8 +123,8 @@
         <div class="flex-1 flex flex-col relative w-full min-w-0 bg-transparent h-[100dvh] md:h-auto">
             <!-- Sidebar Toggle (Visible Mobile Only) -->
             <button onclick="toggleSidebar()" data-hamburger
-                class="md:hidden absolute top-4 left-4 z-40 text-white/50 hover:text-white p-3 bg-black/40 rounded-lg hover:bg-white/10 transition-all">
-                <i class="fas fa-bars text-lg"></i>
+                class="md:hidden absolute top-4 left-4 z-40 text-slate-400 hover:text-slate-900 p-2.5 bg-white border border-slate-200 rounded-lg shadow-sm transition-all active:scale-90">
+                <i class="fas fa-bars-staggered"></i>
             </button>
 
             {% include "core/components/chat_area.html" %}

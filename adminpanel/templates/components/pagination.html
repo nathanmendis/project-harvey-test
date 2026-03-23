@@ -1,48 +1,50 @@
 {% if page_obj.has_other_pages %}
-<div class="mt-6 flex items-center justify-between border-t border-white/5 pt-6 text-sm">
-    <div class="text-gray-400">
-        Showing <span class="font-medium text-white">{{ page_obj.start_index }}</span> to <span
-            class="font-medium text-white">{{ page_obj.end_index }}</span> of <span class="font-medium text-white">
-            {{page_obj.paginator.count }}</span> results
+<div class="mt-8 flex items-center justify-between border-t border-slate-100 pt-8">
+    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">
+        Record <span class="text-indigo-600">{{ page_obj.start_index }}</span>—<span
+            class="text-indigo-600">{{ page_obj.end_index }}</span> of <span class="text-indigo-600">
+            {{page_obj.paginator.count }}</span> entries
     </div>
 
-    <nav class="flex items-center gap-1" aria-label="Pagination">
+    <nav class="flex items-center gap-2" aria-label="Pagination">
         {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'q' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}"
-            class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+            class="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-all shadow-sm">
             <i class="fas fa-chevron-left text-[10px]"></i>
         </a>
         {% else %}
-        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-600 cursor-not-allowed">
+        <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50/50 border border-slate-50 text-slate-200 cursor-not-allowed">
             <i class="fas fa-chevron-left text-[10px]"></i>
         </span>
         {% endif %}
 
-        {% for i in paginator.page_range %}
-        {% if page_obj.number == i %}
-        <span
-            class="flex items-center justify-center w-8 h-8 rounded-lg bg-harvey-primary text-harvey-bg font-medium shadow-lg shadow-harvey-primary/20">
-            {{ i }}
-        </span>
-        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <a
-            href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'q' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}"
-            class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
-            {{ i }}
-            </a>
-            {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'q' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}"
-                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
-                <i class="fas fa-chevron-right text-[10px]"></i>
-            </a>
-            {% else %}
+        <div class="flex items-center gap-1">
+            {% for i in paginator.page_range %}
+            {% if page_obj.number == i %}
             <span
-                class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-600 cursor-not-allowed">
-                <i class="fas fa-chevron-right text-[10px]"></i>
+                class="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-600 text-white font-black text-xs shadow-lg shadow-indigo-100">
+                {{ i }}
             </span>
-            {% endif %}
+            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %} <a
+                href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'q' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}"
+                class="flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-400 hover:border-indigo-200 hover:text-indigo-600 transition-all font-black text-xs">
+                {{ i }}
+                </a>
+                {% endif %}
+                {% endfor %}
+        </div>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'q' %}&{{ key }}={{ value|urlencode }}{% endif %}{% endfor %}"
+            class="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 hover:bg-slate-100 hover:text-indigo-600 transition-all shadow-sm">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+        </a>
+        {% else %}
+        <span
+            class="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50/50 border border-slate-50 text-slate-200 cursor-not-allowed">
+            <i class="fas fa-chevron-right text-[10px]"></i>
+        </span>
+        {% endif %}
     </nav>
 </div>
 {% endif %}

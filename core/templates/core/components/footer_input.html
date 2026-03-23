@@ -1,7 +1,7 @@
 <!-- Footer / Input Area -->
 <footer
-    class="px-3 py-2 md:p-4 fixed md:relative bottom-0 left-0 right-0 z-20 pb-4 md:pb-4 bg-gradient-to-t from-harvey-bg/95 via-harvey-bg/80 to-transparent pt-6 md:pt-4 md:bg-none mobile-safe-bottom">
-    <div class="max-w-4xl mx-auto glass-panel rounded-xl p-2 shadow-2xl border border-white/10 flex flex-col gap-2">
+    class="px-3 py-2 md:p-4 fixed md:relative bottom-0 left-0 right-0 z-20 pb-4 md:pb-4 bg-gradient-to-t from-slate-50/95 via-slate-50/80 to-transparent pt-6 md:pt-4 md:bg-none mobile-safe-bottom">
+    <div class="max-w-4xl mx-auto glass-panel rounded-2xl p-2.5 flex flex-col gap-2.5">
 
         <!-- File Previews (Hidden by default) -->
         <div id="file-previews" class="flex flex-wrap gap-2 px-2 hidden">
@@ -9,36 +9,48 @@
         </div>
 
         <!-- Copilot Action Chips -->
-        <div class="flex gap-2 overflow-x-auto px-2 pb-1 scrollbar-hide text-xs md:text-sm whitespace-nowrap">
+        <div class="flex gap-2 overflow-x-auto px-2 pb-1 scrollbar-hide text-[11px] md:text-xs whitespace-nowrap">
             {% if user.role == 'manager' or user.role == 'org_admin' %}
-                <button onclick="document.getElementById('user-input').value='Show me pending leave approvals'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Review Pending Leaves</button>
+            <button
+                onclick="document.getElementById('user-input').value='Show me pending leave approvals'; document.getElementById('send-btn').click();"
+                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Review
+                Pending Leaves</button>
             {% endif %}
-            <button onclick="document.getElementById('user-input').value='Apply for leave'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Apply for Leave</button>
-            <button onclick="document.getElementById('user-input').value='Check my leave balance'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">Check Leave Balance</button>
-            <button onclick="document.getElementById('user-input').value='What are the IT policies?'; document.getElementById('send-btn').click();" class="text-gray-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-harvey-primary/20 hover:border-harvey-primary transition-all shadow-sm">View HR Policies</button>
+            <button
+                onclick="document.getElementById('user-input').value='Apply for leave'; document.getElementById('send-btn').click();"
+                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Apply
+                for Leave</button>
+            <button
+                onclick="document.getElementById('user-input').value='Check my leave balance'; document.getElementById('send-btn').click();"
+                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Check
+                Leave Balance</button>
+            <button
+                onclick="document.getElementById('user-input').value='What are the HR policies?'; document.getElementById('send-btn').click();"
+                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">View
+                HR Policies</button>
         </div>
 
         <div class="flex items-center gap-2">
             <!-- File Upload -->
             <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" />
             <button id="upload-btn"
-                class="w-8 h-8 md:w-10 md:h-10 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-all flex items-center justify-center shrink-0"
+                class="w-9 h-9 md:w-10 md:h-10 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-all flex items-center justify-center shrink-0"
                 title="Upload Document">
                 <i class="fas fa-paperclip text-sm md:text-base"></i>
             </button>
 
-            <!-- Input: font-size MUST be >= 16px (text-base) to prevent iOS auto-zoom -->
-            <input id="user-input" type="text" placeholder="Ask Harvey..." style="font-size: 16px;"
-                class="flex-1 min-w-0 bg-transparent border-0 text-white placeholder-gray-500 focus:ring-0 focus:outline-none px-2 py-2 md:py-3" />
+            <!-- Input -->
+            <input id="user-input" type="text" placeholder="Message Harvey..." style="font-size: 16px;"
+                class="flex-1 min-w-0 bg-transparent border-0 text-slate-900 font-medium placeholder-slate-400 focus:ring-0 focus:outline-none px-2 py-2 md:py-3" />
 
             <!-- Send Button -->
             <button id="send-btn"
-                class="bg-harvey-primary hover:bg-harvey-accent text-white w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center shadow-lg shadow-harvey-primary/20 transition-all hover:scale-105 active:scale-95 group shrink-0">
+                class="bg-slate-900 hover:bg-slate-800 text-white w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shadow-lg transition-all hover:scale-105 active:scale-95 group shrink-0">
                 <i class="fas fa-arrow-up group-hover:-translate-y-0.5 transition-transform text-sm md:text-base"></i>
             </button>
         </div>
     </div>
-    <div class="text-center mt-2 text-[10px] text-gray-600 font-medium">
-        Project Harvey AI • Please verify important policy details with HR.
+    <div class="text-center mt-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+        Harvey AI • Secure HR Workforce Partner
     </div>
 </footer>

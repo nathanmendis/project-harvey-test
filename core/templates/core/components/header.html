@@ -1,47 +1,46 @@
+{% load static %}
 <!-- Header -->
 <header
-    class="glass-panel z-20 flex justify-between items-center py-3 sm:py-4 px-4 sm:px-6 relative shadow-lg border-b-0 border-white/5">
+    class="glass-panel z-20 flex justify-between items-center py-2.5 sm:py-3 px-4 sm:px-6 relative shadow-sm border-b border-slate-200">
     <div class="flex items-center gap-2 sm:gap-3">
-        <div
-            class="h-8 w-8 sm:h-10 sm:w-10 bg-harvey-primary/20 border border-harvey-primary/30 rounded-xl flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-robot text-harvey-primary text-lg sm:text-xl"></i>
-        </div>
+        <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey" 
+            class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl shadow-sm object-contain">
         <div>
-            <div class="text-base sm:text-lg font-bold tracking-wide">Harvey</div>
+            <div class="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-none">Harvey</div>
             <div
-                class="text-[10px] sm:text-xs text-harvey-primary font-medium tracking-wider uppercase hidden sm:block">
+                class="text-[9px] sm:text-[10px] text-slate-400 font-bold tracking-widest uppercase hidden sm:block mt-0.5">
                 AI HR Assistant</div>
         </div>
     </div>
     <div class="relative" id="user-menu-container">
         <button id="user-menu-btn"
-            class="flex items-center gap-3 hover:bg-white/5 py-2 px-3 rounded-xl transition-all border border-transparent hover:border-white/5 focus:outline-none focus:ring-2 focus:ring-harvey-primary/50">
+            class="flex items-center gap-2.5 hover:bg-slate-100 py-1.5 px-2 rounded-xl transition-all border border-transparent hover:border-slate-200 focus:outline-none">
             <div
-                class="w-10 h-10 md:w-8 md:h-8 rounded-full bg-gradient-to-tr from-harvey-primary to-harvey-accent flex items-center justify-center text-sm md:text-xs font-bold shadow-lg shadow-harvey-primary/20">
+                class="w-8 h-8 md:w-7 md:h-7 rounded-full bg-slate-900 flex items-center justify-center text-xs font-bold text-white shadow-md">
                 {{ user.username|make_list|first|upper }}
             </div>
-            <span class="text-sm text-gray-300 hidden md:block font-medium">{{ user.username }}</span>
-            <i class="fas fa-chevron-down text-sm md:text-xs text-gray-500 ml-1 transition-transform duration-200"
+            <span class="text-xs text-slate-600 hidden md:block font-bold">{{ user.username }}</span>
+            <i class="fas fa-chevron-down text-[10px] text-slate-400 ml-0.5 transition-transform duration-200"
                 id="menu-arrow"></i>
         </button>
 
         <!-- Dropdown Menu -->
         <div id="user-dropdown"
-            class="absolute right-0 top-full mt-2 w-48 glass-panel rounded-xl shadow-2xl py-2 hidden opacity-0 transform scale-95 transition-all duration-200 origin-top-right z-50 border border-white/10">
+            class="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-2xl py-2 hidden opacity-0 transform scale-95 transition-all duration-200 origin-top-right z-50">
 
             {% if user.is_superuser or user.role in "org_admin,hr,manager" %}
             <a href="{% url 'admin_dashboard' %}"
-                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-colors">
-                <i class="fas fa-tachometer-alt w-4 text-harvey-primary"></i>
+                class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                <i class="fas fa-chart-pie w-4 text-indigo-500"></i>
                 Dashboard
             </a>
-            <div class="h-px bg-white/10 my-1 mx-2"></div>
+            <div class="h-px bg-slate-100 my-1 mx-2"></div>
             {% endif %}
 
             <form method="POST" action="{% url 'logout' %}" class="block">
                 {% csrf_token %}
                 <button type="submit"
-                    class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-colors text-left">
+                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors text-left font-bold">
                     <i class="fas fa-sign-out-alt w-4"></i>
                     Logout
                 </button>

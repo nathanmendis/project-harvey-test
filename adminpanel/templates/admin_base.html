@@ -18,39 +18,39 @@
     }
 
     .hero-pattern {
-      background-color: var(--color-harvey-bg);
+      background-color: #f8fafc;
       background-image:
-        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.05) 0, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(31, 41, 55, 0.5) 0, transparent 50%);
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0, transparent 50%);
     }
 
     .glass-card {
-      background: rgba(31, 41, 55, 0.3);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     }
 
     /* Sidebar - Professional & Minimalist */
     .sidebar {
-      background: #0f172a;
-      /* Solid dark for more professional feel */
-      border-right: 1px solid rgba(255, 255, 255, 0.03);
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
     }
 
     .sidebar a.active {
-      background: rgba(6, 182, 212, 0.08);
-      color: var(--color-harvey-primary);
-      border-left: 3px solid var(--color-harvey-primary);
+      background: #f5f3ff; /* indigo-50 */
+      color: #4f46e5; /* indigo-600 */
+      border-right: 3px solid #4f46e5;
     }
 
     .sidebar a:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.02);
-      color: white;
+      background: #f8fafc;
+      color: #0f172a;
     }
 
     /* Custom Scrollbar for Sidebar */
     .custom-scrollbar::-webkit-scrollbar {
-      width: 3px;
+      width: 4px;
     }
 
     .custom-scrollbar::-webkit-scrollbar-track {
@@ -58,78 +58,83 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: #e2e8f0;
       border-radius: 20px;
+    }
+
+    /* Global Form Field Visibility Fix */
+    input, select, textarea {
+      color: #0f172a !important; /* slate-900 */
+    }
+    input::placeholder, textarea::placeholder {
+      color: #94a3b8 !important; /* slate-400 */
     }
   </style>
 </head>
 
-<body class="hero-pattern text-white h-screen overflow-hidden flex flex-col">
+<body class="hero-pattern text-slate-900 h-screen overflow-hidden flex flex-col">
 
   <div class="flex flex-1 overflow-hidden relative">
 
     <!-- Backdrop (Mobile Only) -->
     <div id="sidebar-backdrop" onclick="toggleSidebar()"
-      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden transition-opacity duration-300 md:hidden"></div>
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden transition-opacity duration-300 md:hidden"></div>
 
     <!-- Sidebar: Fixed on Mobile, Static on Desktop -->
     <aside id="sidebar"
-      class="sidebar w-60 flex-shrink-0 flex flex-col justify-between absolute inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 h-full">
+      class="sidebar w-64 flex-shrink-0 flex flex-col justify-between absolute inset-y-0 left-0 z-40 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 h-full shadow-2xl md:shadow-none">
       <div>
-        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <div
-              class="h-7 w-7 bg-harvey-primary/10 rounded-lg flex items-center justify-center border border-harvey-primary/20">
-              <i class="fas fa-robot text-harvey-primary text-xs"></i>
-            </div>
-            <h2 class="text-lg font-bold tracking-tight text-white/90">Harvey</h2>
+            <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey" class="h-9 w-9 rounded-xl shadow-sm object-contain">
+            <h2 class="text-xl font-black tracking-tight text-slate-900">Harvey</h2>
           </div>
           <!-- Close Button (Mobile Only) -->
-          <button onclick="toggleSidebar()" class="text-gray-500 hover:text-white md:hidden">
-            <i class="fas fa-times"></i>
+          <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600 md:hidden">
+            <i class="fas fa-times text-lg"></i>
           </button>
         </div>
 
-        <div class="px-5 mt-4 mb-2">
-          <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-white/5 border border-white/5">
+        <div class="px-5 mt-6 mb-2">
+          <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-2xl bg-white border border-slate-100 shadow-sm">
             <div class="flex items-center gap-3 overflow-hidden">
               <div
-                class="w-6 h-6 rounded-full bg-harvey-primary/10 flex items-center justify-center text-harvey-primary text-[10px] shrink-0 border border-harvey-primary/10">
-                <i class="fas fa-user text-[10px]"></i>
+                class="w-7 h-7 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] shrink-0 font-bold">
+                {{ user.username|make_list|first|upper }}
               </div>
-              <span class="text-[11px] font-semibold text-gray-300 truncate">{{ user.username }}</span>
+              <span class="text-xs font-bold text-slate-700 truncate">{{ user.username }}</span>
             </div>
             <form method="POST" action="{% url 'logout' %}">
               {% csrf_token %}
               <button type="submit"
-                class="text-gray-500 hover:text-red-400 transition-colors flex items-center justify-center w-6 h-6 rounded hover:bg-white/5"
+                class="text-slate-400 hover:text-red-500 transition-colors flex items-center justify-center w-7 h-7 rounded-xl hover:bg-red-50"
                 title="Logout">
-                <i class="fas fa-power-off text-[10px]"></i>
+                <i class="fas fa-power-off text-xs"></i>
               </button>
             </form>
           </div>
         </div>
 
-        <nav class="mt-4 px-3 flex-1 overflow-y-auto custom-scrollbar space-y-7">
+        <nav class="mt-6 px-4 flex-1 overflow-y-auto custom-scrollbar space-y-8">
 
           <!-- Main -->
           <div>
-            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Main</h3>
-            <ul class="space-y-1">
+            <h3 class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Main</h3>
+            <ul class="space-y-1.5">
               <li>
                 <a href="{% url 'admin_dashboard' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'admin_dashboard' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'admin_dashboard' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-chart-line w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Dashboard</span>
+                    class="fas fa-chart-line w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'admin_dashboard' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Dashboard</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'chat_view' %}"
-                  class="flex items-center px-4 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 group">
+                  class="flex items-center px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200 group">
                   <i
-                    class="fas fa-comment-alt w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">AI Agent</span>
+                    class="fas fa-sparkles w-5 text-center mr-3 text-sm text-slate-400 group-hover:text-indigo-600 transition-colors"></i>
+                  <span class="font-bold text-[13px]">AI HR Agent</span>
                 </a>
               </li>
             </ul>
@@ -137,22 +142,22 @@
 
           <!-- HR & Recruitment -->
           <div>
-            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Recruitment</h3>
-            <ul class="space-y-1">
+            <h3 class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Recruitment</h3>
+            <ul class="space-y-1.5">
               <li>
                 <a href="{% url 'recruitment_dashboard' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'recruitment' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'recruitment' in request.path %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-id-card w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Candidates</span>
+                    class="fas fa-id-card w-5 text-center mr-3 text-sm {% if 'recruitment' in request.path %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Candidates</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'leaves' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'leaves' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'leaves' in request.path %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-calendar-day w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Leaves</span>
+                    class="fas fa-calendar-day w-5 text-center mr-3 text-sm {% if 'leaves' in request.path %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Leaves</span>
                 </a>
               </li>
             </ul>
@@ -160,22 +165,22 @@
 
           <!-- Team & Knowledge -->
           <div>
-            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">Organization</h3>
-            <ul class="space-y-1">
+            <h3 class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Organization</h3>
+            <ul class="space-y-1.5">
               <li>
                 <a href="{% url 'manage_employees' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_employees' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_employees' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-user-friends w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Employees</span>
+                    class="fas fa-user-friends w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'manage_employees' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Employees</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'manage_invites' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_invites' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_invites' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-envelope-open-text w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Invites</span>
+                    class="fas fa-envelope-open-text w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'manage_invites' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Invites</span>
                 </a>
               </li>
             </ul>
@@ -184,47 +189,46 @@
           <!-- Systems & AI -->
           {% if user.is_org_admin %}
           <div>
-            <h3 class="px-4 text-[9px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">System and Ingetration
-              Management</h3>
-            <ul class="space-y-1">
+            <h3 class="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Administration</h3>
+            <ul class="space-y-1.5">
               <li>
                 <a href="{% url 'manage_policies' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'manage_policies' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-file-invoice w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Policies</span>
+                    class="fas fa-file-invoice w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'manage_policies' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Policies</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'rag_dashboard' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'rag' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'rag' in request.path %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-brain w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">RAG Management</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'org_settings' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                  <i
-                    class="fas fa-sliders-h w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Settings</span>
+                    class="fas fa-brain w-5 text-center mr-3 text-sm {% if 'rag' in request.path %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">RAG Management</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'hrms_integration' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if request.resolver_match.url_name == 'hrms_integration' %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'hrms_integration' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-sync-alt w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">HRMS Sync</span>
+                    class="fas fa-sync-alt w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'hrms_integration' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">HRMS Sync</span>
                 </a>
               </li>
               <li>
                 <a href="{% url 'leave_settings' %}"
-                  class="flex items-center px-4 py-2 rounded-lg transition-all duration-200 group {% if 'settings/leaves' in request.path %}active text-white bg-white/5 shadow-inner{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if 'settings/leaves' in request.path %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
-                    class="fas fa-calendar-check w-5 text-center mr-3 text-sm opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                  <span class="font-medium text-[13px]">Leave Policies</span>
+                    class="fas fa-calendar-check w-5 text-center mr-3 text-sm {% if 'settings/leaves' in request.path %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Leave Policies</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'org_settings' %}"
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+                  <i
+                    class="fas fa-sliders-h w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'org_settings' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">Settings</span>
                 </a>
               </li>
             </ul>
@@ -234,52 +238,55 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-white/[0.03]">
-        <div class="flex justify-between items-center opacity-30">
-          <p class="text-[8px] uppercase tracking-widest">&copy; 2026 Harvey</p>
-          <span class="text-[8px] font-mono">v1.2.0</span>
+      <div class="px-6 py-5 border-t border-slate-50 bg-slate-50/50">
+        <div class="flex justify-between items-center opacity-40">
+          <p class="text-[9px] font-black uppercase tracking-widest text-slate-400">&copy; 2026 Harvey</p>
+          <span class="text-[9px] font-black text-slate-400">v1.2.0</span>
         </div>
       </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-harvey-bg/50">
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-slate-50/20">
 
       <!-- Mobile Header / Toggle -->
       <div
-        class="md:hidden p-4 flex items-center justify-between border-b border-white/5 bg-harvey-bg/80 backdrop-blur-md z-20 sticky top-0">
-        <button onclick="toggleSidebar()" class="text-harvey-muted hover:text-white transition-colors">
+        class="md:hidden p-4 flex items-center justify-between border-b border-slate-100 bg-white/80 backdrop-blur-md z-20 sticky top-0">
+        <button onclick="toggleSidebar()" class="text-slate-400 hover:text-indigo-600 transition-colors">
           <i class="fas fa-bars text-xl"></i>
         </button>
-        <span class="font-bold text-white">Dashboard</span>
+        <div class="flex items-center gap-2">
+            <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey" class="h-6 w-6 rounded-lg object-contain">
+            <span class="font-black text-slate-900 tracking-tight">Harvey Admin</span>
+        </div>
         <div class="w-6"></div> <!-- Spacer -->
       </div>
 
       <!-- Scrollable Content -->
-      <div class="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
+      <div class="flex-1 overflow-y-auto p-4 md:p-10 relative custom-scrollbar">
 
         <!-- Messages / Alerts -->
         {% if messages %}
-        <div class="mb-6 space-y-4 max-w-7xl mx-auto">
+        <div class="mb-8 space-y-4 max-w-7xl mx-auto">
           {% for message in messages %}
-          <div class="p-4 rounded-xl border flex items-center gap-3 backdrop-blur-md shadow-lg
-                      {% if message.tags == 'success' %}bg-green-500/10 border-green-500/20 text-green-400
-                      {% elif message.tags == 'error' %}bg-red-500/10 border-red-500/20 text-red-400
-                      {% elif message.tags == 'warning' %}bg-yellow-500/10 border-yellow-500/20 text-yellow-400
-                      {% else %}bg-blue-500/10 border-blue-500/20 text-blue-400{% endif %}">
+          <div class="p-4 rounded-2xl border flex items-center gap-3 backdrop-blur-md shadow-sm font-bold text-sm
+                      {% if message.tags == 'success' %}bg-emerald-50 border-emerald-100 text-emerald-600
+                      {% elif message.tags == 'error' %}bg-red-50 border-red-100 text-red-600
+                      {% elif message.tags == 'warning' %}bg-amber-50 border-amber-100 text-amber-600
+                      {% else %}bg-indigo-50 border-indigo-100 text-indigo-600{% endif %}">
 
-            {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
-            {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>
-            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
-            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+            {% if message.tags == 'success' %}<i class="fas fa-circle-check"></i>
+            {% elif message.tags == 'error' %}<i class="fas fa-circle-exclamation"></i>
+            {% elif message.tags == 'warning' %}<i class="fas fa-triangle-exclamation"></i>
+            {% else %}<i class="fas fa-circle-info"></i>{% endif %}
 
-            <span class="font-medium">{{ message }}</span>
+            <span>{{ message }}</span>
           </div>
           {% endfor %}
         </div>
         {% endif %}
 
-        <div class="max-w-7xl mx-auto pb-10">
+        <div class="max-w-7xl mx-auto pb-12">
           {% block content %}
           <!-- Page content gets injected here -->
           {% endblock %}

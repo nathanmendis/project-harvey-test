@@ -1,11 +1,12 @@
+{% load static %}
 <!-- Footer -->
-<footer class="bg-harvey-bg py-8 px-6 border-t border-white/5">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-            <i class="fas fa-robot text-harvey-primary"></i>
-            <span class="text-harvey-text font-semibold tracking-wide">Harvey</span>
+<footer class="bg-slate-50 py-10 px-6 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+        <div class="flex items-center gap-3">
+            <img src="{% static 'core/images/harvey_main_logo.png' %}" alt="Harvey Logo"
+                class="h-25 md:h-40 w-auto object-contain transition-all duration-300">
         </div>
-        <div class="text-harvey-muted text-sm font-light">
+        <div class="text-slate-500 text-sm font-medium">
             &copy; 2026 Project Harvey. All rights reserved.
         </div>
     </div>

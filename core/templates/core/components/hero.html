@@ -1,13 +1,14 @@
+{% load static %}
 <!-- Hero Section -->
 <main
     class="flex-1 hero-pattern relative overflow-hidden flex items-center justify-center pt-28 pb-16 px-4 md:py-32 md:px-6">
 
     <!-- Background Glows -->
     <div
-        class="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-harvey-primary/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+        class="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-cyan-300/40 rounded-full blur-3xl mix-blend-multiply pointer-events-none">
     </div>
     <div
-        class="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-harvey-accent/20 rounded-full blur-3xl mix-blend-screen pointer-events-none">
+        class="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-purple-300/40 rounded-full blur-3xl mix-blend-multiply pointer-events-none">
     </div>
 
     <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10 w-full mt-4 md:mt-0">
@@ -16,30 +17,30 @@
         <div class="space-y-6 md:space-y-8 animate-fade-in-up text-center lg:text-left w-full">
 
             <h1
-                class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight leading-tight text-white mb-2 max-w-[90vw] mx-auto lg:mx-0">
+                class="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight leading-tight text-slate-900 mb-2 max-w-[90vw] mx-auto lg:mx-0">
                 Your Intelligent <br class="hidden sm:block">
                 <span
-                    class="bg-clip-text text-transparent bg-gradient-to-r from-harvey-primary via-harvey-accent to-cyan-200 inline-block mt-2 sm:mt-0">Workforce
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500 inline-block mt-2 sm:mt-0">Workforce
                     Partner</span>
             </h1>
 
             <div
-                class="pt-4 md:pt-8 flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-x-4 sm:gap-y-2 text-harvey-muted text-xs sm:text-sm">
+                class="pt-4 md:pt-8 flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-x-4 sm:gap-y-2 text-slate-600 text-xs sm:text-sm font-medium">
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-harvey-primary"></i> Agentic Tool Router
+                    <i class="fas fa-check-circle text-cyan-500"></i> Agentic Tool Router
                 </div>
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-harvey-primary"></i> RAG Knowledge Base
+                    <i class="fas fa-check-circle text-indigo-500"></i> RAG Knowledge Base
                 </div>
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-harvey-primary"></i> Employee Profiles
+                    <i class="fas fa-check-circle text-purple-500"></i> Employee Profiles
                 </div>
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-harvey-primary"></i> HRMS Integrations
+                    <i class="fas fa-check-circle text-pink-500"></i> HRMS Integrations
                 </div>
             </div>
 
-            <p class="text-lg md:text-xl text-harvey-muted leading-relaxed max-w-lg mx-auto lg:mx-0">
+            <p class="text-lg md:text-xl text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 An AI-powered HR platform that dynamically syncs with your tools, understands your company policies via
                 RAG, and automatically manages your staff.
             </p>
@@ -48,20 +49,20 @@
         <!-- Right Visual -->
         <div class="relative hidden lg:block">
             <div
-                class="absolute inset-0 bg-gradient-to-tr from-harvey-primary to-harvey-accent rounded-3xl blur-2xl opacity-10 transform rotate-6 scale-95">
+                class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-purple-400 rounded-3xl blur-2xl opacity-20 transform rotate-6 scale-95">
             </div>
             <div
-                class="glass-card rounded-3xl p-6 border border-white/5 shadow-2xl relative transform transition-transform hover:-translate-y-2 duration-500 bg-harvey-surface/40 backdrop-blur-2xl">
+                class="glass-card rounded-3xl p-6 border border-slate-200 shadow-2xl relative transform transition-transform hover:-translate-y-2 duration-500 bg-white/70 backdrop-blur-2xl">
                 <!-- Mock Chat Interface -->
                 <div class="space-y-4">
-                    <div class="flex items-center gap-4 border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-4 border-b border-slate-200 pb-4">
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-br from-harvey-primary to-harvey-accent flex items-center justify-center shadow-lg shadow-harvey-primary/20">
-                            <i class="fas fa-robot text-white text-sm"></i>
+                            class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg shadow-indigo-100 p-1.5 border border-slate-100">
+                            <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey" class="w-full h-full object-contain">
                         </div>
                         <div>
-                            <h3 class="font-semibold text-white">Harvey</h3>
-                            <p class="text-xs text-harvey-accent">Always online</p>
+                            <h3 class="font-semibold text-slate-900">Harvey</h3>
+                            <p class="text-xs text-indigo-600 font-medium">Always online</p>
                         </div>
                     </div>
 
@@ -69,7 +70,7 @@
                         <!-- User Message -->
                         <div class="flex justify-end">
                             <div
-                                class="bg-harvey-primary text-harvey-bg px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-lg font-medium">
+                                class="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-md font-medium">
                                 How many leave days do I have left?
                             </div>
                         </div>
@@ -77,8 +78,8 @@
                         <!-- AI Message -->
                         <div class="flex justify-start">
                             <div
-                                class="bg-harvey-elevated text-harvey-text px-4 py-3 rounded-2xl rounded-tl-sm text-sm max-w-xs border border-white/5 shadow-lg">
-                                You have <span class="text-harvey-accent font-semibold">12 days</span> of annual leave
+                                class="bg-white text-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm max-w-xs border border-slate-200 shadow-md">
+                                You have <span class="text-indigo-600 font-semibold">12 days</span> of annual leave
                                 remaining for this year. Would you like me to help you submit a request?
                             </div>
                         </div>
@@ -86,7 +87,7 @@
                         <!-- User Message -->
                         <div class="flex justify-end">
                             <div
-                                class="bg-harvey-primary text-harvey-bg px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-lg font-medium">
+                                class="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-md font-medium">
                                 Yes, for next Monday and Tuesday.
                             </div>
                         </div>
@@ -94,13 +95,13 @@
                         <!-- AI Reply Animation -->
                         <div class="flex justify-start items-center gap-2">
                             <div
-                                class="bg-harvey-elevated px-4 py-3 rounded-2xl rounded-tl-sm border border-white/5 shadow-lg">
+                                class="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-slate-200 shadow-md">
                                 <div class="flex gap-1">
-                                    <span class="w-1.5 h-1.5 bg-harvey-muted rounded-full animate-bounce"></span>
+                                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
                                     <span
-                                        class="w-1.5 h-1.5 bg-harvey-muted rounded-full animate-bounce delay-100"></span>
+                                        class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
                                     <span
-                                        class="w-1.5 h-1.5 bg-harvey-muted rounded-full animate-bounce delay-200"></span>
+                                        class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
                                 </div>
                             </div>
                         </div>
@@ -109,11 +110,11 @@
                     <!-- Input Area Mock -->
                     <div class="relative">
                         <div
-                            class="h-12 bg-harvey-bg/50 rounded-xl border border-white/5 w-full flex items-center px-4 text-sm text-harvey-muted">
+                            class="h-12 bg-slate-50 rounded-xl border border-slate-200 w-full flex items-center px-4 text-sm text-slate-500">
                             Type your message...
                         </div>
                         <div
-                            class="absolute right-2 top-2 h-8 w-8 bg-harvey-primary rounded-lg flex items-center justify-center text-harvey-bg text-xs">
+                            class="absolute right-2 top-2 h-8 w-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white text-xs shadow-md shadow-indigo-500/20">
                             <i class="fas fa-arrow-up"></i>
                         </div>
                     </div>

@@ -1,42 +1,88 @@
 {% extends 'admin_base.html' %}
 
 {% block content %}
-<div class="py-8 max-w-4xl mx-auto">
-    <div class="mb-6">
+<div class="py-12 max-w-5xl mx-auto px-4">
+    <div class="mb-10">
         <a href="{% url 'interviews' %}"
-            class="text-harvey-primary hover:text-harvey-accent transition-colors text-sm font-medium">
-            ← Back to Interviews
+            class="text-slate-400 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-3 group">
+            <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+            <span>Back to Interviews</span>
         </a>
     </div>
 
-    <div class="glass-card rounded-2xl p-8 border-white/10">
-        <div class="flex items-start justify-between mb-6">
-            <div>
-                <h1 class="text-3xl font-extrabold text-white mb-2">Interview Details</h1>
-                <p class="text-harvey-primary text-sm">{{ interview.candidate.name }}</p>
-            </div>
-            <span class="px-4 py-2 rounded-full text-sm font-bold
-        {% if interview.status == 'scheduled' %}bg-blue-500/20 text-blue-400
-        {% elif interview.status == 'completed' %}bg-green-500/20 text-green-400
-        {% elif interview.status == 'cancelled' %}bg-red-500/20 text-red-400
-        {% else %}bg-gray-500/20 text-gray-400{% endif %}">
-                {{ interview.status|title }}
-            </span>
-        </div>
+    <div class="bg-white rounded-[40px] p-12 border border-slate-100 shadow-xl relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-32 -right-32 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl opacity-50"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Candidate</h3>
-                <p class="text-white">{{ interview.candidate.name }}</p>
-                <p class="text-gray-400 text-sm">{{ interview.candidate.email }}</p>
+        <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-start justify-between gap-8 mb-12 pb-10 border-b border-slate-50">
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 border border-indigo-100 shadow-sm">
+                        <i class="fas fa-calendar-alt text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight mb-2">Interview Details</h1>
+                        <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em]">{{ interview.candidate.name }} • Interview</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-end gap-3">
+                    <span class="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider border shadow-sm
+                    {% if interview.status == 'scheduled' %}bg-blue-50 text-blue-600 border-blue-100
+                    {% elif interview.status == 'completed' %}bg-emerald-50 text-emerald-600 border-emerald-100
+                    {% elif interview.status == 'cancelled' %}bg-rose-50 text-rose-600 border-rose-100
+                    {% else %}bg-slate-50 text-slate-500 border-slate-100{% endif %}">
+                        {{ interview.status|upper }}
+                    </span>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</p>
+                </div>
             </div>
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Interviewer</h3>
-                <p class="text-white">{{ interview.interviewer.username }}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="space-y-4 p-8 bg-slate-50/50 rounded-[32px] border border-slate-100/50">
+                    <div class="flex items-center gap-3 text-indigo-600">
+                        <i class="fas fa-user-circle text-lg"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest">Candidate</h3>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-lg font-black text-slate-900">{{ interview.candidate.name }}</p>
+                        <p class="text-xs font-bold text-slate-500">{{ interview.candidate.email }}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 p-8 bg-slate-50/50 rounded-[32px] border border-slate-100/50">
+                    <div class="flex items-center gap-3 text-indigo-600">
+                        <i class="fas fa-user-shield text-lg"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest">Interviewer</h3>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-lg font-black text-slate-900">{{ interview.interviewer.username }}</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Assigned To</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 p-8 bg-indigo-600 rounded-[32px] shadow-2xl shadow-indigo-100 text-white md:col-span-1">
+                    <div class="flex items-center gap-3 text-indigo-200">
+                        <i class="fas fa-clock text-lg"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest">Scheduled Time</h3>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-lg font-black leading-tight">{{ interview.date_time|date:"l, F d, Y" }}</p>
+                        <p class="text-xs font-bold text-indigo-200 uppercase tracking-widest">{{ interview.date_time|date:"g:i A" }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="md:col-span-2">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Scheduled Time</h3>
-                <p class="text-white">{{ interview.date_time|date:"l, F d, Y - g:i A" }}</p>
+
+            <div class="mt-12 pt-10 border-t border-slate-50 flex items-center justify-between">
+                 <div class="flex items-center gap-4">
+                     <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                         <i class="fas fa-shield-halved text-xs"></i>
+                     </div>
+                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">For internal review only. Access restricted to authorized personnel.</p>
+                 </div>
+                 <button class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-slate-100">
+                     Edit Interview
+                 </button>
             </div>
         </div>
     </div>
