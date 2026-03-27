@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from core.models import GraphRun, Interview, Candidate, LeaveRequest, Organization, User
+
 
 def landing_page(request):
     """Render the public landing page."""
@@ -10,6 +12,41 @@ def landing_page(request):
             return redirect('chat_view')
         else:
             return render(request, 'core/no_access.html')
+
+    # --- Live Branding Stats ---
+    # We define "Tasks completed" as the sum of AI runs, HR operations, and processed candidates
+    ai_success = GraphRun.objects.filter(status='success').count()
+    interviews = Interview.objects.count()
+    candidates = Candidate.objects.count()
+    leaves = LeaveRequest.objects.count()
+    
+    # Base count for branding to imply scale
+    base_count = 0 
+    total_tasks = base_count + ai_success + (interviews * 5) + (candidates * 2) + leaves
+    
+    live_stats = [
+        {
+            "label": "Tasks Completed", 
+            "value": f"{total_tasks:,}+", 
+            "icon": "fa-bolt", 
+            "color": "text-cyan-600",
+            "bg": "bg-cyan-50"
+        },
+        {
+            "label": "Organizations", 
+            "value": Organization.objects.count(), 
+            "icon": "fa-building", 
+            "color": "text-indigo-600",
+            "bg": "bg-indigo-50"
+        },
+        {
+            "label": "Active Users", 
+            "value": User.objects.filter(is_active=True).count(), 
+            "icon": "fa-users", 
+            "color": "text-purple-600",
+            "bg": "bg-purple-50"
+        },
+    ]
 
     feature_categories = [
         {
@@ -69,4 +106,7 @@ def landing_page(request):
         }
     ]
 
-    return render(request, "core/landing_page.html", {"feature_categories": feature_categories})
+    return render(request, "core/landing_page.html", {
+        "feature_categories": feature_categories,
+        "live_stats": live_stats
+    })

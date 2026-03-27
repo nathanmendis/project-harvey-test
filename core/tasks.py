@@ -243,11 +243,13 @@ def send_daily_manager_digest(self):
 @shared_task(bind=True, max_retries=1)
 def send_weekly_employee_summary(self):
     """
-    Sends a weekly email to employees summarizing their approved leaves for the week.
+    Sends a weekly email to employees summarizing their accomplishments for the week.
     Designed for 4:00 PM Friday execution.
     """
     from core.models.leaves import LeaveRequest
     from core.models.organization import User
+    from core.models.chatbot import GraphRun
+    from core.models.recruitment import Interview
     from integrations.google.gmail import GmailService
     from django.utils import timezone
     import datetime
@@ -264,21 +266,50 @@ def send_weekly_employee_summary(self):
     start_of_week = timezone.now().date() - datetime.timedelta(days=timezone.now().weekday())
     
     for user in users:
+        # 1. Approved Leaves
         leaves_this_week = LeaveRequest.objects.filter(
             employee=user, 
             status='approved',
             start_date__gte=start_of_week
         ).count()
         
-        if leaves_this_week > 0:
-            subject = "Your Weekly Leave Summary"
-            body = f"Hi {user.name or user.username},\n\nJust a quick summary for this week:\nYou had {leaves_this_week} approved leave request(s) starting this week.\n\nEnjoy your weekend!"
+        # 2. AI Tasks completed
+        ai_tasks = GraphRun.objects.filter(
+            user=user,
+            status='success',
+            started_at__date__gte=start_of_week
+        ).count()
+        
+        # 3. Interviews conducted
+        interviews_count = Interview.objects.filter(
+            interviewer=user,
+            date_time__date__gte=start_of_week
+        ).count()
+        
+        if leaves_this_week > 0 or ai_tasks > 0 or interviews_count > 0:
+            from django.template.loader import render_to_string
+            from django.utils.html import strip_tags
+            
+            end_of_week = start_of_week + datetime.timedelta(days=6)
+            
+            context = {
+                'user_name': user.name or user.username,
+                'start_date': start_of_week.strftime("%b %d"),
+                'end_date': end_of_week.strftime("%b %d, %Y"),
+                'ai_tasks': ai_tasks,
+                'interviews_count': interviews_count,
+                'leaves_this_week': leaves_this_week,
+            }
+            
+            html_content = render_to_string('emails/weekly_summary.html', context)
+            text_content = strip_tags(html_content)
             
             try:
                 gmail_service.send_email(
                     recipient_email=user.email,
-                    subject=subject,
-                    body=body
+                    subject=f"Weekly Performance Insight: {start_of_week.strftime('%b %d')}",
+                    body=text_content,
+                    html_content=html_content
                 )
                 count += 1
             except Exception as e:

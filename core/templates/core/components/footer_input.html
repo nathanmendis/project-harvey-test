@@ -11,23 +11,11 @@
         <!-- Copilot Action Chips -->
         <div class="flex gap-2 overflow-x-auto px-2 pb-1 scrollbar-hide text-[11px] md:text-xs whitespace-nowrap">
             {% if user.role == 'manager' or user.role == 'org_admin' %}
-            <button
-                onclick="document.getElementById('user-input').value='Show me pending leave approvals'; document.getElementById('send-btn').click();"
-                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Review
-                Pending Leaves</button>
+                <button onclick="document.getElementById('user-input').value='Show me pending leave approvals'; document.getElementById('send-btn').click();" class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Review Pending Leaves</button>
             {% endif %}
-            <button
-                onclick="document.getElementById('user-input').value='Apply for leave'; document.getElementById('send-btn').click();"
-                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Apply
-                for Leave</button>
-            <button
-                onclick="document.getElementById('user-input').value='Check my leave balance'; document.getElementById('send-btn').click();"
-                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Check
-                Leave Balance</button>
-            <button
-                onclick="document.getElementById('user-input').value='What are the HR policies?'; document.getElementById('send-btn').click();"
-                class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">View
-                HR Policies</button>
+            <button onclick="document.getElementById('user-input').value='Apply for leave'; document.getElementById('send-btn').click();" class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Apply for Leave</button>
+            <button onclick="document.getElementById('user-input').value='Check my leave balance'; document.getElementById('send-btn').click();" class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">Check Leave Balance</button>
+            <button onclick="document.getElementById('user-input').value='What are the HR policies?'; document.getElementById('send-btn').click();" class="text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full hover:bg-white hover:border-indigo-400 hover:text-indigo-600 transition-all font-bold shadow-sm">View HR Policies</button>
         </div>
 
         <div class="flex items-center gap-2">

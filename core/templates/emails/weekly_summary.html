@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+            width: 100% !important;
+            background-color: #f8fafc;
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        table,
+        td {
+            border-collapse: collapse !important;
+            border-spacing: 0;
+        }
+
+        .glass-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-badge {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6366f1;
+            background-color: #eef2ff;
+            padding: 4px 12px;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #f8fafc; padding: 40px 0;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <table class="glass-card" role="presentation" width="100%" style="max-width: 600px; overflow: hidden;">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center"
+                            style="padding: 40px 40px 20px 40px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+
+                            <h1
+                                style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">
+                                Weekly Insight Report</h1>
+                            <p style="margin: 10px 0 0 0; color: #94a3b8; font-size: 14px; font-weight: 500;">Harvey
+                                Dynamic Summary • {{ start_date }} - {{ end_date }}</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2
+                                style="margin: 0 0 10px 0; color: #0f172a; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">
+                                Hello, {{ user_name }}!</h2>
+                            <p style="margin: 0 0 30px 0; color: #64748b; font-size: 16px; line-height: 1.6;">Excellent
+                                work this week. Harvey has aggregated your key contributions and automation metrics
+                                below.</p>
+
+                            <!-- Weekly Stats Table -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"
+                                style="border: 1px solid #f1f5f9; border-radius: 16px; overflow: hidden;">
+                                <tr style="background-color: #f8fafc;">
+                                    <th align="left"
+                                        style="padding: 16px; color: #94a3b8; font-size: 12px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #f1f5f9;">
+                                        Activity Metric</th>
+                                    <th align="center"
+                                        style="padding: 16px; color: #94a3b8; font-size: 12px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #f1f5f9;">
+                                        Count</th>
+                                    <th align="right"
+                                        style="padding: 16px; color: #94a3b8; font-size: 12px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #f1f5f9;">
+                                        Impact</th>
+                                </tr>
+
+                                {% if ai_tasks > 0 %}
+                                <tr>
+                                    <td style="padding: 16px; border-bottom: 1px solid #f1f5f9;">
+                                        <div style="font-weight: 700; color: #1e293b; font-size: 14px;">AI Automations
+                                        </div>
+                                        <div style="font-size: 12px; color: #94a3b8;">Graph-based tool executions</div>
+                                    </td>
+                                    <td align="center"
+                                        style="padding: 16px; border-bottom: 1px solid #f1f5f9; font-weight: 800; color: #0891b2; font-size: 18px;">
+                                        {{ ai_tasks }}</td>
+                                    <td align="right" style="padding: 16px; border-bottom: 1px solid #f1f5f9;"><span
+                                            style="color: #06b6d4; font-size: 12px; font-weight: 700;">Automation</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                                {% if interviews_count > 0 %}
+                                <tr>
+                                    <td style="padding: 16px; border-bottom: 1px solid #f1f5f9;">
+                                        <div style="font-weight: 700; color: #1e293b; font-size: 14px;">Interviews
+                                            Conducted</div>
+                                        <div style="font-size: 12px; color: #94a3b8;">Recruitment pipeline actions</div>
+                                    </td>
+                                    <td align="center"
+                                        style="padding: 16px; border-bottom: 1px solid #f1f5f9; font-weight: 800; color: #4f46e5; font-size: 18px;">
+                                        {{ interviews_count }}</td>
+                                    <td align="right" style="padding: 16px; border-bottom: 1px solid #f1f5f9;"><span
+                                            style="color: #6366f1; font-size: 12px; font-weight: 700;">Hiring</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                                {% if leaves_this_week > 0 %}
+                                <tr>
+                                    <td style="padding: 16px;">
+                                        <div style="font-weight: 700; color: #1e293b; font-size: 14px;">Leave Approvals
+                                        </div>
+                                        <div style="font-size: 12px; color: #94a3b8;">Work-life balance sync</div>
+                                    </td>
+                                    <td align="center"
+                                        style="padding: 16px; font-weight: 800; color: #7c3aed; font-size: 18px;">
+                                        {{leaves_this_week }}</td>
+                                    <td align="right" style="padding: 16px;"><span
+                                            style="color: #8b5cf6; font-size: 12px; font-weight: 700;">Leave
+                                            Management</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </table>
+
+                            <p style="margin: 30px 0 0 0; color: #64748b; font-size: 15px; line-height: 1.7;">Your
+                                productivity helps make the workspace more efficient. Log in to your dashboard to view
+                                deeper insights or start new automation flows.</p>
+
+                            <!-- Button -->
+                            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0"
+                                style="margin-top: 30px;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="https://harvey.nathanmendis.in/adminpanel/dashboard/"
+                                            style="display: inline-block; padding: 16px 32px; background-color: #0f172a; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; letter-spacing: 0.5px;">View
+                                            Dashboard &rarr;</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center"
+                            style="padding: 40px; background-color: #fafafa; border-top: 1px solid #f1f5f9;">
+                            <p
+                                style="margin: 0; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                &copy; 2026 Harvey Intelligence Labs</p>
+                            <p style="margin: 8px 0 0 0; color: #cbd5e1; font-size: 10px;">Generated by Harvey Agentic
+                                Engine</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
