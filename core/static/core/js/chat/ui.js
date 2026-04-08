@@ -100,12 +100,14 @@ Harvey.UI = {
 
         const bubble = document.createElement("div");
         bubble.classList.add("p-4", "rounded-2xl", "leading-relaxed", "shadow-sm", "w-full", "prose-chat");
-        bubble.style.fontSize = "16px"; // Always 16px to prevent iOS auto-zoom and ensure readability
+        bubble.style.fontSize = "16px";
         bubble.classList.add(sender === "user" ? "chat-bubble-user" : "chat-bubble-ai");
         if (sender === "user") bubble.classList.add("text-white", "[&_a]:text-white", "[&_a]:underline-offset-2");
 
         // Format Content
         let formatted = text;
+
+        // 1. First Parse Markdown
         if (typeof marked !== 'undefined') {
             marked.setOptions({ breaks: true, gfm: true });
             formatted = marked.parse(text);
@@ -114,8 +116,35 @@ Harvey.UI = {
             formatted = Harvey.Utils.linkify(formatted);
         }
 
-        bubble.innerHTML = formatted;
+        // 2. Then Inject Attachment Cards (So they aren't escaped by Markdown)
+        const attachmentRegex = /\[Attached Resume: ([^|\]]+)\|?([^\]]*)\]/g;
+        formatted = formatted.replace(attachmentRegex, (match, path, url) => {
+            if (!url) return '';
+            const fileName = path.split('\\').pop().split('/').pop();
+            const isUser = sender === 'user';
+            const cardClass = isUser ? 'bg-white/10 border-white/20 text-white' : 'bg-slate-50 border-slate-100 text-slate-900';
+            const labelClass = isUser ? 'text-white/60' : 'text-slate-400';
+            const btnClass = isUser ? 'bg-white text-slate-900 hover:bg-indigo-50' : 'bg-slate-900 text-white hover:bg-slate-800';
 
+            return `
+                <div class="mt-4 p-4 rounded-2xl border flex items-center justify-between gap-4 ${cardClass} not-prose">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 ${isUser ? 'bg-white/20' : 'bg-indigo-50'} rounded-xl flex items-center justify-center ${isUser ? 'text-white' : 'text-indigo-600'}">
+                            <i class="fas fa-file-pdf text-lg"></i>
+                        </div>
+                        <div class="flex-grow min-w-0 text-left">
+                            <p class="text-[10px] font-black uppercase tracking-widest ${labelClass}">Resume Attachment</p>
+                            <p class="text-xs font-bold truncate max-w-[140px]">${fileName}</p>
+                        </div>
+                    </div>
+                    <a href="${url}" target="_blank" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg flex-shrink-0 ${btnClass}">
+                        View PDF
+                    </a>
+                </div>
+            `;
+        });
+
+        bubble.innerHTML = formatted;
         contentWrapper.appendChild(bubble);
 
         // Timestamp
@@ -139,17 +168,6 @@ Harvey.UI = {
 
     prependMessage: (sender, text, timestamp) => {
         const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp);
-
-        // Insert after start indicator if it exists (which is prepended securely)
-        // Actually, prepending works by insertBefore firstChild. 
-        // If we have a start indicator at the top, we should insert AFTER it? 
-        // No, fetchMessages renders Newest -> Oldest loop? 
-        // Wait, fetchMessages: data.messages is Oldest -> Newest (from my read of api.py reversed slice).
-        // fetchMessages prepends in reverse order?
-        // Let's check data.js in the next step.
-        // Standard prepending is fine, we just need to make sure start indicator is always at the TOP.
-        // So we will re-prepend start indicator if needed.
-
         Harvey.DOM.chatBox.insertBefore(bubble, Harvey.DOM.chatBox.firstChild);
     },
 
@@ -201,7 +219,6 @@ Harvey.UI = {
     },
 
     showConfirmDialog: (message, onConfirm) => {
-        // Remove existing
         document.getElementById('harvey-confirm-dialog')?.remove();
 
         const dialog = document.createElement('div');
@@ -225,7 +242,6 @@ Harvey.UI = {
 
         document.body.appendChild(dialog);
 
-        // Handlers
         const close = () => {
             dialog.classList.add('opacity-0', '-translate-y-4');
             setTimeout(() => dialog.remove(), 200);
@@ -237,7 +253,6 @@ Harvey.UI = {
             onConfirm();
         };
 
-        // Auto close after 10s if ignored
         setTimeout(() => {
             if (document.body.contains(dialog)) close();
         }, 10000);

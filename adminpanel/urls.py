@@ -24,11 +24,15 @@ urlpatterns = [
     path("recruitment/candidates/", views.candidates, name="candidates"),
     path("recruitment/candidates/add/", views.add_candidate, name="add_candidate"),
     path("recruitment/candidates/<int:candidate_id>/", views.candidate_detail, name="candidate_detail"),
+    path("recruitment/candidates/<int:candidate_id>/delete/", views.delete_candidate, name="delete_candidate"),
     path("recruitment/jobs/", views.jobs, name="jobs"),
     path("recruitment/jobs/add/", views.add_job, name="add_job"),
     path("recruitment/jobs/<int:job_id>/", views.job_detail, name="job_detail"),
     path("recruitment/interviews/", views.interviews, name="interviews"),
+    path("recruitment/interviews/schedule/", views.schedule_interview, name="schedule_interview"),
     path("recruitment/interviews/<int:interview_id>/", views.interview_detail, name="interview_detail"),
+    path("recruitment/interviews/<int:interview_id>/cancel/", views.cancel_interview, name="cancel_interview"),
+    path("recruitment/interviews/<int:interview_id>/update-status/", views.update_interview_status, name="update_interview_status"),
     
     # Leave Management
     path("leaves/", views.leaves, name="leaves"),

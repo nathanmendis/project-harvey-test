@@ -30,6 +30,10 @@ app.conf.beat_schedule = {
         'task': 'core.tasks.send_weekly_employee_summary',
         'schedule': crontab(minute=0, hour=16, day_of_week='5'),  # 4:00 PM Friday
     },
+    'cleanup-cancelled-interviews-sunday-midnight': {
+        'task': 'core.tasks.cleanup_cancelled_interviews_task',
+        'schedule': crontab(minute=0, hour=0, day_of_week='0'),  # Sunday Midnight
+    },
 }
 
 app.conf.timezone = 'Asia/Kolkata'

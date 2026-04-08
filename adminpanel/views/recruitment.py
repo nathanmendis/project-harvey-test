@@ -1,11 +1,13 @@
+from datetime import timedelta
 from core.models import Candidate, JobRole, Interview, EmailLog, CalendarEvent, LeaveRequest, CandidateJobScore
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.db.models import Q
 from django.core.paginator import Paginator
-from adminpanel.forms import CandidateForm, JobForm
+from adminpanel.forms import CandidateForm, JobForm, InterviewForm
 from .utils import is_admin_manager_hr , is_org_admin
+from django.contrib import messages
 
 @login_required
 @user_passes_test(is_admin_manager_hr)
@@ -74,6 +76,9 @@ def jobs(request):
 @user_passes_test(is_admin_manager_hr)
 def interviews(request):
     """View to display list of interviews."""
+    from django.utils import timezone
+    timezone.activate('Asia/Kolkata')
+    
     org = request.user.organization
     query = request.GET.get('q', '').strip()
     
@@ -236,3 +241,175 @@ def search_candidate(request):
     ).values("id", "name", "email", "phone", "source", "status")
 
     return JsonResponse({"results": list(candidates)})
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def delete_candidate(request, candidate_id):
+    """View to delete a candidate."""
+    org = request.user.organization
+    candidate = get_object_or_404(Candidate, id=candidate_id, organization=org)
+    
+    # Ideally this would be a POST request for security
+    candidate.delete()
+    from django.contrib import messages
+    messages.success(request, f"Candidate {candidate.name} deleted successfully.")
+    return redirect('candidates')
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def schedule_interview(request):
+    """View to schedule a new interview."""
+    from django.utils import timezone
+    timezone.activate('Asia/Kolkata') # Force IST for form parsing and display
+    
+    org = request.user.organization
+    candidate_id = request.GET.get('candidate_id')
+    initial_data = {}
+    
+    if candidate_id:
+        initial_data['candidate'] = get_object_or_404(Candidate, id=candidate_id, organization=org)
+    
+    if request.method == "POST":
+        form = InterviewForm(request.POST)
+        if form.is_valid():
+            interview = form.save(commit=False)
+            interview.organization = org
+            interview.save()
+            
+            # Localize time for display and sync (Asia/Kolkata)
+            import pytz
+            tz_name = 'Asia/Kolkata'
+            tz_obj = pytz.timezone(tz_name)
+            local_dt = interview.date_time.astimezone(tz_obj)
+
+            # 1. Handle Google Calendar & Meet Integration
+            meet_link = None
+            if org.google_refresh_token:
+                try:
+                    from integrations.google.calendar import CalendarService
+                    cal = CalendarService(user=request.user)
+                    
+                    # Replicate TOOL Logic: Naive ISO string + explicit TZ context
+                    naive_dt = local_dt.replace(tzinfo=None)
+                    start_time_str = naive_dt.strftime("%Y-%m-%dT%H:%M:%S")
+                    end_time_str = (naive_dt + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
+                    
+                    attendees = [interview.candidate.email, interview.interviewer.email]
+                    
+                    event = cal.create_event(
+                        title=f"Interview: {interview.candidate.name} x {org.name}",
+                        start_time=start_time_str,
+                        end_time=end_time_str,
+                        attendees=attendees,
+                        description=interview.description,
+                        timezone=tz_name,
+                        use_meet=(interview.interview_type == 'online')
+                    )
+                    
+                    meet_link = event.get('hangoutLink')
+                    if meet_link and interview.interview_type == 'online':
+                        interview.location = meet_link # Store Meet link in location
+                        interview.save()
+                        messages.success(request, "Google Meet link generated and synced to calendar.")
+                    else:
+                        messages.success(request, "Interview synced to Google Calendar.")
+                        
+                except Exception as e:
+                    messages.warning(request, f"Stored locally, but failed to sync Calendar: {str(e)}")
+
+            # 2. Handle Automated Emailing
+            if org.google_refresh_token:
+                try:
+                    from integrations.google.gmail import GmailService
+                    gmail = GmailService(user=request.user)
+                    
+                    location_str = meet_link if interview.interview_type == 'online' else interview.location
+                    subject = f"Interview Invitation: {interview.candidate.name} x {org.name}"
+                    
+                    # Prepare Context for HTML Template
+                    context = {
+                        'candidate_name': interview.candidate.name,
+                        'org_name': org.name,
+                        'job_title': 'Member of Technical Staff', # Fallback or dynamic
+                        'interviewer_name': interview.interviewer.username,
+                        'interview_time': local_dt.strftime('%B %d, %Y at %I:%M %p'),
+                        'location': location_str or 'TBD',
+                        'meet_link': meet_link if interview.interview_type == 'online' else None,
+                        'description': interview.description,
+                    }
+                    
+                    from django.template.loader import render_to_string
+                    from django.utils.html import strip_tags
+                    
+                    html_content = render_to_string('emails/interview_invite.html', context)
+                    text_content = strip_tags(html_content)
+                    
+                    # Send to Candidate (Standard HTML)
+                    gmail.send_email(interview.candidate.email, subject, text_content, html_content=html_content)
+                    
+                    # Send to Interviewer (With Resume Attachment + HTML)
+                    resume_path = interview.candidate.resume_file.path if interview.candidate.resume_file else None
+                    gmail.send_email(interview.interviewer.email, f"[Internal] {subject}", text_content, html_content=html_content, attachment_path=resume_path)
+                    
+                    messages.success(request, "Premium confirmation emails sent successfully.")
+                except Exception as e:
+                    messages.warning(request, f"Emails failed: {str(e)}")
+            
+            return redirect('interviews')
+    else:
+        form = InterviewForm(initial=initial_data)
+        form.fields['candidate'].queryset = Candidate.objects.filter(organization=org)
+        from core.models.organization import User
+        form.fields['interviewer'].queryset = User.objects.filter(organization=org)
+        
+    return render(request, 'recruitment/schedule_interview.html', {
+        'org': org,
+        'form': form,
+    })
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def cancel_interview(request, interview_id):
+    """View to cancel an interview."""
+    org = request.user.organization
+    interview = get_object_or_404(Interview, id=interview_id, organization=org)
+    
+    interview.status = 'cancelled'
+    interview.save()
+    
+    # Optional: Send cancellation email
+    if org.google_refresh_token:
+        try:
+            from integrations.google.gmail import GmailService
+            gmail = GmailService(user=request.user)
+            subject = f"Interview CANCELLED: {interview.candidate.name} x {org.name}"
+            body = f"The interview for {interview.candidate.name} scheduled for {interview.date_time.strftime('%B %d, %Y')} has been cancelled."
+            gmail.send_email(interview.candidate.email, subject, body)
+            gmail.send_email(interview.interviewer.email, subject, body)
+        except:
+            pass
+
+    messages.success(request, f"Interview with {interview.candidate.name} has been cancelled.")
+    return redirect('interviews')
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def update_interview_status(request, interview_id):
+    """View to update the status of an interview via POST."""
+    if request.method == "POST":
+        org = request.user.organization
+        interview = get_object_or_404(Interview, id=interview_id, organization=org)
+        new_status = request.POST.get('status')
+        
+        if new_status in dict(Interview.STATUS_CHOICES):
+            interview.status = new_status
+            interview.save()
+            messages.success(request, f"Interview status updated to {interview.get_status_display()}.")
+        else:
+            messages.error(request, "Invalid status.")
+            
+    return redirect('interviews')

@@ -39,18 +39,20 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
     if not org:
         return err("User is not associated with any organization. Please contact support.")
 
-    # Fix: Resolve file path if it's just a filename
+    # Fix: Resolve file path if it's a relative media path or a URL-like path
     if not os.path.exists(file_path):
-        # Try finding it in 'resumes' folder
-        potential_path = os.path.join("resumes", os.path.basename(file_path))
-        if os.path.exists(potential_path):
-            file_path = potential_path
-        else:
-            # Try absolute path fallback (user's project root)
-            base_dir = r"d:\Code\project_harvey\project-harvey-test"
-            potential_path_2 = os.path.join(base_dir, "resumes", os.path.basename(file_path))
-            if os.path.exists(potential_path_2):
-                file_path = potential_path_2
+        from django.conf import settings
+        # If path starts with /media/, strip it and look in MEDIA_ROOT
+        if file_path.startswith('/media/'):
+            relative_path = file_path.replace('/media/', '')
+            file_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+        elif 'media' in file_path and not os.path.isabs(file_path):
+            # Try to find it relative to BASE_DIR if it's something like "media/resumes/..."
+            from project_harvey.settings import BASE_DIR
+            file_path = os.path.join(BASE_DIR, file_path)
+            
+    # Final Windows-style normalization
+    file_path = os.path.abspath(file_path)
 
     parser = ResumeParser()
     try:
@@ -58,24 +60,36 @@ def add_candidate_with_resume(file_path: str, name: str = "", email: str = "", p
     except Exception as e:
         return err(f"I encountered an issue parsing the resume: {e}")
 
-    # Simple extraction fallback if not provided (in real app, use LLM here too)
+    # Intelligent extraction
+    extracted = parser.extract_info(text)
+    
+    # Use provided values, fallback to extracted values
+    name = name or extracted.get("name")
+    email = email or extracted.get("email")
+    skills = extracted.get("skills") if not phone else [] # Note: skills arg not in tool but we fill it in DB
+
     if not email:
         return err("Please provide the candidate's email address along with the resume.")
     
     if Candidate.objects.filter(email=email, organization=org).exists():
         return err(f"A candidate with the email '{email}' is already in the system.")
 
-    c = Candidate.objects.create(
-        organization=org,
-        name=name or "Unknown Candidate",
-        email=email,
-        phone=phone,
-        skills=[], 
-        resume_file=file_path, 
-        parsed_data=text,
-        source="Resume Upload",
-        status="pending",
-    )
+    from django.core.files import File
+    
+    with open(file_path, 'rb') as f:
+        c = Candidate.objects.create(
+            organization=org,
+            name=name or "Unknown Candidate",
+            email=email,
+            phone=phone,
+            skills=skills or [], 
+            # We'll save the file in the next step to ensure clean naming
+            parsed_data=text,
+            source="Resume Upload",
+            status="pending",
+        )
+        # Use only the filename, not the full path, to avoid Windows naming errors
+        c.resume_file.save(os.path.basename(file_path), File(f), save=True)
     
     return ok(f"I've successfully added {c.name} and attached their resume.", id=c.id, name=c.name)
 
@@ -162,11 +176,12 @@ def get_candidate_detail(candidate_id: int = None, email: str = None, user=None)
 
 
 @tool("shortlist_candidates", return_direct=True)
-def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int = 5, user=None) -> str:
+def shortlist_candidates(skills: str = "", job_role_id: str = "", limit: str = "5", user=None) -> str:
     """
     Shortlists candidates. 
     If job_role_id is provided, scores candidates against that role.
     Otherwise, filters by skills.
+    Note: limit must be a number as a string.
     """
     org = get_org(user)
     if not org:
@@ -175,9 +190,20 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
     candidates = Candidate.objects.filter(organization=org)
     scored_results = []
 
+    # Handle limit conversion
+    try:
+        limit_int = int(limit)
+    except:
+        limit_int = 5
+
     if job_role_id:
         try:
-            job_role = JobRole.objects.get(id=job_role_id, organization=org)
+            # Handle potential string or empty from LLM
+            if not job_role_id or job_role_id == "null":
+                return err("Please provide a valid job_role_id.")
+            
+            job_role_id_int = int(job_role_id)
+            job_role = JobRole.objects.get(id=job_role_id_int, organization=org)
             scorer = CandidateScorer()
             
             for c in candidates:
@@ -197,12 +223,20 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
                     "justification": justification
                 })
             
-            # Sort by score desc
+            # Filter by minimum threshold (e.g., 40) and sort by score desc
+            scored_results = [r for r in scored_results if r["score"] >= 40]
             scored_results.sort(key=lambda x: x["score"], reverse=True)
-            scored_results = scored_results[:limit]
+            scored_results = scored_results[:limit_int]
             
-            msg = f"Here are the top {len(scored_results)} candidates for '{job_role.title}':"
-            return ok(msg, results=scored_results)
+            lines = [f"I've analyzed the candidates for the **{job_role.title}** role. Here are the top {len(scored_results)} matches based on their skills and experience:"]
+            for r in scored_results:
+                lines.append(f"\n- **{r['name']}** (Score: {r['score']}/100)")
+                lines.append(f"  *Reasoning: {r['justification']}*")
+            
+            if not scored_results:
+                return ok("I couldn't find any candidates in the system to evaluate for this role.")
+
+            return ok("\n".join(lines), results=scored_results)
 
         except JobRole.DoesNotExist:
             return err(f"Job Role with ID {job_role_id} not found.")
@@ -220,7 +254,13 @@ def shortlist_candidates(skills: str = "", job_role_id: int = None, limit: int =
         for c in candidates
         if any(skill in (",".join(c.skills or [])).lower() for skill in skills_list)
     ]
-    matched = matched[:limit]
+    matched = matched[:limit_int]
 
-    msg = f"I found the following candidates matching the skills: {', '.join(c['name'] for c in matched) or 'None found'}."
+    if matched:
+        msg = f"I've searched our database for candidates with skills in **{skills}**. Here is who I found:\n"
+        for c in matched:
+            msg += f"- {c['name']}\n"
+    else:
+        msg = f"I'm sorry, I couldn't find any candidates matching the skills: {skills}."
+    
     return ok(msg, results=matched)

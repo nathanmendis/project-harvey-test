@@ -18,5 +18,7 @@ def upload_resume(request):
     fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'resumes'))
     filename = fs.save(file.name, file)
     file_path = fs.path(filename)
+    # Generate public URL
+    file_url = f"{settings.MEDIA_URL}resumes/{filename}"
     
-    return JsonResponse({"file_path": file_path, "filename": filename})
+    return JsonResponse({"file_path": file_path, "filename": filename, "file_url": file_url})

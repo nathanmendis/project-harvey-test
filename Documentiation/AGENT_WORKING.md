@@ -132,8 +132,9 @@ All tools depend on a shared logic layer for data normalization:
 - **`resolve_candidate_emails`**: Similar to above, but queries the `Candidate` table.
 - **Multiple Match Handling**: If a name search returns >1 result, the tool does **not** pick one. It returns an error message listing the options, forcing the agent (or user) to be more specific.
 
-### 4.2 Recruitment Tools (`recruitment_tools.py`)
-- **`search_knowledge_base`**: Uses the **PGVector** similarity search. It converts the user's query into a 384-dim vector using `all-MiniLM-L6-v2` and finds the closest candidates.
+### 4.2 Recruitment & HR Tools (`tools/recruitment/`, `tools/leaves/`)
+- **Modular Design**: Recruitment tools are split into `candidates.py`, `jobs.py`, `interviews.py`, and `emails.py`.
+- **`search_knowledge_base`**: (Located in `core/ai/rag/tools/search_tool.py`) Uses the **PGVector** similarity search. It converts the user's query into a 384-dim vector using `all-MiniLM-L6-v2` and finds the closest candidates.
 
 ### 4.3 Email & Calendar (`email_tool.py`, `calendar_tool.py`)
 - **Gmail/Calendar OAuth**: Uses the **System Refresh Token** provided in `.env`.

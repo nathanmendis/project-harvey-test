@@ -26,7 +26,11 @@ from .recruitment import (
     add_job,
     job_detail,
     interviews,
-    interview_detail
+    interview_detail,
+    delete_candidate,
+    schedule_interview,
+    cancel_interview,
+    update_interview_status
 )
 from .leaves import (
     leaves,

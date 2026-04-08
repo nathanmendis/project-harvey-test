@@ -27,7 +27,11 @@ Harvey.Upload = {
                 .then(r => r.json())
                 .then(data => {
                     if (data.file_path) {
-                        Harvey.State.attachedFiles.push({ name: data.filename || file.name, path: data.file_path });
+                        Harvey.State.attachedFiles.push({ 
+                            name: data.filename || file.name, 
+                            path: data.file_path,
+                            url: data.file_url 
+                        });
                         Harvey.UI.renderAttachments();
                         Harvey.DOM.userInput.focus();
                     } else {

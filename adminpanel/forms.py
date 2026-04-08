@@ -1,6 +1,20 @@
 from django import forms
 from core.models.invite import Invite
-from core.models.recruitment import Candidate, JobRole
+from core.models.recruitment import Candidate, JobRole, Interview
+
+class InterviewForm(forms.ModelForm):
+    class Meta:
+        model = Interview
+        fields = ['candidate', 'interviewer', 'date_time', 'interview_type', 'location', 'status', 'description']
+        widgets = {
+            'candidate': forms.Select(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold'}),
+            'interviewer': forms.Select(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold'}),
+            'date_time': forms.DateTimeInput(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold', 'type': 'text'}),
+            'interview_type': forms.Select(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold'}),
+            'location': forms.TextInput(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold', 'placeholder': 'Zoom Link or Office Location'}),
+            'status': forms.Select(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold'}),
+            'description': forms.Textarea(attrs={'class': 'w-full px-6 py-4.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-400 focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all font-bold', 'rows': 4, 'placeholder': 'Special instructions or notes...'}),
+        }
 
 class InviteForm(forms.ModelForm):
     class Meta:

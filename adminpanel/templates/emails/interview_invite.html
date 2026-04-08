@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
+        .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.05); border: 1px solid #f1f5f9; }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 40px 20px; text-align: center; color: white; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase; opacity: 0.9; }
+        .content { padding: 40px; line-height: 1.6; }
+        .candidate-name { color: #4f46e5; font-weight: 800; }
+        .details-card { background-color: #f8fafc; border-radius: 16px; padding: 24px; margin: 24px 0; border: 1px solid #f1f5f9; }
+        .detail-row { margin-bottom: 12px; display: flex; align-items: center; }
+        .detail-label { font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1px; width: 100px; flex-shrink: 0; }
+        .detail-value { font-weight: 700; color: #0f172a; font-size: 14px; }
+        .btn { display: inline-block; background: #4f46e5; color: #ffffff !important; padding: 16px 32px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-top: 20px; transition: transform 0.2s ease; }
+        .footer { padding: 30px; text-align: center; font-size: 12px; color: #94a3b8; background-color: #fdfdfd; border-top: 1px solid #f1f5f9; }
+        .notes { font-style: italic; color: #64748b; font-size: 13px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interview Invitation</h1>
+        </div>
+        <div class="content">
+            <p>Hello <span class="candidate-name">{{ candidate_name }}</span>,</p>
+            <p>We are excited to invite you for an interview with the team at <strong>{{ org_name }}</strong>. Your background and experience have made a great impression on us, and we're looking forward to discussing how you might fit into our vision.</p>
+            
+            <div class="details-card">
+                <div class="detail-row">
+                    <div class="detail-label">Position:</div>
+                    <div class="detail-value">{{ job_title }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Interviewer:</div>
+                    <div class="detail-value">{{ interviewer_name }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Schedule:</div>
+                    <div class="detail-value">{{ interview_time }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Location:</div>
+                    <div class="detail-value">{{ location }}</div>
+                </div>
+                {% if description %}
+                <div class="notes">
+                    "{{ description }}"
+                </div>
+                {% endif %}
+            </div>
+
+            {% if meet_link %}
+            <p>This will be an online session conducted via Google Meet. You can join directly using the button below:</p>
+            <center>
+                <a href="{{ meet_link }}" class="btn">Join Google Meet</a>
+            </center>
+            {% else %}
+            <p>Please arrive at the office address mentioned above 5 minutes prior to the scheduled time.</p>
+            {% endif %}
+
+            <p style="margin-top: 30px;">If you have any questions or need to reschedule, please let us know as soon as possible.</p>
+            <p>Best regards,<br>The {{ org_name }} Team</p>
+        </div>
+        <div class="footer">
+            &copy; 2026 {{ org_name }} Recruitment Portal. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

@@ -42,11 +42,26 @@ class JobRole(models.Model):
 
 
 class Interview(models.Model):
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('pending_feedback', 'Pending Feedback'),
+    ]
+
+    TYPE_CHOICES = [
+        ('online', 'Online (Google Meet)'),
+        ('in_person', 'In-Person'),
+    ]
+
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
     interviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     date_time = models.DateTimeField()
-    status = models.CharField(max_length=50)
+    interview_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='online')
+    location = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='scheduled')
+    description = models.TextField(null=True, blank=True)
    
     def __str__(self):
         return f"Interview: {self.candidate.name} ({self.organization.name})"

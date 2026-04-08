@@ -9,7 +9,9 @@ This document lists all active features categorized by module, highlighting the 
     *   *Example: Clicking "Apply Leave" auto-types the command and sends it to the AI agent.*
 *   **Dashboard Alert Cards**: Amber alert blocks instantly render in `dashboard.html` informing managers via strict `.count()` aggregation if pending requests demand approval.
 *   **Celebratory Modals**: Auto-triggering popups mapped to the user’s `date_joined` anniversary timeline, overriding the main dashboard dynamically.
-*   **Periodic Celery Digests**: Scheduled workers dispatching robust email summaries mapping the organization’s current workflow states (Weekly Leave sum up on Fridays, Daily Manager Action updates Mon-Fri) using Gmail OAuth.
+*   **Periodic Celery Digests**: Scheduled workers dispatching robust email summaries mapping the organization’s current workflow states using Gmail OAuth.
+    *   *Daily Manager Digest* (`send_daily_manager_digest`): Summaries of pending leave requests requiring attention (9:00 AM M-F).
+    *   *Weekly Employee Summary* (`send_weekly_employee_summary`): Accomplishment summaries including leaves, AI tasks, and interviews (4:00 PM Friday).
 
 ## 2. Token Optimization & Performance Metrics
 *   **Dual-Model Asymmetric Routing (80% Cost Reduction)**: Replaces monolithic 70B models with a sub-400ms `llama-3.1-8b` intent-identifier at temperature=0, reserving the expensive 70B models exclusively for tool mapping.
@@ -28,11 +30,13 @@ This document lists all active features categorized by module, highlighting the 
 *   **PGVector Dense Document Indexing**: Semantic `all-MiniLM-L6-v2` conversion mapping internal organizational PDF/TXT/URL inputs directly into optimized 384-dim Pgvector stores.
 *   **Organization Data Siloing**: Vectors naturally enforce Django Middleware constraint scopes meaning Alice from Org A can never computationally scan policies uploaded by Bob in Org B.
 *   **Background Maintenance Checkers**: Every 2 hours a Celery batch worker gracefully checks and re-indexes all orphan Job Descriptions and new Candidates into the Vector tree ensuring the AI is perfectly synced.
+    *   *Automatic Re-indexing*: `index_candidates_and_jobs` runs every 2 hours.
+    *   *Admin Re-indexing*: Manual triggers available for `reindex_all_candidates_task`, `reindex_all_jobs_task`, and `reindex_all_policies_task` from the RAG dashboard.
 
 ## 5. HR Operations & Workflows
 *   **Leave Database Automations**:
     *   Creates baseline global rulesets per sub-tenant.
-    *   Celery automatically provisions empty allocations/budgets uniformly upon deployment.
+    *   Celery automatically provisions empty allocations/budgets uniformly upon deployment (`allocate_leave_balances_task`).
     *   *Smart Carry-Over*: Scans the previous year automatically appending leftover "Remaining PTO" accurately onto a new balance during policy creation.
 *   **Leave Approvals Lifecycle**:
     *   Managers explicitly approve/deny leaves triggering dynamic Django HTML Email alerts instantly.
@@ -44,7 +48,9 @@ This document lists all active features categorized by module, highlighting the 
 *   **Database-Level Message Encryption**: All conversational `Message` elements from employees and AI outputs are transparently symmetrically encrypted via python cryptography (Fernet) before hitting PostgreSQL, indicated by an `enc:` DB prefix.
 *   **Encrypted Organization Tokens**: Sensitive system credentials like the Google `refresh_token` generated during the OAuth flow are encrypted at rest alongside strictly hashed user passwords.
 *   **Distributed Async Architecture (Celery & Redis)**: Long-running agentic loops, email digests, Document OCR parsing, and RAG chunk maintenance execute asynchronously on distinct Celery background queue workers polling Redis brokers, natively bypassing web thread timeouts to ensure sub-second UI delivery.
-*   **HRMS Bi-Directional Syncing**: Scalable caching algorithms mimicking enterprise HR platforms (BambooHR/Rippling) pulling massive employee batch-sync updates asynchronously every 3 hours without blocking standard HTTP traffic.
+*   **HRMS Bi-Directional Syncing**: Scalable caching algorithms mimicking enterprise HR platforms (BambooHR/Rippling) pulling massive employee batch-sync updates asynchronously without blocking standard HTTP traffic.
+    *   *Global Sync*: `sync_all_data` coordinates background updates for all active organizations.
+    *   *Organization Sync*: `sync_organization_data` handles per-tenant data fetching and upserting logic.
 *   **Two-Tier Organization System Integration**: Employs global application Service Account OAuth configurations mapping strictly to Organization DB IDs, securely executing calendar links without bothering individual user browser sessions.
 *   **Multi-Role Authentication Strategy (`auth.py`)**: 
     *   *Intelligent Redirects*: Organizes navigation strictly based on DB enums (`org_admin`, `manager`, `employee`, `hr`) seamlessly.

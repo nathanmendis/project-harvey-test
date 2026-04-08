@@ -2,9 +2,16 @@
 
 {% block content %}
 <div class="space-y-10 py-6">
-    <div class="mb-10 px-2">
-        <h1 class="text-4xl font-black text-slate-900 tracking-tight">Interviews</h1>
-        <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">{{ org.name }} • Scheduling & Logistics</p>
+    <div class="mb-10 px-2 flex items-center justify-between">
+        <div>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">Interviews</h1>
+            <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">{{ org.name }} • Scheduling & Logistics</p>
+        </div>
+        <a href="{% url 'schedule_interview' %}"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl shadow-2xl shadow-indigo-100 font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02] flex items-center gap-3">
+            <i class="fas fa-plus text-[12px]"></i>
+            <span>Schedule New Session</span>
+        </a>
     </div>
 
     <!-- 🔍 Search Bar -->
@@ -71,12 +78,30 @@
                                 {{ interview.status }}
                             </span>
                         </td>
-                        <td class="px-8 py-5 whitespace-nowrap text-right">
-                            <a href="{% url 'interview_detail' interview.id %}"
-                                class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest transition-all">
-                                <span>Overview</span>
-                                <i class="fas fa-arrow-right text-[10px]"></i>
-                            </a>
+                        <td class="px-8 py-5 whitespace-nowrap text-right flex items-center justify-end gap-6 h-full">
+                            <!-- Status Update Mini Form -->
+                            <form action="{% url 'update_interview_status' interview.id %}" method="POST" class="flex items-center gap-2">
+                                {% csrf_token %}
+                                <select name="status" onchange="this.form.submit()" 
+                                    class="bg-slate-50 border border-slate-100 rounded-xl px-3 py-1.5 text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 focus:outline-none transition-all cursor-pointer">
+                                    <option value="scheduled" {% if interview.status == 'scheduled' %}selected{% endif %}>Sch</option>
+                                    <option value="completed" {% if interview.status == 'completed' %}selected{% endif %}>Comp</option>
+                                    <option value="pending_feedback" {% if interview.status == 'pending_feedback' %}selected{% endif %}>Feed</option>
+                                </select>
+                            </form>
+
+                            <div class="flex items-center gap-4">
+                                <a href="{% url 'cancel_interview' interview.id %}" 
+                                   onclick="return confirm('Are you sure you want to cancel this interview?')"
+                                   class="text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-rose-500 transition-colors">
+                                    Cancel
+                                </a>
+                                <a href="{% url 'interview_detail' interview.id %}"
+                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest transition-all">
+                                    <span>Detail</span>
+                                    <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

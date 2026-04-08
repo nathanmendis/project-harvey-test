@@ -64,12 +64,11 @@ class CalendarService(BaseCalendarService):
     def get_credentials(self):
         return self.creds
 
-    def create_event(self, title, start_time, end_time, attendees=None, description=None,timezone="Asia/Kolkata"):
-        """Create a calendar event using Google Calendar API."""
+    def create_event(self, title, start_time, end_time, attendees=None, description=None, timezone="Asia/Kolkata", use_meet=False):
+        """Create a calendar event using Google Calendar API. Optionally add Google Meet."""
         if not self.creds:
             raise ValueError("Not authenticated")
 
-        
         service = build('calendar', 'v3', credentials=self.creds)
 
         if isinstance(attendees, str):
@@ -79,15 +78,12 @@ class CalendarService(BaseCalendarService):
         else:
             attendee_list = []
 
-        # ABSOLUTE FIX: Send both dateTime WITH offset AND explicit timeZone key.
-        # This tells Google: "The time is already in IST, AND display it in IST."
         event = {
             'summary': title,
             'description': description or "",
             'start': {
                 'dateTime': start_time,
                 "timeZone": timezone,
-
             },
             'end': {
                 'dateTime': end_time,
@@ -95,11 +91,21 @@ class CalendarService(BaseCalendarService):
             },
             'attendees': attendee_list,
         }
-        
-        
+
+        if use_meet:
+            event['conferenceData'] = {
+                'createRequest': {
+                    'requestId': f"meet-{os.urandom(8).hex()}",
+                    'conferenceSolutionKey': {'type': 'hangoutsMeet'}
+                }
+            }
 
         try:
-            event_result = service.events().insert(calendarId='primary', body=event).execute()
+            event_result = service.events().insert(
+                calendarId='primary', 
+                body=event,
+                conferenceDataVersion=1 if use_meet else 0
+            ).execute()
             
             return event_result
         except Exception as e:

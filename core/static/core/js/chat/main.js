@@ -28,7 +28,7 @@ Harvey.Main = {
 
         // Append file info
         if (Harvey.State.attachedFiles.length > 0) {
-            const constraints = Harvey.State.attachedFiles.map(f => ` [Attached Resume: ${f.path}]`).join(" ");
+            const constraints = Harvey.State.attachedFiles.map(f => ` [Attached Resume: ${f.path}|${f.url}]`).join(" ");
             prompt += constraints;
         }
 

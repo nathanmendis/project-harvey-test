@@ -1,0 +1,167 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-12 px-4">
+    <div class="bg-white rounded-[40px] p-12 border border-slate-100 shadow-xl relative overflow-hidden">
+        <!-- Decorative Glow -->
+        <div class="absolute -top-32 -left-32 w-80 h-80 bg-indigo-50/50 rounded-full blur-3xl opacity-50"></div>
+
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-12">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100 shadow-sm">
+                        <i class="fas fa-calendar-plus text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight">Schedule Interview</h1>
+                        <p class="text-indigo-600 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Organization: <span class="bg-indigo-50 px-2 py-0.5 rounded text-indigo-700 tracking-normal">{{ org.name }}</span></p>
+                    </div>
+                </div>
+
+                <!-- Google Status Card -->
+                <div class="hidden md:flex items-center gap-4 bg-slate-50 p-4 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center {% if org.google_refresh_token %}bg-emerald-50 text-emerald-600{% else %}bg-amber-50 text-amber-600{% endif %}">
+                        <i class="fab fa-google text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Google Connection</p>
+                        <p class="text-xs font-bold {% if org.google_refresh_token %}text-emerald-600{% else %}text-amber-600{% endif %}">
+                            {% if org.google_refresh_token %}Connected ({{ org.google_connected_email }}){% else %}Not Connected (Local Only){% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" id="schedule-form" class="space-y-8 relative z-10">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                    <!-- Candidate Selection -->
+                    <div class="space-y-3">
+                        <label for="{{ form.candidate.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Candidate</label>
+                        {{ form.candidate }}
+                        {% if form.candidate.errors %}<p class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ form.candidate.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <!-- Interviewer Selection -->
+                    <div class="space-y-3">
+                        <label for="{{ form.interviewer.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Interviewer</label>
+                        {{ form.interviewer }}
+                        {% if form.interviewer.errors %}<p class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ form.interviewer.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <!-- Interview Type -->
+                    <div class="space-y-3">
+                        <label for="{{ form.interview_type.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Interview Type</label>
+                        {{ form.interview_type }}
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="space-y-3">
+                        <label for="{{ form.date_time.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Date & Time</label>
+                        {{ form.date_time }}
+                        {% if form.date_time.errors %}<p class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ form.date_time.errors.0 }}</p>{% endif %}
+                    </div>
+
+                    <!-- Location -->
+                    <div class="space-y-3" id="location-wrapper">
+                        <label for="{{ form.location.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Location / Office</label>
+                        {{ form.location }}
+                        {% if form.location.errors %}<p class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ form.location.errors.0 }}</p>{% endif %}
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-2 ml-1" id="location-hint">
+                            <i class="fas fa-info-circle mr-1"></i> Not needed for Online (Google Meet)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="space-y-3 pt-4 border-t border-slate-50">
+                    <label for="{{ form.status.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Initial Status</label>
+                    <div class="max-w-xs uppercase">
+                        {{ form.status }}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="space-y-3">
+                    <label for="{{ form.description.id_for_label }}" class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest ml-1">Description / Notes</label>
+                    {{ form.description }}
+                </div>
+
+                <!-- Action Bar -->
+                <div class="flex flex-col-reverse md:flex-row items-center justify-between mt-12 pt-10 border-t border-slate-50 gap-6">
+                    <a href="{% url 'interviews' %}"
+                        class="text-slate-400 hover:text-indigo-600 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-3">
+                        <i class="fas fa-times text-[8px]"></i>
+                        <span>Cancel</span>
+                    </a>
+                    <button type="submit"
+                        class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-5 rounded-2xl shadow-2xl shadow-indigo-100 font-black text-[10px] uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3">
+                        <i class="fas fa-calendar-check text-[14px]"></i> 
+                        <span>Schedule & Sync</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr for Premium Date Picking -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .flatpickr-calendar {
+        background: #ffffff !important;
+        border-radius: 24px !important;
+        box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.15) !important;
+        border: 1px solid #f1f5f9 !important;
+        padding: 10px !important;
+    }
+    .flatpickr-day.selected {
+        background: #4f46e5 !important;
+        border-color: #4f46e5 !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Universal Input Styling
+        const inputs = document.querySelectorAll('#schedule-form input[type="text"], #schedule-form select, #schedule-form textarea');
+        inputs.forEach(i => {
+            i.classList.add('w-full', 'bg-slate-50', 'border', 'border-slate-100', 'rounded-2xl', 'px-6', 'py-4.5', 'text-slate-900', 'placeholder-slate-400', 'focus:ring-4', 'focus:ring-indigo-50', 'focus:border-indigo-200', 'focus:outline-none', 'transition-all', 'font-bold');
+        });
+
+        // Initialize Premium Date Picker
+        flatpickr("#{{ form.date_time.id_for_label }}", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "F j, Y - h:i K",
+            minDate: "today",
+            onReady: function(selectedDates, dateStr, instance) {
+                instance.altInput.classList.add('w-full', 'bg-slate-50', 'border', 'border-slate-100', 'rounded-2xl', 'px-6', 'py-4.5', 'text-slate-900', 'font-bold', 'focus:ring-4', 'focus:ring-indigo-50', 'focus:border-indigo-200', 'focus:outline-none');
+            }
+        });
+
+        // Toggle Location Field Visibility
+        const typeSelect = document.querySelector('#{{ form.interview_type.id_for_label }}');
+        const locWrapper = document.getElementById('location-wrapper');
+        const locInput = document.querySelector('#{{ form.location.id_for_label }}');
+
+        const toggleLoc = () => {
+            if (typeSelect.value === 'online') {
+                locWrapper.style.opacity = '0.5';
+                locWrapper.style.pointerEvents = 'none';
+                locInput.placeholder = "Google Meet Link will be autogenerated";
+            } else {
+                locWrapper.style.opacity = '1';
+                locWrapper.style.pointerEvents = 'auto';
+                locInput.placeholder = "Office Room or Address";
+            }
+        };
+
+        typeSelect.addEventListener('change', toggleLoc);
+        toggleLoc(); // Initial check
+    });
+</script>
+{% endblock %}

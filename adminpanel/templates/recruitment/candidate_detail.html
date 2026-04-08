@@ -89,9 +89,15 @@
                      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Information handled securely. Access restricted to authorized personnel.</p>
                  </div>
                  <div class="flex items-center gap-4">
-                     <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-indigo-100">
+                     <a href="{% url 'delete_candidate' candidate.id %}" 
+                        onclick="return confirm('Are you sure you want to delete this candidate?')"
+                        class="text-slate-300 hover:text-rose-500 font-black text-[10px] uppercase tracking-widest transition-all mr-2">
+                         Delete Profile
+                     </a>
+                     <a href="{% url 'schedule_interview' %}?candidate_id={{ candidate.id }}" 
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-indigo-100 flex items-center justify-center">
                          Schedule Interview
-                     </button>
+                     </a>
                  </div>
             </div>
         </div>

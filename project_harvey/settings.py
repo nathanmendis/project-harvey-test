@@ -245,3 +245,5 @@ CELERY_RESULT_SERIALIZER = 'json'
 # managed via Django admin at runtime without code changes.
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 # ---------------------------------------------------------------------------
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

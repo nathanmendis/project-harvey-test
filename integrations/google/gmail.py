@@ -4,7 +4,11 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 import base64
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 import os
+import mimetypes
 
 class GmailService(EmailService):
     def __init__(self, user=None):
@@ -65,8 +69,8 @@ class GmailService(EmailService):
     def get_credentials(self):
         return self.creds
 
-    def send_email(self, recipient_email, subject, body, html_content=None):
-        """Send an email using Gmail API."""
+    def send_email(self, recipient_email, subject, body, html_content=None, attachment_path=None):
+        """Send an email using Gmail API, optionally with an attachment."""
         if not self.creds:
             print(" GmailService Error: Not authenticated")
             raise ValueError("Not authenticated")
@@ -74,11 +78,35 @@ class GmailService(EmailService):
         print(f" Sending email to {recipient_email} via Gmail API...")
         service = build('gmail', 'v1', credentials=self.creds)
 
-        message = MIMEText(html_content if html_content else body, 'html' if html_content else 'plain')
-        message['to'] = recipient_email
-        message['subject'] = subject
+        # Use MIMEMultipart if there's an attachment, otherwise MIMEText
+        if attachment_path:
+            message = MIMEMultipart()
+            message['to'] = recipient_email
+            message['subject'] = subject
+            
+            # Attach body
+            part = MIMEText(html_content if html_content else body, 'html' if html_content else 'plain')
+            message.attach(part)
+            
+            # Attach file
+            if os.path.exists(attachment_path):
+                content_type, encoding = mimetypes.guess_type(attachment_path)
+                if content_type is None or encoding is not None:
+                    content_type = 'application/octet-stream'
+                main_type, sub_type = content_type.split('/', 1)
+                
+                with open(attachment_path, 'rb') as f:
+                    part = MIMEBase(main_type, sub_type)
+                    part.set_payload(f.read())
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment', filename=os.path.basename(attachment_path))
+                    message.attach(part)
+        else:
+            message = MIMEText(html_content if html_content else body, 'html' if html_content else 'plain')
+            message['to'] = recipient_email
+            message['subject'] = subject
         
-        # 'me' is the special value for the authenticated user
+        # Encode for Gmail API
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
         
         try:

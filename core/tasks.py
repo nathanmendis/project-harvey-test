@@ -316,3 +316,15 @@ def send_weekly_employee_summary(self):
                 logger.error(f"Failed to send weekly summary to {user.email}: {e}")
                 
     return {"sent": count}
+@shared_task(bind=True)
+def cleanup_cancelled_interviews_task(self):
+    """
+    Weekly task to permanently remove cancelled interviews from the database.
+    Designed for Sunday midnight execution.
+    """
+    from core.models.recruitment import Interview
+    
+    count, _ = Interview.objects.filter(status='cancelled').delete()
+    
+    logger.info("Database Cleanup: Removed %s cancelled interview records.", count)
+    return {"deleted_count": count}
