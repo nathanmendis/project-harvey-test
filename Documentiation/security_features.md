@@ -85,7 +85,7 @@ No client-side document viewing is 100% "hacker-proof" (due to the display hardw
 *   **The Click-Shield Overlay**: A high-index Z-layer intercepts mouse-events, preventing the browser's native PDF-context menus from triggering over sensitive areas.
 
 ```mermaid
-graph DT
+graph TD
     subgraph Theater["Secure Viewing Stage"]
         Overlay["Invisible Shield (Overlay Div)"]
         Frame["Secure Iframe (SAMEORIGIN)"]
