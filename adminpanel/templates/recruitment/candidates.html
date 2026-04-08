@@ -75,11 +75,18 @@
                             </span>
                         </td>
                         <td class="px-8 py-5 whitespace-nowrap text-right">
-                            <a href="{% url 'candidate_detail' candidate.id %}"
-                                class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest transition-all">
-                                <span>Overview</span>
-                                <i class="fas fa-arrow-right text-[10px]"></i>
-                            </a>
+                            <div class="flex items-center justify-end gap-6 text-right">
+                                <a href="{% url 'view_resume' candidate.id %}"
+                                    class="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-700 font-black text-[10px] uppercase tracking-widest transition-all">
+                                    <i class="fas fa-eye text-[10px]"></i>
+                                    <span>Resume</span>
+                                </a>
+                                <a href="{% url 'candidate_detail' candidate.id %}"
+                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-black text-[10px] uppercase tracking-widest transition-all">
+                                    <span>Overview</span>
+                                    <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

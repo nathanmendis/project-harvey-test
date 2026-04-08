@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from adminpanel.forms import CandidateForm, JobForm, InterviewForm
 from .utils import is_admin_manager_hr , is_org_admin
 from django.contrib import messages
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 @login_required
 @user_passes_test(is_admin_manager_hr)
@@ -185,7 +186,7 @@ def add_candidate(request):
     org = request.user.organization
     
     if request.method == "POST":
-        form = CandidateForm(request.POST)
+        form = CandidateForm(request.POST, request.FILES)
         if form.is_valid():
             candidate = form.save(commit=False)
             candidate.organization = org
@@ -413,3 +414,17 @@ def update_interview_status(request, interview_id):
             messages.error(request, "Invalid status.")
             
     return redirect('interviews')
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+@xframe_options_sameorigin
+def view_resume(request, candidate_id):
+    """Securely view a candidate resume."""
+    org = request.user.organization
+    candidate = get_object_or_404(Candidate, id=candidate_id, organization=org)
+    
+    return render(request, "recruitment/view_resume.html", {
+        "candidate": candidate,
+        "org": org
+    })

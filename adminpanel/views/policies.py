@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from core.models.policy import Policy
 from core.ai.rag.policy_indexer import PolicyIndexer
 from django.db.models import Q
@@ -119,3 +120,17 @@ def delete_policy(request, policy_id):
     policy.delete()
     messages.success(request, f"Policy '{policy.title}' deleted successfully.")
     return redirect("manage_policies")
+
+
+@login_required
+@user_passes_test(is_org_admin)
+@xframe_options_sameorigin
+def view_policy(request, policy_id):
+    """Securely view a policy document."""
+    org = request.user.organization
+    policy = get_object_or_404(Policy, id=policy_id, created_by__organization=org)
+    
+    return render(request, "policies/view.html", {
+        "policy": policy,
+        "org": org
+    })

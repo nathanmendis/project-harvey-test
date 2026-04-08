@@ -123,7 +123,20 @@
                             {{ policy.created_at|date:"M d, Y" }}
                         </td>
                         <td class="px-8 py-5 text-right">
-                            <div class="flex items-center justify-end gap-4">
+                            <div class="flex items-center justify-end gap-6">
+                                {% if policy.source_type == 'url' %}
+                                <a href="{{ policy.external_url }}" target="_blank"
+                                    class="text-emerald-500 hover:text-emerald-700 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                                    <i class="fas fa-external-link-alt text-[8px]"></i>
+                                    View
+                                </a>
+                                {% else %}
+                                <a href="{% url 'view_policy' policy.id %}"
+                                    class="text-indigo-400 hover:text-indigo-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                                    <i class="fas fa-eye text-[8px]"></i>
+                                    View
+                                </a>
+                                {% endif %}
                                 <a href="{% url 'reindex_policy' policy.id %}"
                                     class="text-slate-400 hover:text-indigo-600 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-1.5"
                                     title="Trigger manual indexing">

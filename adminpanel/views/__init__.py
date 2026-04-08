@@ -11,6 +11,7 @@ from .employees import (
 from .admins import add_org_admin, manage_org_admins
 from .policies import (
     manage_policies,
+    view_policy,
     add_policy,
     reindex_policy,
     delete_policy
@@ -30,7 +31,8 @@ from .recruitment import (
     delete_candidate,
     schedule_interview,
     cancel_interview,
-    update_interview_status
+    update_interview_status,
+    view_resume
 )
 from .leaves import (
     leaves,

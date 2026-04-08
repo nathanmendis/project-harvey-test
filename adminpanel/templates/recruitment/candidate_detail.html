@@ -69,9 +69,9 @@
                     <div class="space-y-3">
                         {% if candidate.resume_file %}
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">File Uploaded</p>
-                        <a href="{{ candidate.resume_file.url }}" target="_blank"
+                        <a href="{% url 'view_resume' candidate.id %}"
                             class="inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
-                            <i class="fas fa-external-link-alt text-[8px]"></i>
+                            <i class="fas fa-eye text-[8px]"></i>
                             <span>View Resume</span>
                         </a>
                         {% else %}

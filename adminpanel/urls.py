@@ -17,12 +17,14 @@ urlpatterns = [
     path("policies/", views.manage_policies, name="manage_policies"),
     path("policies/add/", views.add_policy, name="add_policy"),
     path("policies/reindex/<uuid:policy_id>/", views.reindex_policy, name="reindex_policy"),
+    path("policies/view/<uuid:policy_id>/", views.view_policy, name="view_policy"),
     path("policies/delete/<uuid:policy_id>/", views.delete_policy, name="delete_policy"),
     
     # Recruitment Management
     path("recruitment/", views.recruitment_dashboard, name="recruitment_dashboard"),
     path("recruitment/candidates/", views.candidates, name="candidates"),
     path("recruitment/candidates/add/", views.add_candidate, name="add_candidate"),
+    path("recruitment/candidates/view/<int:candidate_id>/", views.view_resume, name="view_resume"),
     path("recruitment/candidates/<int:candidate_id>/", views.candidate_detail, name="candidate_detail"),
     path("recruitment/candidates/<int:candidate_id>/delete/", views.delete_candidate, name="delete_candidate"),
     path("recruitment/jobs/", views.jobs, name="jobs"),

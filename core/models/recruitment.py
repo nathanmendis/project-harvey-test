@@ -2,6 +2,15 @@ from django.db import models
 from .organization import Organization, User
 
 class Candidate(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Assessment'),
+        ('shortlisted', 'Shortlisted'),
+        ('interviewing', 'Interviewing'),
+        ('offered', 'Offer Extended'),
+        ('hired', 'Hired'),
+        ('rejected', 'Rejected'),
+    ]
+
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -10,7 +19,7 @@ class Candidate(models.Model):
     resume_file = models.FileField(upload_to='resumes/')
     parsed_data = models.JSONField(null=True, blank=True)
     source = models.CharField(max_length=50)
-    status = models.CharField(max_length=50, default='pending')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"{self.name} ({self.organization.name})"
