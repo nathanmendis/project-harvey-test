@@ -73,9 +73,28 @@ def harvey_node(state):
     start = time.time()
     try:
         if intent == "tool":
-            result = llm.bind_tools(AVAILABLE_TOOLS).invoke(msgs)
+            if target_tool:
+                selected_tool = next((t for t in AVAILABLE_TOOLS if t.name == target_tool), None)
+                if selected_tool:
+                    llm_to_call = llm.bind_tools([selected_tool])
+                else:
+                    llm_to_call = llm.bind_tools(AVAILABLE_TOOLS)
+            else:
+                llm_to_call = llm.bind_tools(AVAILABLE_TOOLS)
+            
+            try:
+                result = llm_to_call.invoke(msgs)
+            except Exception as inner_e:
+                err_str = str(inner_e).lower()
+                if "not in request.tools" in err_str or "tool_use_failed" in err_str or "validation failed" in err_str:
+                    logger.warning("Router target tool misclassified. Retrying with all tools bound...")
+                    llm_to_call = llm.bind_tools(AVAILABLE_TOOLS)
+                    result = llm_to_call.invoke(msgs)
+                else:
+                    raise inner_e
         else:
             result = llm.invoke(msgs)
+
 
         from .utils import log_token_usage
         model_label = f"Harvey ({'70B' if intent == 'tool' else '8B'})"
@@ -99,11 +118,17 @@ def harvey_node(state):
                     "body": result.content.strip(),
                 })
             
+
+
             # SUPPRESS NARRATION: Clear content to avoid leaking internal thoughts to user
             result.content = ""
 
             logger.info(f"Harvey decided to use tool: {tool_name}")
-            return {"messages": [result], "pending_tool": tool_call, "requires_approval": False}
+            
+            sensitive_tools = ["schedule_interview", "apply_leave", "send_email_tool", "create_calendar_event_tool"]
+            requires_approval = tool_name in sensitive_tools
+            
+            return {"messages": [result], "pending_tool": tool_call, "requires_approval": requires_approval}
 
         return {"messages": [result]}
 

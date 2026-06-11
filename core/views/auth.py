@@ -131,6 +131,14 @@ def google_callback(request):
         messages.error(request, "No email provided by Google.")
         return redirect("login")
 
+    # --- HANDLE SYSTEM WIDE TOKEN FLOW ---
+    if request.session.pop("is_system_token_flow", False):
+        if not request.user.is_authenticated or not request.user.is_staff:
+            messages.error(request, "Session expired or access denied.")
+            return redirect("/admin/")
+        return render(request, "admin/system_token_display.html", {"refresh_token": refresh_token})
+    # -----------------------------------
+
     # --- HANDLE ORG INTEGRATION FLOW ---
     if request.session.pop("is_org_integration", False):
         if not request.user.is_authenticated or not request.user.is_org_admin():
@@ -230,6 +238,29 @@ def org_google_login(request):
     
     auth_url = f"{GOOGLE_AUTH_URL}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&access_type=offline&prompt=consent"
     return redirect(auth_url)
+
+
+def admin_google_system_login(request):
+    """Initiates Google OAuth flow for System-wide Integration (Superusers/Staff only)."""
+    if not request.user.is_authenticated or not request.user.is_staff:
+        messages.error(request, "Access denied.")
+        return redirect("/admin/")
+
+    client_id = os.environ.get("GOOGLE_CLIENT_ID")
+    redirect_uri = request.build_absolute_uri(reverse("google_callback"))
+    
+    # Request extended scopes for sending emails and managing calendar for the system
+    scope = "email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar"
+    
+    if not client_id:
+        messages.error(request, "Google OAuth not configured (Missing Client ID).")
+        return redirect("/admin/")
+
+    request.session["is_system_token_flow"] = True
+    
+    auth_url = f"{GOOGLE_AUTH_URL}?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&access_type=offline&prompt=consent"
+    return redirect(auth_url)
+
 
 
 

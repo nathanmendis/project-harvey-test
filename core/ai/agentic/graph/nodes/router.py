@@ -39,13 +39,13 @@ def router_node(state):
     last_msgs = messages[-4:]
     last_msgs_text = "\n".join([f"{m.type}: {m.content}" for m in last_msgs])
     
-    parser = JsonOutputParser(pydantic_object=RouterOutput)
-    
     # TOKEN OPTIMIZED PROMPT
     router_prompt = f"""
-    Classify intent: "tool" (actions/info-seeking/policy) or "chat" (greetings/thanks).
-    {parser.get_format_instructions()}
-    TOOLS: {tools_desc}
+    Determine user intent. Return ONLY a raw JSON object with these keys:
+    - "intent": either "tool" (actions, searching info/policies) or "chat" (greetings, general talking, drafting without sending)
+    - "tool_name": the exact name of the tool to use, or "None" if chat.
+    
+    AVAILABLE TOOLS: {tools_desc}
     
     Rules:
     - "send" email/draft -> send_email_tool.
@@ -70,8 +70,26 @@ def router_node(state):
         from .utils import log_token_usage
         log_token_usage(response, "Router (8B)")
         
-        result = parser.parse(response.content)
-        
+        # Parse output manually to be robust and lightweight
+        import re
+        import json
+        content = response.content.strip()
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].strip()
+
+        try:
+            result = json.loads(content)
+        except Exception:
+            # Fallback regex parser if output is slightly malformed JSON
+            intent_match = re.search(r'"intent"\s*:\s*"([^"]+)"', content)
+            tool_match = re.search(r'"tool_name"\s*:\s*"([^"]+)"', content)
+            result = {
+                "intent": intent_match.group(1) if intent_match else "chat",
+                "tool_name": tool_match.group(1) if tool_match else "None"
+            }
+
         intent = result.get("intent", "chat").lower()
         tool_name = result.get("tool_name", "None") or "None"
         
@@ -81,10 +99,10 @@ def router_node(state):
                 intent = "tool"
             else:
                 intent = "chat"
-
+ 
         if tool_name == "None":
              tool_name = None
-
+ 
         duration = int((time.time() - start) * 1000)
         logger.info(f"Router Decision: {{'intent': {intent}, 'tool': {tool_name}}} ({duration}ms)")
         
@@ -93,6 +111,7 @@ def router_node(state):
             "decision": {"intent": intent, "tool": tool_name},
             "duration": duration
         })
+
 
         updates = {"intent": intent, "target_tool": tool_name}
         if intent == "chat":

@@ -254,3 +254,5 @@ class AppLogAdmin(admin.ModelAdmin):
 admin.site.site_header = "Harvey Admin Panel"
 admin.site.index_title = "Harvey Administration"
 admin.site.site_title = "Harvey Admin"
+admin.site.index_template = "admin/custom_index.html"
+

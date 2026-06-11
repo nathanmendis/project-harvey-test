@@ -49,7 +49,86 @@ def _save_chat(convo, user, user_input, ai_output):
     return ai_msg
 
 
-def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
+def validate_and_sanitize_args(tool_name, args, user):
+    """
+    Validates and sanitizes user-edited arguments for sensitive tools.
+    This acts as a foolproof security check on the backend.
+    """
+    if not isinstance(args, dict):
+        raise ValueError("Invalid arguments format.")
+
+    sanitized = {}
+    if tool_name == "schedule_interview":
+        from core.models.recruitment import Candidate
+        from core.models.organization import User as OrgUser
+        import pytz
+        from django.utils.dateparse import parse_datetime
+
+        # Check candidate
+        candidate_id = args.get("candidate_id") or args.get("candidate")
+        if not candidate_id:
+            raise ValueError("Candidate ID is required.")
+        try:
+            candidate = Candidate.objects.get(id=int(candidate_id), organization=user.organization)
+            sanitized["candidate_id"] = candidate.id
+        except Exception:
+            raise ValueError("Invalid Candidate specified.")
+
+        # Check interviewer
+        interviewer_id = args.get("interviewer_id") or args.get("interviewer")
+        if not interviewer_id:
+            raise ValueError("Interviewer ID is required.")
+        try:
+            interviewer = OrgUser.objects.get(id=int(interviewer_id), organization=user.organization)
+            sanitized["interviewer_id"] = interviewer.id
+        except Exception:
+            raise ValueError("Invalid Interviewer specified.")
+
+        # Check datetime
+        dt_str = args.get("date_time") or args.get("date")
+        if not dt_str:
+            raise ValueError("Date/Time is required.")
+        dt = parse_datetime(str(dt_str))
+        if not dt:
+            raise ValueError("Invalid Date/Time format. Use YYYY-MM-DD HH:MM.")
+        if timezone.is_naive(dt):
+            dt = timezone.make_aware(dt, pytz.timezone("Asia/Kolkata"))
+        sanitized["date_time"] = dt.isoformat()
+
+        sanitized["interview_type"] = args.get("interview_type", "online")
+        sanitized["location"] = args.get("location", "")
+        sanitized["description"] = args.get("description", "")
+
+    elif tool_name in ["send_email", "send_email_tool"]:
+        sanitized["recipient_email"] = str(args.get("recipient_email", args.get("recipient", ""))).strip()
+        if "@" not in sanitized["recipient_email"]:
+            raise ValueError("Invalid recipient email address.")
+        sanitized["subject"] = str(args.get("subject", "HR Update")).strip()
+        sanitized["body"] = str(args.get("body", "")).strip()
+        if not sanitized["body"]:
+            raise ValueError("Email body cannot be empty.")
+
+    elif tool_name == "apply_leave":
+        from django.utils.dateparse import parse_date
+        start_date = parse_date(str(args.get("start_date")))
+        end_date = parse_date(str(args.get("end_date")))
+        if not start_date or not end_date:
+            raise ValueError("Invalid start or end date format.")
+        if start_date > end_date:
+            raise ValueError("Start date cannot be after end date.")
+
+        sanitized["start_date"] = start_date.isoformat()
+        sanitized["end_date"] = end_date.isoformat()
+        sanitized["leave_type"] = args.get("leave_type", "sick")
+        sanitized["reason"] = args.get("reason", "")
+    else:
+        # Fallback for general tools
+        sanitized = args
+
+    return sanitized
+
+
+def generate_llm_reply(prompt: str, user, conversation_id=None, request=None, action=None, arguments=None):
     # 1. Check for Rate Limit Block
     if cache.get(f"chat_block_{user.id}"):
         return LLMResponse(response=" System is cooling down due to high traffic. Please try again in 60 seconds.", conversation_id=0, title="Error")
@@ -72,7 +151,7 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
     run = GraphRun.objects.create(
         conversation=convo,
         user=user,
-        input_text=prompt,
+        input_text=prompt or f"Action: {action}",
         status="running",
     )
 
@@ -83,33 +162,85 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         metadata={"graph_run_id": str(run.id)},
     )
 
-    checkpoint = graph.get_state(config=config)
-    prev_state = checkpoint.values if checkpoint else {}
-
-    prev_msgs = prev_state.get("messages", [])[-10:]
-
-    state_input = {
-        "messages": prev_msgs + [HumanMessage(content=prompt)],
-        "user_id": user.id,
-        "summary": prev_state.get("summary"),
-        "pending_tool": prev_state.get("pending_tool"),
-        "trace": prev_state.get("trace", []),
-    }
-
-    # Summary logging instead of full dump to avoid Unicode errors and massive logs
-    logger.debug(f"Graph invoke. User: {user.username}, Msg Count: {len(state_input.get('messages', []))}")
-
     try:
-        result = graph.invoke(state_input, config=config)
-        # Reduce log verbosity: only show keys and last message preview
+        # Check if this is an approval/cancellation action from the Human-in-the-Loop check
+        if action:
+            checkpoint = graph.get_state(config=config)
+            state_values = checkpoint.values if checkpoint else {}
+            pending_tool = state_values.get("pending_tool")
+
+            if not pending_tool:
+                run.status = "error"
+                run.error_message = "No pending action found."
+                run.save()
+                return LLMResponse(response="⚠️ No pending action found to confirm.", conversation_id=convo.id, title=convo.title)
+
+            if action == "cancel_tool":
+                # User requested a Redo/Cancel: clean graph state
+                graph.update_state(config=config, values={"pending_tool": None, "requires_approval": False})
+                run.status = "success"
+                run.output_text = "I've cancelled that request."
+                run.save()
+                ai_msg = _save_chat(convo, user, "Cancel action", "I've cancelled that request.")
+                return LLMResponse(
+                    response="I've cancelled that request.",
+                    conversation_id=convo.id,
+                    title=convo.title,
+                    timestamp=ai_msg.timestamp.isoformat()
+                )
+
+            elif action == "approve_tool":
+                # Sanitize and validate arguments before execution
+                try:
+                    validated = validate_and_sanitize_args(pending_tool["name"], arguments, user)
+                    pending_tool["args"] = validated
+                except ValueError as ve:
+                    run.status = "error"
+                    run.error_message = str(ve)
+                    run.save()
+                    return LLMResponse(response=f"⚠️ Validation failed: {ve}", conversation_id=convo.id, title=convo.title)
+
+                # Set requires_approval to False so graph continues to TOOL node
+                graph.update_state(config=config, values={
+                    "pending_tool": pending_tool,
+                    "requires_approval": False
+                })
+                # Resume execution
+                result = graph.invoke(None, config=config)
+            else:
+                run.status = "error"
+                run.error_message = f"Invalid action: {action}"
+                run.save()
+                return LLMResponse(response="⚠️ Invalid action request.", conversation_id=convo.id, title=convo.title)
+        else:
+            # Standard prompt invocation
+            checkpoint = graph.get_state(config=config)
+            prev_state = checkpoint.values if checkpoint else {}
+
+            prev_msgs = prev_state.get("messages", [])[-10:]
+
+            state_input = {
+                "messages": prev_msgs + [HumanMessage(content=prompt)],
+                "user_id": user.id,
+                "summary": prev_state.get("summary"),
+                "pending_tool": prev_state.get("pending_tool"),
+                "trace": prev_state.get("trace", []),
+            }
+
+            logger.debug(f"Graph invoke. User: {user.username}, Msg Count: {len(state_input.get('messages', []))}")
+            result = graph.invoke(state_input, config=config)
+
+        # Process the result of the invocation (either initial or resumed)
         msgs = result.get("messages", [])
         last_msg = msgs[-1].content[:50] + "..." if msgs else "No messages"
         logger.debug(f"Graph completed. Keys: {list(result.keys())}, Last output: {last_msg}")
 
         pending_tool = result.get("pending_tool")
+        requires_approval = result.get("requires_approval", False)
         final_text = ""
 
-        if pending_tool:
+        # If a tool needs execution, check if it's currently flagged for approval
+        if pending_tool and not requires_approval:
             tool_name = pending_tool.get("name")
             tool_args = pending_tool.get("args", {})
             tool_func = tool_registry.get(tool_name)
@@ -121,7 +252,6 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
                     raw = tool_func(**tool_args)
                     data = json.loads(raw)
                     tool_msg = data.get("message", "Action completed.")
-                    # Append tool result to messages for history
                     result["messages"].append(ToolMessage(tool_call_id=pending_tool["id"], content=tool_msg))
                     result["pending_tool"] = None
                 except Exception as e:
@@ -131,10 +261,8 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
                 result["messages"].append(AIMessage(content=f"⚠️ Unknown tool '{tool_name}'"))
 
         # --- FINAL AGGREGATION ---
-        # Combine all NEW messages from this turn (AI or Tool) into a final transcript
         all_result_msgs = result.get("messages", [])
         
-        # Safely extract ONLY messages generated after the user's latest prompt
         last_human_idx = -1
         for i in range(len(all_result_msgs) - 1, -1, -1):
             if isinstance(all_result_msgs[i], HumanMessage):
@@ -155,7 +283,6 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
                 if txt:
                      parts.append(txt)
             elif isinstance(msg, ToolMessage) and not has_ai_message:
-                # ONLY show raw tool JSON if the LLM didn't synthesize a response
                 txt = _content_to_text(msg.content)
                 if txt:
                      parts.append(txt)
@@ -165,6 +292,11 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         else:
             final_text = "Action completed."
 
+        # Intercept tool configuration to display interactive approval cards to the user
+        if pending_tool and requires_approval:
+            args_json = json.dumps(pending_tool.get("args", {}))
+            final_text = f"[Pending Approval: {pending_tool['name']}|{args_json}]"
+
         # Save DB run metadata
         run.status = "success"
         run.output_text = final_text
@@ -173,8 +305,7 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
         run.save()
 
         # Save chat history
-        # Save chat history
-        ai_msg = _save_chat(convo, user, prompt, final_text)
+        ai_msg = _save_chat(convo, user, prompt or f"Action: {action}", final_text)
 
         return LLMResponse(
             response=final_text,
@@ -185,7 +316,6 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
 
     except ResourceExhausted:
         logger.warning(f"Rate Limit Hit for user {user.id}")
-        # Block user for 60 seconds
         cache.set(f"chat_block_{user.id}", True, timeout=60)
         
         run.status = "error"
@@ -214,3 +344,4 @@ def generate_llm_reply(prompt: str, user, conversation_id=None, request=None):
             conversation_id=convo.id if locals().get('convo') else 0,
             title="Error"
         )
+

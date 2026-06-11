@@ -17,9 +17,15 @@ def summary_node(state):
     else:
         new_context = None
 
-    updates = {"pending_tool": None, "requires_approval": False}
+    requires_approval = get_state_value(state, "requires_approval", False)
+    if requires_approval:
+        updates = {}
+    else:
+        updates = {"pending_tool": None, "requires_approval": False}
+
     if new_context:
         updates["context"] = new_context
         updates["messages"] = messages[-4:]
         
     return updates
+

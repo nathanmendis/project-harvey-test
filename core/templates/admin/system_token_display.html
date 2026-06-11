@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div id="content-main" style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <div style="background-color: white; border: 1px solid #cbd5e1; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <h2 style="color: #1e293b; margin-top: 0; font-weight: 700;">Google OAuth System Token Generated</h2>
+        <p style="color: #64748b; font-size: 14px;">Copy the refresh token below and add it to your <code>.env</code> file under <code>GOOGLE_SYSTEM_REFRESH_TOKEN</code>.</p>
+        
+        {% if refresh_token %}
+            <div style="margin: 20px 0;">
+                <textarea readonly style="width: 100%; height: 100px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: monospace; font-size: 14px; background-color: #f8fafc; color: #0f172a;" onclick="this.select()">{{ refresh_token }}</textarea>
+            </div>
+            <p style="color: #0f172a; font-size: 13px; font-weight: bold; margin-bottom: 5px;">Instructions:</p>
+            <ol style="color: #475569; font-size: 13px; line-height: 1.6; padding-left: 20px;">
+                <li>Copy the entire token string from the box above.</li>
+                <li>Open your project's <code>.env</code> file.</li>
+                <li>Find or create the variable: <code>GOOGLE_SYSTEM_REFRESH_TOKEN=...</code> and paste the copied token.</li>
+                <li>Restart your Docker containers (e.g. <code>docker-compose restart app celery</code>) to apply changes.</li>
+            </ol>
+        {% else %}
+            <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 15px; border-radius: 6px; font-size: 14px;">
+                Failed to receive refresh token. Please ensure you clicked "Allow/Consent" and did not just re-approve a previously existing token. If necessary, revoke access in your Google Account settings and try again.
+            </div>
+        {% endif %}
+        
+        <div style="margin-top: 25px;">
+            <a href="/admin/" style="display: inline-block; background-color: #475569; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;">Back to Admin Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

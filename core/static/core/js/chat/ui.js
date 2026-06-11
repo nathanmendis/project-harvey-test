@@ -107,14 +107,127 @@ Harvey.UI = {
         // Format Content
         let formatted = text;
 
-        // 1. First Parse Markdown
-        if (typeof marked !== 'undefined') {
-            marked.setOptions({ breaks: true, gfm: true });
-            formatted = marked.parse(text);
+        if (text.startsWith('[Pending Approval:')) {
+            const match = text.match(/^\[Pending Approval:\s*([^|]+)\|?([\s\S]*)\]$/);
+            if (match) {
+                const toolName = match[1].trim();
+                const argsStr = match[2].trim();
+                let args = {};
+                try {
+                    args = JSON.parse(argsStr);
+                } catch(e) {
+                    console.error("Failed to parse args:", e);
+                }
+                
+                let fieldsHtml = '';
+                if (toolName === 'schedule_interview') {
+                    fieldsHtml = `
+                        <input type="hidden" class="edit-field" name="candidate_id" value="${args.candidate_id || args.candidate || ''}">
+                        <input type="hidden" class="edit-field" name="interviewer_id" value="${args.interviewer_id || args.interviewer || ''}">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Date & Time</span>
+                            <input type="datetime-local" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none focus:border-indigo-300" name="date_time" value="${args.date_time ? args.date_time.slice(0, 16) : ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Type</span>
+                            <select class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="interview_type">
+                                <option value="online" ${args.interview_type === 'online' ? 'selected' : ''}>Online (Google Meet)</option>
+                                <option value="in_person" ${args.interview_type === 'in_person' ? 'selected' : ''}>In-Person</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Location / Link</span>
+                            <input type="text" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="location" value="${args.location || ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Description</span>
+                            <textarea class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="description" rows="2">${args.description || ''}</textarea>
+                        </div>
+                    `;
+                } else if (toolName === 'send_email' || toolName === 'send_email_tool') {
+                    fieldsHtml = `
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Recipient Email</span>
+                            <input type="email" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="recipient_email" value="${args.recipient_email || args.recipient || ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Subject</span>
+                            <input type="text" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="subject" value="${args.subject || ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Body</span>
+                            <textarea class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="body" rows="6">${args.body || ''}</textarea>
+                        </div>
+                    `;
+                } else if (toolName === 'apply_leave') {
+                    fieldsHtml = `
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Start Date</span>
+                            <input type="date" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="start_date" value="${args.start_date || ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">End Date</span>
+                            <input type="date" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="end_date" value="${args.end_date || ''}">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Leave Type</span>
+                            <select class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="leave_type">
+                                <option value="sick" ${args.leave_type === 'sick' ? 'selected' : ''}>Sick Leave</option>
+                                <option value="casual" ${args.leave_type === 'casual' ? 'selected' : ''}>Casual Leave</option>
+                                <option value="annual" ${args.leave_type === 'annual' ? 'selected' : ''}>Annual Leave</option>
+                                <option value="unpaid" ${args.leave_type === 'unpaid' ? 'selected' : ''}>Unpaid Leave</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">Reason</span>
+                            <textarea class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="reason" rows="2">${args.reason || ''}</textarea>
+                        </div>
+                    `;
+                } else {
+                    for (const [key, val] of Object.entries(args)) {
+                        fieldsHtml += `
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">${key.replace(/_/g, ' ')}</span>
+                                <input type="text" class="edit-field border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 bg-white focus:outline-none" name="${key}" value="${val || ''}">
+                            </div>
+                        `;
+                    }
+                }
+
+                formatted = `
+                    <div class="confirm-card p-1 bg-transparent rounded-2xl flex flex-col gap-4 text-left not-prose" data-tool="${toolName}">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Approval Required</span>
+                        </div>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-tight">Confirm Action: ${toolName.replace(/_/g, ' ')}</h4>
+                        
+                        <div class="grid grid-cols-1 gap-4 mt-1">
+                            ${fieldsHtml}
+                        </div>
+                        
+                        <div class="flex gap-2.5 mt-3 border-t border-slate-100 pt-4">
+                            <button onclick="Harvey.Socket.sendConfirm('${toolName}', this)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all shadow-lg shadow-indigo-50">
+                                Send Now
+                            </button>
+                            <button onclick="Harvey.Socket.sendCancel(this)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all">
+                                Redo
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         } else {
-            formatted = text.replace(/\n/g, '<br>');
-            formatted = Harvey.Utils.linkify(formatted);
+            // 1. First Parse Markdown
+            if (typeof marked !== 'undefined') {
+                marked.setOptions({ breaks: true, gfm: true });
+                formatted = marked.parse(text);
+            } else {
+                formatted = text.replace(/\n/g, '<br>');
+                formatted = Harvey.Utils.linkify(formatted);
+            }
         }
+
 
         // 2. Then Inject Attachment Cards (So they aren't escaped by Markdown)
         const attachmentRegex = /\[Attached Resume: ([^|\]]+)\|?([^\]]*)\]/g;

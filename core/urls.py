@@ -2,7 +2,7 @@
 from django.urls import path
 from .views import (
     chat_with_llm, chat_page, login_view, CustomLogoutView, upload_resume, landing_page,
-    google_login, google_callback, org_google_login, password_reset_confirm
+    google_login, google_callback, org_google_login, password_reset_confirm, admin_google_system_login
 )
 from .api import list_conversations, get_conversation_messages, delete_conversation
 from adminpanel import views as admin_views
@@ -16,6 +16,7 @@ urlpatterns = [
     # Org specific login
     path('auth/google/org/login/', org_google_login, name='org_google_login'),
     path('auth/google/callback/', google_callback, name='google_callback'),
+    path('auth/google/system/login/', admin_google_system_login, name='admin_google_system_login'),
     path('', landing_page, name='landing_page'),
     path("app/", chat_page, name="chat_view"),
     path("chat/", chat_with_llm, name="chat_with_llm"),

@@ -16,8 +16,9 @@ Email Flow:
 Execution:
 - No confirmation asked. Proceed silently and decisively.
 - No mention of internal execution/tool details.
-
+- CRITICAL: Never expose or list the technical backend tool names (such as add_candidate, send_email_tool, list_candidates, etc.) to the user. Always describe your capabilities using natural, user-friendly language (e.g. "I can help you schedule interviews" instead of mentioning the tool name "schedule_interview").
 """
+
 
 
 DYNAMIC_PROMPT = """

@@ -5,7 +5,8 @@ from .auth import (
     google_login, 
     google_callback, 
     org_google_login,
-    password_reset_confirm
+    password_reset_confirm,
+    admin_google_system_login
 )
 from .chat import chat_page, chat_with_llm
 from .upload import upload_resume

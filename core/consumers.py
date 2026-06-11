@@ -25,8 +25,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         prompt = data.get("prompt", "").strip()
         conversation_id = data.get("conversation_id") # May be None for new chat
+        action = data.get("action")
+        arguments = data.get("arguments")
 
-        if not prompt:
+        if not prompt and not action:
             await self.send(text_data=json.dumps({
                 "response": "Please type something."
             }))
@@ -39,7 +41,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         llm_response = await sync_to_async(generate_llm_reply)(
             prompt,
             user=self.user,
-            conversation_id=conversation_id
+            conversation_id=conversation_id,
+            action=action,
+            arguments=arguments
         )
 
         # Send back response + metadata (id/title) so frontend can lock context

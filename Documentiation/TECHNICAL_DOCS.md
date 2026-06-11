@@ -146,4 +146,20 @@ The system uses a centralized registry to bind Python functions to the LLM.
 - **Logs**: Monitor `harvey.log` for **real-time token usage** (Prompt/Completion/Total) and IST offsets.
 
 ---
+
+## 9. System Health Monitoring & Admin Utilities
+
+### 9.1 Diagnostic Dashboard
+Administrators can access the system health dashboard at `/settings/health/` (defined in `adminpanel/views/health.py`):
+- **Redis Health**: Verifies connection and tracks real-time read/write latency.
+- **Celery Verification**: Counts active worker processes registered to the task queue.
+- **Environment Checks**: Verifies availability of API keys (e.g., `GROQ_API_KEY`) and system configurations.
+- **UI Design**: Single-card professional dashboard featuring premium custom SVG-animated loaders (no emojis used).
+
+### 9.2 Google OAuth System Token Generator
+Superusers and staff can initiate a system-wide Google OAuth consent flow directly from the Django Admin Panel home page (`/admin/`):
+- **Dashboard Widget**: Integrates a widget on the main dashboard (`custom_index.html`) using a customized `admin.site.index_template` override.
+- **System Callback Routing**: Authenticates with full system scopes and prompts consent. The callback handles `is_system_token_flow` and renders a high-contrast display page (`system_token_display.html`) with the new refresh token and copy-paste instructions for the `.env` file.
+
+---
 *Maintained by the Harvey Engineering Team*
