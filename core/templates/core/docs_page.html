@@ -188,6 +188,9 @@
   <!-- Marked.js for Client-side Markdown Rendering -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- Mermaid.js for Rendering Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const source = document.getElementById("markdown-source").textContent;
@@ -197,7 +200,29 @@
         gfm: true,
         breaks: true
       });
+      
+      // Render Markdown
       document.getElementById("docs-content").innerHTML = marked.parse(source);
+      
+      // Intercept and Convert Mermaid Blocks
+      const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+      if (mermaidBlocks.length > 0) {
+        mermaidBlocks.forEach((codeEl) => {
+          const preEl = codeEl.parentElement;
+          const div = document.createElement('div');
+          div.className = 'mermaid my-6';
+          div.textContent = codeEl.textContent;
+          preEl.parentNode.replaceChild(div, preEl);
+        });
+        
+        // Initialize & Run Mermaid
+        mermaid.initialize({ 
+          startOnLoad: false, 
+          theme: 'neutral',
+          securityLevel: 'loose'
+        });
+        mermaid.run();
+      }
     });
   </script>
 </body>
