@@ -224,6 +224,14 @@
                 </a>
               </li>
               <li>
+                <a href="{% url 'system_health' %}"
+                  class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'system_health' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+                  <i
+                    class="fas fa-heartbeat w-5 text-center mr-3 text-sm {% if request.resolver_match.url_name == 'system_health' %}text-indigo-600{% else %}text-slate-400 group-hover:text-slate-600{% endif %} transition-colors"></i>
+                  <span class="text-[13px]">System Health</span>
+                </a>
+              </li>
+              <li>
                 <a href="{% url 'org_settings' %}"
                   class="flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 group {% if request.resolver_match.url_name == 'org_settings' %}active font-bold{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
                   <i
@@ -231,6 +239,7 @@
                   <span class="text-[13px]">Settings</span>
                 </a>
               </li>
+
             </ul>
           </div>
           {% endif %}

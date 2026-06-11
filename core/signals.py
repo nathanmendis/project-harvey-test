@@ -59,3 +59,16 @@ def deduct_leave_balance_on_approval(sender, instance, created, **kwargs):
         instance.is_deducted = True
         # Use update() to avoid triggering post_save again
         LeaveRequest.objects.filter(pk=instance.pk).update(is_deducted=True)
+
+
+@receiver(post_save, sender=Candidate)
+def trigger_candidate_resume_parsing(sender, instance, created, **kwargs):
+    """
+    When a Candidate is created or updated, if they have a resume_file but no skills
+    or parsed_data set yet, trigger the async parsing task.
+    """
+    if instance.resume_file and (not instance.skills or not instance.parsed_data):
+        from core.tasks import parse_candidate_resume_task
+        from django.db import transaction
+        transaction.on_commit(lambda: parse_candidate_resume_task.delay(instance.id))
+

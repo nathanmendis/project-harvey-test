@@ -328,3 +328,57 @@ def cleanup_cancelled_interviews_task(self):
     
     logger.info("Database Cleanup: Removed %s cancelled interview records.", count)
     return {"deleted_count": count}
+
+
+@shared_task(bind=True, max_retries=2, default_retry_delay=30)
+def parse_candidate_resume_task(self, candidate_id):
+    """
+    Asynchronously parses the candidate's resume, extracts skills, and indexes them.
+    """
+    from core.models.recruitment import Candidate
+    from core.ai.utils.resume_parser import ResumeParser
+    from core.ai.rag.model_indexer import ModelIndexer
+    import os
+
+    try:
+        candidate = Candidate.objects.get(id=candidate_id)
+    except Candidate.DoesNotExist:
+        logger.warning("Candidate %s no longer exists.", candidate_id)
+        return {"status": "aborted"}
+
+    if not candidate.resume_file:
+        logger.info("Candidate %s has no resume file to parse.", candidate_id)
+        return {"status": "no_resume"}
+
+    file_path = candidate.resume_file.path
+    if not os.path.exists(file_path):
+        logger.error("Resume file path %s does not exist.", file_path)
+        return {"status": "file_not_found"}
+
+    parser = ResumeParser()
+    try:
+        text = parser.parse(file_path)
+        extracted = parser.extract_info(text)
+        
+        updated = False
+        if not candidate.parsed_data:
+            candidate.parsed_data = text
+            updated = True
+        
+        if not candidate.skills:
+            candidate.skills = extracted.get("skills") or []
+            updated = True
+            
+        if updated:
+            candidate.save(update_fields=['parsed_data', 'skills'])
+            logger.info("Successfully parsed and updated candidate %s skills: %s", candidate.id, candidate.skills)
+        
+        # Always trigger reindexing after parsing
+        indexer = ModelIndexer()
+        indexer.index_candidate(candidate.id)
+        
+        return {"status": "success", "skills": candidate.skills}
+    except Exception as exc:
+        logger.error("Failed to parse candidate resume %s: %s", candidate_id, exc)
+        raise self.retry(exc=exc)
+

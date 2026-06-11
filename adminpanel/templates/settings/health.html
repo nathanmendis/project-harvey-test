@@ -1,0 +1,332 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}System Health - Harvey{% endblock %}
+
+{% block content %}
+<style>
+    /* Premium SVG Checkmark Animation */
+    .checkmark-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .checkmark {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 4;
+        stroke: #10b981; /* Emerald 500 */
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #10b981;
+        transform: scale(0);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .checkmark.active {
+        transform: scale(1);
+        animation: fill-checkmark .4s ease-in-out .4s forwards, scale-checkmark .3s ease-in-out .9s forwards;
+    }
+
+    .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 4;
+        stroke-miterlimit: 10;
+        stroke: #10b981;
+        fill: none;
+    }
+    
+    .checkmark.active .checkmark__circle {
+        animation: stroke-checkmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        stroke-width: 4;
+        stroke: #10b981;
+    }
+    
+    .checkmark.active .checkmark__check {
+        animation: stroke-checkmark 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+
+    @keyframes stroke-checkmark {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+    @keyframes scale-checkmark {
+        0%, 100% {
+            transform: none;
+        }
+        50% {
+            transform: scale3d(1.1, 1.1, 1);
+        }
+    }
+    @keyframes fill-checkmark {
+        100% {
+            box-shadow: inset 0px 0px 0px 30px #ecfdf5; /* emerald-50 */
+        }
+    }
+
+    /* Skeleton Animation */
+    .skeleton-bar {
+        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+        background-size: 200% 100%;
+        animation: loading-skeleton 1.5s infinite;
+    }
+
+    @keyframes loading-skeleton {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>
+
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight uppercase">System Health</h1>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Real-time status of local resources and integrations</p>
+        </div>
+        <button id="run-diagnostics-btn" onclick="runDiagnostics()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all">
+            <i id="refresh-icon" class="fas fa-sync-alt text-xs"></i>
+            Refresh
+        </button>
+    </div>
+
+    <!-- Consolidated Status Card -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <!-- Top Status Banner -->
+        <div id="status-banner" class="border-b border-slate-100 bg-slate-50/50 p-6 flex items-center justify-between transition-colors duration-500">
+            <div class="flex items-center gap-4">
+                <div id="checkmark-container" class="w-14 h-14 shrink-0 flex items-center justify-center">
+                    <!-- Dynamic Pulse/Checkmark -->
+                    <div id="spinner-loader" class="w-7 h-7 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    <div id="success-checkmark" class="checkmark-wrapper hidden">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">System Status: <span id="status-text" class="text-slate-400">Scanning</span></h2>
+                    <p id="status-desc" class="text-xs font-semibold text-slate-400 mt-0.5">Running diagnostic tests on local resources...</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Last Check</span>
+                <span id="last-checked-time" class="text-xs font-bold text-slate-700">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- Diagnostic Sections -->
+        <div class="p-8 space-y-8">
+            <!-- 1. Infrastructure Services -->
+            <div>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-4">Infrastructure Nodes</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex justify-between items-center py-2 px-3 hover:bg-slate-50 rounded-xl transition-all">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-800 uppercase tracking-tight">Redis Server</span>
+                            <span id="redis-latency" class="text-[10px] text-slate-400 font-semibold mt-0.5">Ping latency: --</span>
+                        </div>
+                        <span id="redis-status" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-slate-50 text-slate-400 border border-slate-100 transition-all">Scanning</span>
+                    </div>
+                    <div class="flex justify-between items-center py-2 px-3 hover:bg-slate-50 rounded-xl transition-all">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-800 uppercase tracking-tight">Celery Engine</span>
+                            <span id="celery-workers" class="text-[10px] text-slate-400 font-semibold mt-0.5">Active nodes: --</span>
+                        </div>
+                        <span id="celery-status" class="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-slate-50 text-slate-400 border border-slate-100 transition-all">Scanning</span>
+                    </div>
+                </div>
+                <div id="redis-error-banner" class="hidden mt-4 p-3 rounded-xl bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100">
+                    Connection Error: <span id="redis-error-text" class="font-semibold">N/A</span>
+                </div>
+            </div>
+
+            <!-- 2. Configuration Settings -->
+            <div>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-4">Environment Keys</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="env-list-container">
+                    <!-- Placeholders during scan -->
+                    <div class="h-12 rounded-xl skeleton-bar col-span-2"></div>
+                </div>
+            </div>
+
+            <!-- 3. Connected Integrations -->
+            <div>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-4">Organizational Connections</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800 uppercase tracking-tight">Google Workspace</span>
+                            <span id="google-status" class="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-slate-200 text-slate-500">Scanning</span>
+                        </div>
+                        <span id="google-email" class="text-[11px] font-semibold text-slate-400 truncate">--</span>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800 uppercase tracking-tight">HRMS Sync</span>
+                            <span id="hrms-status" class="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-slate-200 text-slate-500">Scanning</span>
+                        </div>
+                        <span id="hrms-desc" class="text-[11px] font-semibold text-slate-400">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        runDiagnostics();
+    });
+
+    async function runDiagnostics() {
+        const btn = document.getElementById("run-diagnostics-btn");
+        const icon = document.getElementById("refresh-icon");
+        const spinner = document.getElementById("spinner-loader");
+        const checkmarkWrapper = document.getElementById("success-checkmark");
+        const checkmark = checkmarkWrapper.querySelector(".checkmark");
+        
+        // Setup initial loading visual states
+        btn.disabled = true;
+        icon.classList.add("fa-spin");
+        spinner.classList.remove("hidden");
+        checkmarkWrapper.classList.add("hidden");
+        checkmark.classList.remove("active");
+
+        try {
+            const response = await fetch("{% url 'system_health_api' %}");
+            const data = await response.json();
+            
+            // Time formatting
+            const date = new Date(data.timestamp * 1000);
+            document.getElementById("last-checked-time").innerText = date.toLocaleTimeString();
+
+            // 1. Overall banner updates
+            const banner = document.getElementById("status-banner");
+            const statusText = document.getElementById("status-text");
+            const statusDesc = document.getElementById("status-desc");
+
+            if (data.status === "healthy") {
+                banner.className = "border-b border-emerald-100 bg-emerald-50/30 p-6 flex items-center justify-between transition-colors duration-500";
+                statusText.innerText = "ONLINE";
+                statusText.className = "text-emerald-600 font-black";
+                statusDesc.innerText = "All integration services and infrastructure nodes are responsive.";
+                
+                // Trigger animated checkmark
+                spinner.classList.add("hidden");
+                checkmarkWrapper.classList.remove("hidden");
+                setTimeout(() => {
+                    checkmark.classList.add("active");
+                }, 50);
+            } else {
+                banner.className = "border-b border-rose-100 bg-rose-50/30 p-6 flex items-center justify-between transition-colors duration-500";
+                statusText.innerText = "ATTENTION REQUIRED";
+                statusText.className = "text-rose-600 font-black";
+                statusDesc.innerText = "One or more infrastructure components failed verification.";
+                
+                // Keep spinner hidden, show error mark
+                spinner.classList.add("hidden");
+            }
+
+            // 2. Redis updates
+            const redisStatus = document.getElementById("redis-status");
+            const redisLatency = document.getElementById("redis-latency");
+            const redisErrorBanner = document.getElementById("redis-error-banner");
+            const redisErrorText = document.getElementById("redis-error-text");
+
+            if (data.redis.status === "healthy") {
+                redisStatus.innerText = "ONLINE";
+                redisStatus.className = "px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100";
+                redisLatency.innerText = `Ping latency: ${data.redis.latency_ms} ms`;
+                redisErrorBanner.classList.add("hidden");
+            } else {
+                redisStatus.innerText = "OFFLINE";
+                redisStatus.className = "px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-rose-50 text-rose-600 border border-rose-100";
+                redisLatency.innerText = "Ping latency: --";
+                redisErrorBanner.classList.remove("hidden");
+                redisErrorText.innerText = data.redis.error || "Connection refused.";
+            }
+
+            // 3. Celery updates
+            const celeryStatus = document.getElementById("celery-status");
+            const celeryWorkers = document.getElementById("celery-workers");
+
+            if (data.celery.status === "healthy") {
+                celeryStatus.innerText = "ACTIVE";
+                celeryStatus.className = "px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100";
+                celeryWorkers.innerText = `Active nodes: ${data.celery.active_workers.length}`;
+            } else {
+                celeryStatus.innerText = "INACTIVE";
+                celeryStatus.className = "px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg bg-rose-50 text-rose-600 border border-rose-100";
+                celeryWorkers.innerText = "Active nodes: 0";
+            }
+
+            // 4. Env Keys list
+            const envContainer = document.getElementById("env-list-container");
+            envContainer.innerHTML = "";
+            for (const [key, value] of Object.entries(data.system_env)) {
+                const isConf = value.status === "configured";
+                const item = document.createElement("div");
+                item.className = "flex justify-between items-center py-2 px-3 hover:bg-slate-50 rounded-xl transition-all";
+                item.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-tight">${key}</span>
+                        <span class="text-[9px] font-semibold text-slate-400">Prefix: ${value.value}</span>
+                    </div>
+                    <span class="px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded border ${
+                        isConf 
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                            : 'bg-rose-50 text-rose-600 border-rose-100'
+                    }">${isConf ? 'Set' : 'Missing'}</span>
+                `;
+                envContainer.appendChild(item);
+            }
+
+            // 5. Integrations updates
+            // Google
+            const gStatus = document.getElementById("google-status");
+            const gEmail = document.getElementById("google-email");
+            if (data.org_integrations.google_workspace.status === "connected") {
+                gStatus.innerText = "CONNECTED";
+                gStatus.className = "px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-emerald-50 text-emerald-600 border border-emerald-100";
+                gEmail.innerText = data.org_integrations.google_workspace.email;
+            } else {
+                gStatus.innerText = "INACTIVE";
+                gStatus.className = "px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-slate-100 text-slate-400 border border-slate-200";
+                gEmail.innerText = "No credentials connected";
+            }
+
+            // HRMS
+            const hStatus = document.getElementById("hrms-status");
+            const hDesc = document.getElementById("hrms-desc");
+            if (data.org_integrations.hrms.status === "active") {
+                hStatus.innerText = "ACTIVE";
+                hStatus.className = "px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-emerald-50 text-emerald-600 border border-emerald-100";
+                hDesc.innerText = `Provider: ${data.org_integrations.hrms.type.toUpperCase()}`;
+            } else {
+                hStatus.innerText = "INACTIVE";
+                hStatus.className = "px-2 py-0.5 text-[8px] font-black uppercase tracking-widest rounded bg-slate-100 text-slate-400 border border-slate-200";
+                hDesc.innerText = "No integration mappings defined";
+            }
+
+        } catch (error) {
+            console.error("Health check fetch error:", error);
+            statusText.innerText = "OFFLINE";
+            statusDesc.innerText = "Failed to communicate with diagnostic API endpoint.";
+        } finally {
+            btn.disabled = false;
+            icon.classList.remove("fa-spin");
+        }
+    }
+</script>
+{% endblock %}

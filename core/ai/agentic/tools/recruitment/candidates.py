@@ -114,7 +114,7 @@ def list_candidates(name: str = "", email: str = "", status: str = "", limit: in
         candidates = candidates.filter(status__iexact=status)
 
     count = candidates.count()
-    candidates = candidates.order_by("-created_at")[:limit]
+    candidates = candidates.order_by("-id")[:limit]
 
     if count == 0:
         return ok("No candidates found matching your criteria.")

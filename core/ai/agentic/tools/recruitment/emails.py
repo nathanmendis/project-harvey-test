@@ -10,7 +10,7 @@ def send_email(recipient: str, subject: str, body: str, user=None) -> str:
     if not org:
         return err("User is not associated with any organization. Please contact support.")
 
-    # 🔍 Resolve recipient
+    # Resolve recipient
     emails = resolve_candidate_emails(recipient, org)
     
     if not emails:

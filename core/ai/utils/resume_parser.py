@@ -47,11 +47,15 @@ class ResumeParser:
     def extract_info(self, text):
         """
         Uses LLM to extract Name, Email, and Skills from resume text.
+        Falls back to rule-based regex parsing if GROQ_API_KEY is not configured.
         """
         import os
+        import re
+        
         groq_key = os.getenv("GROQ_API_KEY")
         if not groq_key:
-            return {"name": "", "email": "", "skills": []}
+            logger.info("GROQ_API_KEY not found. Using rule-based regex resume parser.")
+            return self.extract_info_rule_based(text)
 
         llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0, api_key=groq_key)
         
@@ -82,5 +86,95 @@ class ResumeParser:
                 "skills": data.get("skills") if isinstance(data.get("skills"), list) else [s.strip() for s in str(data.get("skills")).split(",")] if data.get("skills") else []
             }
         except Exception as e:
-            logger.error(f"Failed to extract info from resume text: {e}")
-            return {"name": "", "email": "", "skills": []}
+            logger.error(f"Failed to extract info via LLM: {e}. Falling back to rule-based.")
+            return self.extract_info_rule_based(text)
+
+    def extract_info_rule_based(self, text):
+        """
+        Regex and heuristic based parsing for offline/no-LLM extraction.
+        """
+        import re
+        
+        # 1. Extract Email
+        email_match = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', text)
+        email = email_match.group(0) if email_match else ""
+        
+        # 2. Extract Name Heuristic (first few short lines)
+        name = ""
+        for line in text.split('\n'):
+            line_strip = line.strip()
+            if line_strip and len(line_strip.split()) <= 4:
+                if not any(w in line_strip.lower() for w in ['resume', 'curriculum', 'vitae', 'cv', 'page', 'email', 'phone', 'contact']):
+                    name = line_strip
+                    break
+
+        # 3. Extract Skills Section
+        header_patterns = [
+            r'(?:technical\s+)?skills',
+            r'key\s+skills',
+            r'core\s+skills',
+            r'technologies',
+            r'expertise',
+            r'skills\s+&\s+expertise',
+            r'skills\s+and\s+tools',
+            r'programming\s+languages'
+        ]
+        
+        next_headers = [
+            r'experience',
+            r'work\s+experience',
+            r'employment\s+history',
+            r'professional\s+experience',
+            r'education',
+            r'projects',
+            r'academic\s+projects',
+            r'personal\s+projects',
+            r'certifications',
+            r'awards',
+            r'languages',
+            r'interests',
+            r'publications',
+            r'summary',
+            r'profile',
+            r'contact'
+        ]
+        
+        text_lower = text.lower()
+        skills_text = ""
+        
+        for pattern in header_patterns:
+            match = re.search(r'\b' + pattern + r'\b', text_lower)
+            if match:
+                start_idx = match.end()
+                # Find where the next section starts
+                end_idx = len(text)
+                for next_pat in next_headers:
+                    next_match = re.search(r'\b' + next_pat + r'\b', text_lower[start_idx:])
+                    if next_match:
+                        match_pos = start_idx + next_match.start()
+                        if match_pos < end_idx:
+                            end_idx = match_pos
+                
+                skills_section = text[start_idx:end_idx].strip()
+                if skills_section:
+                    skills_text = skills_section
+                    break
+        
+        skills = []
+        if skills_text:
+            # Clean separators and split
+            cleaned = re.sub(r'[\r\n\t•\-\*·|]', ',', skills_text)
+            raw_skills = re.split(r'[,;]', cleaned)
+            for s in raw_skills:
+                s_clean = s.strip()
+                # Keep words/phrases of reasonable length (2 to 50 chars)
+                if s_clean and 2 <= len(s_clean) <= 50:
+                    if not any(phrase in s_clean.lower() for phrase in ['resume', 'curriculum', 'page', 'university', 'college', 'responsible for', 'experience']):
+                        skills.append(s_clean)
+
+        return {
+            "name": name,
+            "email": email,
+            "skills": skills
+        }
+

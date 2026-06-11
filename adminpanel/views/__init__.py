@@ -49,3 +49,5 @@ from .rag_management import (
     reindex_everything,
 )
 from .leave_settings import leave_settings
+from .health import system_health_page, system_health_api
+

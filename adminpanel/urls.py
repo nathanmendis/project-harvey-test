@@ -46,6 +46,9 @@ urlpatterns = [
     path("settings/", views.org_settings, name="org_settings"),
     path("settings/hrms/", views.hrms_integration, name="hrms_integration"),
     path("settings/leaves/", views.leave_settings, name="leave_settings"),
+    path("settings/health/", views.system_health_page, name="system_health"),
+    path("settings/health/api/", views.system_health_api, name="system_health_api"),
+
 
     # RAG Pipeline Management
     path("rag/", views.rag_dashboard, name="rag_dashboard"),
