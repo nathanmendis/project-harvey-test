@@ -1,4 +1,4 @@
-from .pages import landing_page
+from .pages import landing_page, docs_view
 from .auth import (
     login_view, 
     CustomLogoutView, 

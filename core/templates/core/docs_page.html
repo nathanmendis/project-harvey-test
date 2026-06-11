@@ -1,0 +1,190 @@
+{% extends 'core_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto flex flex-col min-h-[85vh] gap-6">
+
+  <!-- Top Header Bar -->
+  <div class="flex items-center justify-between border-b border-slate-800 pb-6 mb-2">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-indigo-600/10 border border-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400">
+        <i class="fas fa-book-open text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-black tracking-tight text-white">Project Harvey Documentation</h1>
+        <p class="text-xs text-slate-400 font-medium">Public Engineering & Feature Specifications</p>
+      </div>
+    </div>
+    <a href="{% url 'landing_page' %}" class="flex items-center gap-2 px-4 py-2 border border-slate-800 hover:border-slate-700 bg-slate-900/60 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+  </div>
+
+  <!-- Main Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 flex-1">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="lg:col-span-1 flex flex-col gap-2 bg-slate-950/40 border border-slate-900 rounded-2xl p-4 self-start">
+      <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest px-3 mb-2">Documentation Tree</span>
+      <div class="flex flex-col gap-1">
+        {% for item in sidebar_items %}
+          <a href="{% url 'docs_page' item.key %}" 
+             class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all
+                    {% if active_key == item.key %}
+                      bg-indigo-600 text-white shadow-md shadow-indigo-600/10
+                    {% else %}
+                      text-slate-400 hover:text-white hover:bg-slate-900/50
+                    {% endif %}">
+            <span>{{ item.label }}</span>
+            <i class="fas fa-chevron-right text-[9px] opacity-50"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <!-- Document Content Area -->
+    <section class="lg:col-span-3 bg-slate-950/30 border border-slate-900 rounded-[32px] p-8 lg:p-12 shadow-sm flex flex-col gap-6 relative overflow-hidden min-h-[70vh]">
+      <!-- Glow background -->
+      <div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"></div>
+      
+      <div class="border-b border-slate-900 pb-6 relative z-10">
+        <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Active Document</span>
+        <h2 class="text-3xl font-black text-white tracking-tight mt-1">{{ doc_title }}</h2>
+      </div>
+
+      <!-- Rendered Document -->
+      <div id="docs-content" class="prose-docs relative z-10 text-slate-300 leading-relaxed font-medium text-sm">
+        <!-- Markdown HTML will inject here -->
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Raw Markdown Source -->
+<script id="markdown-source" type="text/markdown">{{ markdown_content|safe }}</script>
+
+<!-- Marked.js for Premium Client-side Markdown Rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Styling override for Premium Docs Rendering -->
+<style>
+  .prose-docs h1 {
+    font-size: 1.85rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+    border-bottom: 1px solid #1e293b;
+    padding-bottom: 0.5rem;
+  }
+  .prose-docs h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .prose-docs h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-docs p {
+    margin-bottom: 1.25rem;
+    color: #cbd5e1;
+  }
+  .prose-docs ul, .prose-docs ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+  .prose-docs ul {
+    list-style-type: disc;
+  }
+  .prose-docs ol {
+    list-style-type: decimal;
+  }
+  .prose-docs li {
+    margin-bottom: 0.5rem;
+  }
+  .prose-docs strong {
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .prose-docs code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85em;
+    background-color: rgba(30, 41, 59, 0.4);
+    border: 1px solid rgba(71, 85, 105, 0.2);
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+    color: #e2e8f0;
+  }
+  .prose-docs pre {
+    background-color: #0b0f19;
+    border: 1px solid #1e293b;
+    padding: 1.25rem;
+    border-radius: 16px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+  .prose-docs pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.9em;
+    color: #e2e8f0;
+  }
+  .prose-docs table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+  }
+  .prose-docs th {
+    background-color: rgba(30, 41, 59, 0.4);
+    border: 1px solid #1e293b;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+  .prose-docs td {
+    border: 1px solid #1e293b;
+    padding: 0.75rem 1rem;
+    color: #cbd5e1;
+  }
+  .prose-docs tr:nth-child(even) {
+    background-color: rgba(30, 41, 59, 0.1);
+  }
+  .prose-docs blockquote {
+    border-left: 4px solid #4f46e5;
+    background-color: rgba(79, 70, 229, 0.05);
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0 12px 12px 0;
+  }
+  .prose-docs hr {
+    border-color: #1e293b;
+    margin: 2rem 0;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const source = document.getElementById("markdown-source").textContent;
+    // Set marked options for security
+    marked.setOptions({
+      headerIds: true,
+      mangle: false,
+      gfm: true,
+      breaks: true
+    });
+    document.getElementById("docs-content").innerHTML = marked.parse(source);
+  });
+</script>
+{% endblock %}

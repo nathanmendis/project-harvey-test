@@ -55,9 +55,9 @@ def landing_page(request):
             "icon": "fa-brain",
             "items": [
                 {"icon": "fa-project-diagram", "title": "LangGraph Intent Router", "description": "Dynamic LLM routing pipeline that classifies user intents to selectively trigger tools, RAG searches, or direct responses."},
+                {"icon": "fa-user-check", "title": "Human-in-the-Loop Action Gates", "description": "Interactive confirmation cards that intercept sensitive tool executions (e.g. scheduling, leaves, emails), offering inline parameter editing and strict validation gates."},
                 {"icon": "fa-database", "title": "PgVector RAG Integration", "description": "Semantic similarity searches across indexed company policies and candidate profiles using HuggingFace embeddings."},
-                {"icon": "fa-comment-dots", "title": "Contextual Memory Streams", "description": "Session-aware database storage maintaining deep conversational context across heavily branching chat threads."},
-                {"icon": "fa-magic", "title": "Automated Action Mutations", "description": "Securely granted AI permissions to automatically create job postings, candidates, and leave requests via chat."}
+                {"icon": "fa-comment-dots", "title": "Contextual Memory Streams", "description": "Session-aware database storage maintaining deep conversational context across heavily branching chat threads."}
             ]
         },
         {
@@ -109,4 +109,48 @@ def landing_page(request):
     return render(request, "core/landing_page.html", {
         "feature_categories": feature_categories,
         "live_stats": live_stats
+    })
+
+
+def docs_view(request, doc_key="feature_list"):
+    """Render public project documentation page with sidebar selection."""
+    import os
+    from django.conf import settings
+    from django.http import Http404
+
+    docs_map = {
+        "feature_list": ("Feature Overview", "feature_list.md"),
+        "agent_working": ("Agent Internals", "AGENT_WORKING.md"),
+        "technical_docs": ("Technical System Architecture", "TECHNICAL_DOCS.md"),
+        "hr_integration": ("HRMS Integration", "HR_INTEGRATION.md"),
+        "hr_integration_diagrams": ("Integration Workflows & Diagrams", "HR_INTEGRATION_DIAGRAMS.md"),
+        "deployment": ("Deployment Guide", "DEPLOYMENT.md"),
+        "data_model": ("Data Models Reference", "Data.md"),
+        "algorithms": ("Algorithms & Search Specifications", "algorithms.md"),
+        "security_features": ("Security & Privacy Gates", "security_features.md"),
+    }
+
+    if doc_key not in docs_map:
+        raise Http404("Documentation page not found")
+
+    title, filename = docs_map[doc_key]
+    docs_dir = os.path.join(settings.BASE_DIR, "Documentiation")
+    filepath = os.path.join(docs_dir, filename)
+
+    if not os.path.exists(filepath):
+        # Fallback if file name capitalization differs slightly
+        raise Http404(f"Documentation file {filename} does not exist")
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        markdown_content = f.read()
+
+    sidebar_items = [
+        {"key": k, "label": v[0]} for k, v in docs_map.items()
+    ]
+
+    return render(request, "core/docs_page.html", {
+        "doc_title": title,
+        "markdown_content": markdown_content,
+        "sidebar_items": sidebar_items,
+        "active_key": doc_key
     })

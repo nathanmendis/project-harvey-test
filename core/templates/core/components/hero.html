@@ -38,11 +38,14 @@
                 <div class="flex items-center gap-2">
                     <i class="fas fa-check-circle text-pink-500"></i> HRMS Integrations
                 </div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-check-circle text-amber-500"></i> Human-in-the-Loop Action Gates
+                </div>
             </div>
 
             <p class="text-lg md:text-xl text-slate-600 leading-relaxed max-w-lg mx-auto lg:mx-0">
                 An AI-powered HR platform that dynamically syncs with your tools, understands your company policies via
-                RAG, and automatically manages your staff.
+                RAG, and automatically manages your staff with secure human confirmation.
             </p>
 
             <!-- Live Stats Branding -->
@@ -90,37 +93,31 @@
                         <div class="flex justify-end">
                             <div
                                 class="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-md font-medium">
-                                How many leave days do I have left?
+                                Submit a leave request for next monday.
                             </div>
                         </div>
 
-                        <!-- AI Message -->
+                        <!-- AI Response: Pending Approval Card -->
                         <div class="flex justify-start">
-                            <div
-                                class="bg-white text-slate-800 px-4 py-3 rounded-2xl rounded-tl-sm text-sm max-w-xs border border-slate-200 shadow-md">
-                                You have <span class="text-indigo-600 font-semibold">12 days</span> of annual leave
-                                remaining for this year. Would you like me to help you submit a request?
-                            </div>
-                        </div>
-
-                        <!-- User Message -->
-                        <div class="flex justify-end">
-                            <div
-                                class="bg-slate-900 text-white px-4 py-3 rounded-2xl rounded-tr-sm text-sm max-w-xs shadow-md font-medium">
-                                Yes, for next Monday and Tuesday.
-                            </div>
-                        </div>
-
-                        <!-- AI Reply Animation -->
-                        <div class="flex justify-start items-center gap-2">
-                            <div
-                                class="bg-white px-4 py-3 rounded-2xl rounded-tl-sm border border-slate-200 shadow-md">
-                                <div class="flex gap-1">
-                                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-                                    <span
-                                        class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></span>
-                                    <span
-                                        class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></span>
+                            <div class="bg-white border-2 border-amber-400/40 rounded-2xl p-4 text-xs max-w-xs shadow-lg flex flex-col gap-3">
+                                <div class="flex items-center gap-1.5 text-amber-600 font-bold uppercase tracking-wider text-[9px] -mt-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                    Approval Required
+                                </div>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Confirm Action: Apply Leave</h4>
+                                <div class="space-y-2">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-[8px] font-black uppercase text-slate-400 tracking-wider">Start Date</span>
+                                        <input type="text" readonly class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-bold text-slate-800 text-[10px]" value="2026-06-15">
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-[8px] font-black uppercase text-slate-400 tracking-wider">Leave Type</span>
+                                        <input type="text" readonly class="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-bold text-slate-800 text-[10px]" value="Sick Leave">
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 mt-1">
+                                    <button class="bg-indigo-600 text-white font-bold px-4 py-1.5 rounded-xl text-[10px] shadow-sm">Send Now</button>
+                                    <button class="bg-slate-100 text-slate-600 font-semibold px-4 py-1.5 rounded-xl text-[10px] border border-slate-200">Edit</button>
                                 </div>
                             </div>
                         </div>

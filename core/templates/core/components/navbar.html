@@ -12,6 +12,9 @@
         </div>
 
         <div class="flex items-center gap-6">
+            <a href="{% url 'docs_home' %}" class="hidden sm:flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
+                <i class="fas fa-book text-indigo-500"></i> Docs
+            </a>
             {% if user.is_authenticated %}
             <a href="{% url 'chat_view' %}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold transition-all shadow-lg shadow-indigo-500/30 text-sm">
