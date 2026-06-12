@@ -16,7 +16,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - REDIS_URL=redis://redis:6379/1
-      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,project-harvey
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,project-harvey,harvey.nathanmendis.in
 
       - DJANGO_SETTINGS_MODULE=project_harvey.settings
     depends_on:

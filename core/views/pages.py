@@ -154,3 +154,40 @@ def docs_view(request, doc_key="feature_list"):
         "sidebar_items": sidebar_items,
         "active_key": doc_key
     })
+
+
+def docs_print_view(request):
+    """Render a single page containing all documentation for clean PDF printing."""
+    import os
+    from django.conf import settings
+
+    docs_map = {
+        "feature_list": ("Feature Overview", "feature_list.md"),
+        "agent_working": ("Agent Internals", "AGENT_WORKING.md"),
+        "technical_docs": ("Technical System Architecture", "TECHNICAL_DOCS.md"),
+        "hr_integration": ("HRMS Integration", "HR_INTEGRATION.md"),
+        "hr_integration_diagrams": ("Integration Workflows & Diagrams", "HR_INTEGRATION_DIAGRAMS.md"),
+        "deployment": ("Deployment Guide", "DEPLOYMENT.md"),
+        "data_model": ("Data Models Reference", "Data.md"),
+        "algorithms": ("Algorithms & Search Specifications", "algorithms.md"),
+        "security_features": ("Security & Privacy Gates", "security_features.md"),
+    }
+
+    docs_dir = os.path.join(settings.BASE_DIR, "Documentiation")
+    compiled_docs = []
+
+    for key, (title, filename) in docs_map.items():
+        filepath = os.path.join(docs_dir, filename)
+        if os.path.exists(filepath):
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+            compiled_docs.append({
+                "key": key,
+                "title": title,
+                "content": content
+            })
+
+    return render(request, "core/docs_print.html", {
+        "compiled_docs": compiled_docs
+    })
+

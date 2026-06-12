@@ -1,0 +1,353 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Harvey - Technical Documentation (Print View)</title>
+  <link class="favicon" rel="icon" type="image/png" href="{% static 'core/images/harvey_icon.png' %}">
+  
+  <!-- TailwindCSS -->
+  {% tailwind_css %}
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+    
+    /* Cover Page Styling */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: white;
+      text-align: center;
+      padding: 3rem;
+      position: relative;
+    }
+
+    /* Print-specific layout container */
+    .print-container {
+      max-width: 8.5in; /* Standard letter width */
+      margin: 2rem auto;
+      background-color: white;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* Prose Documentation Styling */
+    .prose-docs h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .prose-docs h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+    .prose-docs h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .prose-docs p {
+      margin-bottom: 1rem;
+      line-height: 1.625;
+      color: #475569;
+    }
+    .prose-docs ul, .prose-docs ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    .prose-docs ul {
+      list-style-type: disc;
+    }
+    .prose-docs ol {
+      list-style-type: decimal;
+    }
+    .prose-docs li {
+      margin-bottom: 0.35rem;
+      color: #475569;
+    }
+    .prose-docs strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .prose-docs code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85em;
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.15em 0.35em;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+    .prose-docs pre {
+      background-color: #0f172a;
+      padding: 1.25rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+    }
+    .prose-docs pre code {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+      font-size: 0.9em;
+      color: #f8fafc;
+    }
+    .prose-docs table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.25rem;
+      font-size: 0.85rem;
+    }
+    .prose-docs th {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+    }
+    .prose-docs td {
+      border: 1px solid #e2e8f0;
+      padding: 0.65rem 0.85rem;
+      color: #475569;
+    }
+    .prose-docs tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    .prose-docs blockquote {
+      border-left: 4px solid #6366f1;
+      background-color: #f5f3ff;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      border-radius: 0 8px 8px 0;
+    }
+    .prose-docs hr {
+      border-color: #e2e8f0;
+      margin: 1.75rem 0;
+    }
+
+    /* Dot leader styles for Table of Contents */
+    .toc-list-item {
+      display: flex;
+      align-items: bottom;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .toc-dots {
+      flex-grow: 1;
+      border-bottom: 2px dotted #cbd5e1;
+      margin: 0 0.5rem;
+      position: relative;
+      top: -4px;
+    }
+
+    /* Floating Navigation Controls */
+    .floating-controls {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      gap: 0.75rem;
+      z-index: 50;
+    }
+
+    /* @media print modifications */
+    @media print {
+      body {
+        background-color: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-container {
+        max-width: 100%;
+        margin: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+      .cover-page {
+        min-height: 100vh;
+        height: 100vh;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .toc-page {
+        page-break-after: always;
+        page-break-before: always;
+      }
+      .chapter-section {
+        page-break-before: always;
+      }
+      /* Prevent headings from being orphans */
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid !important;
+      }
+      /* Prevent elements breaking inside */
+      pre, blockquote, table, tr, img, .mermaid {
+        page-break-inside: avoid !important;
+      }
+      a {
+        text-decoration: none !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- Floating Print Controls (Hidden on Print) -->
+  <div class="floating-controls no-print">
+    <a href="{% url 'docs_home' %}" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 text-sm transition-all">
+      <i class="fas fa-arrow-left"></i> Back to Docs
+    </a>
+    <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-full shadow-lg flex items-center gap-2 text-sm transition-all">
+      <i class="fas fa-print"></i> Print / Save PDF
+    </button>
+  </div>
+
+  <div class="print-container">
+    
+    <!-- Cover Page -->
+    <div class="cover-page">
+      <div class="max-w-xl mx-auto flex flex-col items-center gap-6">
+        <img src="{% static 'core/images/harvey_icon.png' %}" alt="Harvey Icon" class="w-24 h-24 object-contain filter invert brightness-200">
+        <div>
+          <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">Project Harvey</h1>
+          <p class="text-indigo-200 text-lg font-medium mt-2">Complete Engineering & Technical Documentation</p>
+        </div>
+        <div class="w-16 h-1 bg-indigo-500 rounded my-2"></div>
+        <p class="text-slate-400 text-sm max-w-md">
+          A comprehensive compilation of features, LangGraph intent routers, database schemas, deployment pipelines, and security mechanisms.
+        </p>
+        <div class="mt-8 text-xs text-slate-400 font-semibold space-y-1">
+          <p>Generated: <span id="generation-date"></span></p>
+          <p>Classification: Internal Engineering Document</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table of Contents Page -->
+    <div class="toc-page p-12 lg:p-16 bg-white border-b border-slate-100">
+      <h2 class="text-3xl font-extrabold text-slate-900 mb-8 border-b pb-4 flex items-center gap-3">
+        <i class="fas fa-list-ol text-indigo-600 text-2xl"></i> Document Index
+      </h2>
+      <div class="max-w-2xl mt-4" id="toc-list">
+        <!-- Javascript will populate this with chapter titles dynamically -->
+      </div>
+    </div>
+
+    <!-- Compiled Document Sections -->
+    <div class="chapters-container p-12 lg:p-16">
+      {% for doc in compiled_docs %}
+      <section class="chapter-section border-b border-slate-100 pb-12 mb-12 last:border-0 last:mb-0 last:pb-0" id="chapter-{{ doc.key }}" data-title="{{ doc.title }}">
+        <div class="mb-6">
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded">Chapter</span>
+          <h1 class="text-3xl font-extrabold text-slate-950 tracking-tight mt-2 pb-2 border-b">{{ doc.title }}</h1>
+        </div>
+        
+        <!-- Rendered HTML goes here -->
+        <article class="prose-docs text-slate-700" id="content-{{ doc.key }}"></article>
+        
+        <!-- Raw MD content -->
+        <script id="raw-{{ doc.key }}" type="text/markdown">{{ doc.content|safe }}</script>
+      </section>
+      {% endfor %}
+    </div>
+    
+  </div>
+
+  <!-- Marked.js for Client-side Markdown Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Mermaid.js for Rendering Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Set Generation Date
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('generation-date').textContent = new Date().toLocaleDateString(undefined, dateOptions);
+
+      // Set Markdown options
+      marked.setOptions({
+        headerIds: true,
+        mangle: false,
+        gfm: true,
+        breaks: true
+      });
+
+      const tocList = document.getElementById("toc-list");
+      const chapters = document.querySelectorAll(".chapter-section");
+
+      // 1. Process and Render Markdown + Build TOC
+      chapters.forEach((chapter, index) => {
+        const key = chapter.id.replace("chapter-", "");
+        const title = chapter.getAttribute("data-title");
+        const rawContent = document.getElementById(`raw-${key}`).textContent;
+        const targetDiv = document.getElementById(`content-${key}`);
+
+        // Parse & Render Markdown
+        targetDiv.innerHTML = marked.parse(rawContent);
+
+        // Append to TOC
+        const tocItem = document.createElement("a");
+        tocItem.href = `#chapter-${key}`;
+        tocItem.className = "toc-list-item text-slate-700 hover:text-indigo-600 transition-colors font-medium";
+        tocItem.innerHTML = `
+          <span>${index + 1}. ${title}</span>
+          <span class="toc-dots"></span>
+          <span class="text-slate-400 text-sm">Ch ${index + 1}</span>
+        `;
+        tocList.appendChild(tocItem);
+      });
+
+      // 2. Intercept and Convert Mermaid Blocks to Divs
+      const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid');
+      if (mermaidBlocks.length > 0) {
+        mermaidBlocks.forEach((codeEl) => {
+          const preEl = codeEl.parentElement;
+          const div = document.createElement('div');
+          div.className = 'mermaid my-6 bg-slate-50 p-4 rounded-xl border border-slate-100 flex justify-center';
+          div.textContent = codeEl.textContent;
+          preEl.parentNode.replaceChild(div, preEl);
+        });
+
+        // Initialize & Run Mermaid
+        mermaid.initialize({ 
+          startOnLoad: false, 
+          theme: 'neutral',
+          securityLevel: 'loose'
+        });
+        mermaid.run();
+      }
+    });
+  </script>
+</body>
+</html>
