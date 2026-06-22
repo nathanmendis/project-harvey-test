@@ -120,7 +120,6 @@ def validate_and_sanitize_args(tool_name, args, user):
         sanitized["start_date"] = start_date.isoformat()
         sanitized["end_date"] = end_date.isoformat()
         sanitized["leave_type"] = args.get("leave_type", "sick")
-        sanitized["reason"] = args.get("reason", "")
     else:
         # Fallback for general tools
         sanitized = args

@@ -54,7 +54,7 @@ The database is divided into logical functional areas:
 
 ---
 
-## 4. The Agentic Workflow (`core/llm_graph/`)
+## 4. The Agentic Workflow (`core/ai/agentic/graph/`)
 
 The graph lifecycle is managed within the `core/ai/agentic/graph/nodes/` package.
 
@@ -72,7 +72,7 @@ We use **Split Prompting**:
 
 ---
 
-## 5. Tool Integration System (`core/tools/`)
+## 5. Tool Integration System (`core/ai/agentic/tools/`)
 
 The system uses a centralized registry to bind Python functions to the LLM.
 

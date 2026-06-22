@@ -162,11 +162,12 @@ Harvey.Data = {
             // Render Messages
             // data.messages is Oldest -> Newest
             const renderAction = () => {
-                data.messages.forEach(msg => {
+                data.messages.forEach((msg, idx) => {
                     if (offset > 0) {
                         Harvey.UI.prependMessage(msg.sender, msg.text, msg.timestamp);
                     } else {
-                        Harvey.UI.appendMessage(msg.sender, msg.text, msg.timestamp);
+                        const isLatest = (idx === data.messages.length - 1);
+                        Harvey.UI.appendMessage(msg.sender, msg.text, msg.timestamp, isLatest);
                     }
                 });
             };

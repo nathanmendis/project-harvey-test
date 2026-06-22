@@ -45,6 +45,7 @@ class JobRole(models.Model):
     description = models.TextField()
     requirements = models.TextField()
     department = models.CharField(max_length=255)
+    is_filled = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.title} - {self.organization.name}"

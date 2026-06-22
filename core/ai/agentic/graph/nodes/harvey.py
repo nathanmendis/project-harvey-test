@@ -125,7 +125,41 @@ def harvey_node(state):
 
             logger.info(f"Harvey decided to use tool: {tool_name}")
             
-            sensitive_tools = ["schedule_interview", "apply_leave", "send_email_tool", "create_calendar_event_tool"]
+            if tool_name == "apply_leave":
+                import dateparser
+                from django.utils.dateparse import parse_date
+                args = tool_call.get("args", {})
+                s_date = args.get("start_date")
+                e_date = args.get("end_date")
+                logger.debug(f"[HIL Pre-Resolution] Original apply_leave args: start_date={s_date}, end_date={e_date}")
+                
+                if s_date and not parse_date(str(s_date)):
+                    dt = dateparser.parse(str(s_date), settings={'PREFER_DATES_FROM': 'future'}, languages=['en'])
+                    if dt:
+                        args["start_date"] = dt.date().isoformat()
+                        logger.debug(f"[HIL Pre-Resolution] Resolved start_date: {args['start_date']}")
+                
+                if e_date and not parse_date(str(e_date)):
+                    dt = dateparser.parse(str(e_date), settings={'PREFER_DATES_FROM': 'future'}, languages=['en'])
+                    if dt:
+                        args["end_date"] = dt.date().isoformat()
+                        logger.debug(f"[HIL Pre-Resolution] Resolved end_date: {args['end_date']}")
+                elif not e_date and s_date:
+                    args["end_date"] = args.get("start_date")
+                    logger.debug(f"[HIL Pre-Resolution] Fallback end_date set to start_date: {args['end_date']}")
+
+            elif tool_name == "schedule_interview":
+                from core.ai.agentic.tools.utils import resolve_natural_time
+                args = tool_call.get("args", {})
+                dt_str = args.get("date_time")
+                logger.debug(f"[HIL Pre-Resolution] Original schedule_interview date_time: {dt_str}")
+                if dt_str:
+                    resolved_dt = resolve_natural_time(str(dt_str))
+                    if resolved_dt:
+                        args["date_time"] = resolved_dt.strftime("%Y-%m-%dT%H:%M")
+                        logger.debug(f"[HIL Pre-Resolution] Resolved date_time: {args['date_time']}")
+
+            sensitive_tools = ["schedule_interview", "apply_leave", "send_email_tool", "create_calendar_event_tool", "create_job_description"]
             requires_approval = tool_name in sensitive_tools
             
             return {"messages": [result], "pending_tool": tool_call, "requires_approval": requires_approval}

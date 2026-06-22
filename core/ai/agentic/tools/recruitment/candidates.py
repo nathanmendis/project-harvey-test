@@ -145,7 +145,15 @@ def get_candidate_detail(candidate_id: int = None, email: str = None, user=None)
     if candidate_id:
         c = Candidate.objects.filter(organization=org, id=candidate_id).first()
     elif email:
-        c = Candidate.objects.filter(organization=org, email=email).first()
+        from core.ai.agentic.tools.utils import is_valid_email, resolve_candidate_emails
+        email_str = str(email).strip()
+        if is_valid_email(email_str):
+            c = Candidate.objects.filter(organization=org, email__iexact=email_str).first()
+        else:
+            # Fallback to resolving the candidate by name query (e.g. "Nathan")
+            emails = resolve_candidate_emails(email_str, org)
+            if emails:
+                c = Candidate.objects.filter(organization=org, email=emails[0]).first()
 
     if not c:
         return err("Candidate not found.")

@@ -26,7 +26,7 @@ def list_job_roles(department: str = "", title: str = "", user=None) -> str:
     if not org:
         return err("User not in organization.")
 
-    jobs = JobRole.objects.filter(organization=org)
+    jobs = JobRole.objects.filter(organization=org, is_filled=False)
     
     if department:
         jobs = jobs.filter(department__icontains=department)

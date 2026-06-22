@@ -39,42 +39,77 @@
     </form>
 
     {% if jobs %}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        {% for job in jobs %}
-        <div class="bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm hover:border-indigo-200 transition-all group relative overflow-hidden">
-            <div class="flex items-start justify-between mb-6 relative z-10">
-                <div class="flex-1 pr-4">
-                    <h3 class="text-2xl font-black text-slate-900 tracking-tight mb-2 group-hover:text-indigo-600 transition-colors">{{ job.title }}</h3>
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100">{{ job.department }}</span>
-                    </div>
-                </div>
-                <div class="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm shrink-0">
-                    <i class="fas fa-briefcase text-2xl"></i>
-                </div>
-            </div>
-            <p class="text-slate-500 text-sm font-medium mb-8 line-clamp-2 leading-relaxed">{{ job.description }}</p>
-            <div class="flex items-center justify-between relative z-10 pt-6 border-t border-slate-50">
-                <a href="{% url 'job_detail' job.id %}"
-                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-black text-xs uppercase tracking-widest transition-all">
-                    <span>Configure Role</span>
-                    <i class="fas fa-arrow-right text-[10px]"></i>
-                </a>
-            </div>
+    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-400 uppercase text-[10px] font-black tracking-widest">
+                        <th class="px-8 py-6">Job Title</th>
+                        <th class="px-8 py-6">Department</th>
+                        <th class="px-8 py-6">Description</th>
+                        <th class="px-8 py-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for job in jobs %}
+                    <tr class="hover:bg-slate-50/30 transition-colors group">
+                        <td class="px-8 py-5 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <div class="text-sm font-bold {% if job.is_filled %}text-slate-400 line-through{% else %}text-slate-900 group-hover:text-indigo-600{% endif %} transition-colors">{{ job.title }}</div>
+                                {% if job.is_filled %}
+                                <span class="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[8px] font-black uppercase tracking-widest border border-slate-200">Filled</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 whitespace-nowrap">
+                            <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100">{{ job.department }}</span>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="text-slate-500 text-sm font-medium line-clamp-1 max-w-md leading-relaxed">{{ job.description }}</div>
+                        </td>
+                        <td class="px-8 py-5 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-6">
+                                {% if not job.is_filled %}
+                                <a href="{% url 'mark_job_filled' job.id %}"
+                                    class="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-700 font-black text-[10px] uppercase tracking-widest transition-all">
+                                    <i class="fas fa-check text-[10px]"></i>
+                                    <span>Mark Filled</span>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'job_detail' job.id %}"
+                                    class="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-black text-[10px] uppercase tracking-widest transition-all">
+                                    <i class="fas fa-cog text-[10px]"></i>
+                                    <span>Configure</span>
+                                </a>
+                                <a href="{% url 'delete_job' job.id %}"
+                                    onclick="return confirm('Are you sure you want to delete this job role?');"
+                                    class="inline-flex items-center gap-1.5 text-rose-600 hover:text-rose-700 font-black text-[10px] uppercase tracking-widest transition-all">
+                                    <i class="fas fa-trash text-[10px]"></i>
+                                    <span>Delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-8 py-20 text-center text-slate-400">
+                             <div class="flex flex-col items-center justify-center">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200">
+                                    <i class="fas fa-search text-3xl"></i>
+                                </div>
+                                <p class="font-medium">No job roles found matching your search.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        {% empty %}
-        <div class="md:col-span-2 text-center py-20 bg-white rounded-[40px] border border-slate-100 shadow-sm">
-            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-200">
-                <i class="fas fa-search text-3xl"></i>
-            </div>
-            <p class="text-slate-400 font-medium">No job roles found matching your search.</p>
-        </div>
-        {% endfor %}
-    </div>
 
-    <!-- Paginator Include -->
-    <div class="pb-10">
-        {% include 'components/pagination.html' %}
+        <!-- Paginator Include -->
+        <div class="px-8 py-6 border-t border-slate-50 bg-slate-50/30">
+            {% include 'components/pagination.html' %}
+        </div>
     </div>
     {% else %}
     <div class="bg-white rounded-[40px] p-20 border border-slate-100 shadow-sm text-center relative overflow-hidden">

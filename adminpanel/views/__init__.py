@@ -32,7 +32,9 @@ from .recruitment import (
     schedule_interview,
     cancel_interview,
     update_interview_status,
-    view_resume
+    view_resume,
+    mark_job_filled,
+    delete_job
 )
 from .leaves import (
     leaves,

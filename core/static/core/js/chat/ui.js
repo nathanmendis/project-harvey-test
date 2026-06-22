@@ -79,7 +79,7 @@ Harvey.UI = {
         Harvey.DOM.chatBox.prepend(div);
     },
 
-    createMessageBubble: (sender, text, timestamp) => {
+    createMessageBubble: (sender, text, timestamp, isLatest = true) => {
         const container = document.createElement("div");
         container.classList.add("flex", "items-start", "gap-3", "animate-fade-in-up", "mb-4");
 
@@ -115,10 +115,10 @@ Harvey.UI = {
                 let args = {};
                 try {
                     args = JSON.parse(argsStr);
-                } catch(e) {
+                } catch (e) {
                     console.error("Failed to parse args:", e);
                 }
-                
+
                 let fieldsHtml = '';
                 if (toolName === 'schedule_interview') {
                     fieldsHtml = `
@@ -194,18 +194,22 @@ Harvey.UI = {
                     }
                 }
 
-                formatted = `
-                    <div class="confirm-card p-1 bg-transparent rounded-2xl flex flex-col gap-4 text-left not-prose" data-tool="${toolName}">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Approval Required</span>
-                        </div>
-                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-tight">Confirm Action: ${toolName.replace(/_/g, ' ')}</h4>
-                        
-                        <div class="grid grid-cols-1 gap-4 mt-1">
-                            ${fieldsHtml}
-                        </div>
-                        
+                if (!isLatest) {
+                    fieldsHtml = fieldsHtml.replace(/<input /g, '<input disabled ')
+                        .replace(/<select /g, '<select disabled ')
+                        .replace(/<textarea /g, '<textarea disabled ');
+                }
+
+                let buttonsHtml = '';
+                let statusHeaderHtml = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Approval Required</span>
+                    </div>
+                `;
+
+                if (isLatest) {
+                    buttonsHtml = `
                         <div class="flex gap-2.5 mt-3 border-t border-slate-100 pt-4">
                             <button onclick="Harvey.Socket.sendConfirm('${toolName}', this)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition-all shadow-lg shadow-indigo-50">
                                 Send Now
@@ -214,6 +218,26 @@ Harvey.UI = {
                                 Redo
                             </button>
                         </div>
+                    `;
+                } else {
+                    statusHeaderHtml = `
+                        <div class="flex items-center gap-2 text-slate-400">
+                            <i class="fas fa-circle-check"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest">Process Completed</span>
+                        </div>
+                    `;
+                }
+
+                formatted = `
+                    <div class="confirm-card p-1 bg-transparent rounded-2xl flex flex-col gap-4 text-left not-prose" data-tool="${toolName}">
+                        ${statusHeaderHtml}
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-tight">Confirm Action: ${toolName.replace(/_/g, ' ')}</h4>
+                        
+                        <div class="grid grid-cols-1 gap-4 mt-1">
+                            ${fieldsHtml}
+                        </div>
+                        
+                        ${buttonsHtml}
                     </div>
                 `;
             }
@@ -273,14 +297,14 @@ Harvey.UI = {
         return container;
     },
 
-    appendMessage: (sender, text, timestamp) => {
-        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp);
+    appendMessage: (sender, text, timestamp, isLatest = true) => {
+        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp, isLatest);
         Harvey.DOM.chatBox.appendChild(bubble);
         Harvey.UI.scrollToBottom();
     },
 
     prependMessage: (sender, text, timestamp) => {
-        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp);
+        const bubble = Harvey.UI.createMessageBubble(sender, text, timestamp, false);
         Harvey.DOM.chatBox.insertBefore(bubble, Harvey.DOM.chatBox.firstChild);
     },
 

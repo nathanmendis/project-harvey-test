@@ -121,13 +121,30 @@ def candidate_detail(request, candidate_id):
 @login_required
 @user_passes_test(is_admin_manager_hr)
 def job_detail(request, job_id):
-    """View to display job details."""
+    """View to display or edit job details in place."""
     org = request.user.organization
     job = get_object_or_404(JobRole, id=job_id, organization=org)
     
+    edit_mode = request.GET.get('edit') == 'true'
+    form = None
+    
+    if request.method == "POST":
+        form = JobForm(request.POST, instance=job)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Job updated successfully.")
+            return redirect('job_detail', job_id=job.id)
+        else:
+            edit_mode = True  # Remain in edit mode to show form errors
+    else:
+        if edit_mode:
+            form = JobForm(instance=job)
+            
     return render(request, 'recruitment/job_detail.html', {
         'org': org,
         'job': job,
+        'edit_mode': edit_mode,
+        'form': form,
     })
 
 @login_required
@@ -428,3 +445,27 @@ def view_resume(request, candidate_id):
         "candidate": candidate,
         "org": org
     })
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def mark_job_filled(request, job_id):
+    """Mark a job role as filled."""
+    org = request.user.organization
+    job = get_object_or_404(JobRole, id=job_id, organization=org)
+    job.is_filled = True
+    job.save()
+    messages.success(request, f"Job '{job.title}' has been marked as filled.")
+    return redirect('jobs')
+
+
+@login_required
+@user_passes_test(is_admin_manager_hr)
+def delete_job(request, job_id):
+    """Delete a job role."""
+    org = request.user.organization
+    job = get_object_or_404(JobRole, id=job_id, organization=org)
+    job_title = job.title
+    job.delete()
+    messages.success(request, f"Job '{job_title}' deleted successfully.")
+    return redirect('jobs')
